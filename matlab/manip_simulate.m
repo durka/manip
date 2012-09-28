@@ -64,6 +64,10 @@ function X = place_objects(X, T, parent)
     end
 end
 
+% in 2D and 3D
+%   params{1} is the offset from the from-object center to prismatic joint
+%   params{2] is the unit vector pointing in the direction of prismaticness
+%   state is the extension of the joint
 function x = forward_prismatic(from, params, state)
     offset = params{1};
     u = params{2};
@@ -72,14 +76,34 @@ function x = forward_prismatic(from, params, state)
     x = from + offset + u*pos;
 end
 
+% in 2D
+%   params{1} is the center of rotation (WRT from-object center)
+%   params{2} is the radius of the circle
+%   state is the angle around the circle
+% in 3D
+%   params{1} is the center of rotation (WRT from-object center)
+%   params{2} is the radius of the circle
+%   params{3} is the unit vector pointing out of the circle plane
+%   params{4} is the unit vector pointing along the radius at theta=0
+%   state is the angle around the circle
 function x = forward_revolute(from, params, state) %#ok<DEFNU>
     center = params{1};
     radius = params{2};
     theta = state;
-    
-    x = forward_prismatic(from, {center, [cos(theta) sin(theta)]}, radius);
+    if length(params) == 4
+        u = params{3};
+        r = params{4};
+        tensor = @(a,b) reshape(kron(a,b), [3 3]);
+        x = from + center + (r*cos(theta) ...
+                             + cross(u, r)*sin(theta) ...
+                             + (tensor(u, u)*(1-cos(theta))*r')');
+    else
+        x = forward_prismatic(from, {center, [cos(theta) sin(theta)]}, radius);
+    end
 end
 
+% in 2D and 3D
+%   params{1} is the offset from the from-object center to the to-object center
 function x = forward_rigid(from, params, ~) %#ok<DEFNU>
-    x = forward_prismatic(from, {params{1}, [0 0]}, 0);
+    x = forward_prismatic(from, {params{1}, zeros(size(params{1}))}, 0);
 end
