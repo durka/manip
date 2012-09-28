@@ -80,3 +80,7 @@ function x = forward_revolute(from, params, state) %#ok<DEFNU>
     
     x = forward_prismatic(from, [center theta], radius);
 end
+
+function x = forward_rigid(from, params, ~) %#ok<DEFNU>
+    x = forward_prismatic(from, [params 0], 0);
+end
