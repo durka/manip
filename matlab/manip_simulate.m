@@ -8,7 +8,7 @@
 %               e.g. if dims=2 and n=3
 %                 [ struct('links', [1 2], ...
 %                          'joint', 'prismatic', ...
-%                          'params', [0.1 0.2, pi], ...
+%                          'params', {[0.1 0.2], [0 1]}, ...
 %                          'state', [0], ...
 %                          'bounds', [0; 3]), ...
 %                       (offset=[.1 .2], dir=pi, max=3, start=0)
@@ -65,22 +65,21 @@ function X = place_objects(X, T, parent)
 end
 
 function x = forward_prismatic(from, params, state)
-    offset = params(1:2);
-    theta = params(3);
-    u = [cos(theta) sin(theta)];
+    offset = params{1};
+    u = params{2};
     pos = state;
     
     x = from + offset + u*pos;
 end
 
 function x = forward_revolute(from, params, state) %#ok<DEFNU>
-    center = params(1:2);
-    radius = params(3);
+    center = params{1};
+    radius = params{2};
     theta = state;
     
-    x = forward_prismatic(from, [center theta], radius);
+    x = forward_prismatic(from, {center, [cos(theta) sin(theta)]}, radius);
 end
 
 function x = forward_rigid(from, params, ~) %#ok<DEFNU>
-    x = forward_prismatic(from, [params 0], 0);
+    x = forward_prismatic(from, {params{1}, [0 0]}, 0);
 end
