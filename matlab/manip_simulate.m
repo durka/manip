@@ -33,12 +33,13 @@ function X = manip_simulate(dims, n, f, S)
     
     for frame = 1:f
         % put stuff in places
-        X(frame,:, :,:) = place_objects(squeeze(X(frame,:, :,:)), S, 1);
+        X(frame,:, :,:) = place_objects(squeeze(X(frame,:, :,:)), S, 1, squeeze(X(frame,1, :,:)));
         
         if frame < f
             % nudge parameters randomly
-            dX = eye(dims+1);%T(unifrnd(-.1, .1, [dims 1])) * R(unifrnd(-.3, .3, [1*(dims==2)+3*(dims==3) 1]));
-            X(frame+1,1, :,:) = dX * squeeze(X(frame,1, :,:));  % randomly nudge root
+            dX = T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [1*(dims==2)+3*(dims==3) 1]));
+            origin = squeeze(X(frame,1, :,:));
+            X(frame+1,1, :,:) = origin * dX / origin * squeeze(X(frame,1, :,:));  % randomly nudge root
                 
             for j = 1:length(S)
                 bit = diff(S(j).bounds)/10;
@@ -51,57 +52,23 @@ function X = manip_simulate(dims, n, f, S)
     end
 end
 
-% utility functions to generate rotations and translations
-function r = R(params)
-    if length(params) == 1
-        r = [cos(params(1)) -sin(params(1)) 0
-             sin(params(1))  cos(params(1)) 0
-             0               0              1];
-    elseif length(params) == 3
-        [a b c] = subsref(num2cell(params), substruct('{}', {':'})); % i.e. [a b c] = num2cell(params){:}
-        r = [cos(a)*cos(b) cos(a)*sin(b)*sin(c)-sin(a)*cos(c) cos(a)*sin(b)*cos(c)-sin(a)*sin(c) 0
-             sin(a)*cos(b) sin(a)*sin(b)*sin(c)+cos(a)*cos(c) sin(a)*sin(b)*cos(c)-cos(a)*sin(c) 0
-             -sin(b)       cos(b)*sin(c)                      cos(b)*cos(c)                      0
-             0             0                                  0                                  1];
-    else
-        error('I can only think in 2 or 3 dimensions');
-    end
-end
-
-function t = T(params)
-    if length(params) == 2
-        [x y] = subsref(num2cell(params), substruct('{}', {':'})); % i.e. [x y] = num2cell(params){:}
-        t = [1 0 x
-             0 1 y
-             0 0 1];
-    elseif length(params) == 3
-        [x y z] = subsref(num2cell(params), substruct('{}', {':'})); % i.e. [x y z] = num2cell(params){:}
-        t = [1 0 0 x
-             0 1 0 y
-             0 0 1 z
-             0 0 0 1];
-    else
-        error('I can only think in 2 or 3 dimensinos');
-    end
-end
-
 % helper function to do the forward kinematics
 % X here is just a single frame, i.e. n x dims+1 x dims+1
-function X = place_objects(X, S, parent)
+function X = place_objects(X, S, parent, origin)
     for joint = find(horzcat(S.a) == parent)
         child = S(joint).b;
         
         % place object
-        X(child, :,:) = S(joint).joint(S(joint).params, S(joint).state) * squeeze(X(parent, :,:));
+        X(child, :,:) = origin * S(joint).joint(S(joint).params, S(joint).state) / origin * squeeze(X(parent, :,:));
         
         % place children
-        X = place_objects(X, S, child);
+        X = place_objects(X, S, child, origin);
     end
 end
 
 % in 2D and 3D
 %   params{1} SE(n) is the offset from the from-object center to prismatic joint
-%   params{2] R(n)  is the unit vector pointing in the direction of prismaticness
+%   params{2} R(n)  is the unit vector pointing in the direction of prismaticness
 %   state     R     is the extension of the joint
 function x = forward_prismatic(params, state) %#ok<DEFNU>
     offset = params{1};
@@ -120,7 +87,7 @@ function x = forward_revolute(params, state) %#ok<DEFNU>
     radius = params{2};
     theta = state;
     
-    x = radius * R([theta 0 0]) * center;
+    x = radius * R([0 0 theta]) * center;
 end
 
 % in 2D and 3D

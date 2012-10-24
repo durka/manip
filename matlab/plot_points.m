@@ -38,8 +38,8 @@ function plot_points(X, S)
     hold off;
     axis(repmat([-5 5], 1, size(X,3)-1));
     
-    for f = 2:size(X, 1)
-        % update the data
+    % add slider
+    function go(f)
         for j = 1:length(S)
             if size(X,3) == 3
                 % 2D
@@ -62,7 +62,18 @@ function plot_points(X, S)
                             'WData',[X(f,S(j).a, 3,1), X(f,S(j).b, 3,1)]);
             end
         end
-        pause(0.1);
         drawnow;
     end
+    pos = get(gca, 'position');
+    pos(2) = pos(2) - 0.1;
+    pos(4) = 0.05;
+    s = uicontrol('style', 'listbox', ...
+                  'units', 'normalized', ...
+                  'position', pos, ...
+                  'callback', @(varargin) go(round(get(gcbo, 'value'))), ...
+                  'min', 1, 'max', size(X, 1), ...
+                  'value', 1, ...
+                  'string', cellfun(@num2str, num2cell(1:size(X, 1)), 'UniformOutput',false));
+    set(s, 'selected', 'on');
+
 end
