@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 24-Oct-2012 17:19:37
+% Last Modified by GUIDE v2.5 24-Oct-2012 18:07:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -43,7 +43,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before gui is made visible.
 function gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -57,6 +56,11 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
+
+% initialize internal state
+% all of the gui's state is going to stored in the properties of this static text control
+setappdata(handles.stuff, 'TREE', struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {T([1 2 3])}, 'state', {0}, 'bounds', {[0;0]}));
+draw_tree(handles.tree_in, getappdata(handles.stuff, 'TREE'));
 
 % UIWAIT makes gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -177,6 +181,8 @@ function learn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+msgbox('Not even close to implemented.', 'Nope', 'error');
+
 
 % --- Executes on button press in animate.
 function animate_Callback(hObject, eventdata, handles)
@@ -192,3 +198,50 @@ function sim_out_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: place code in OpeningFcn to populate sim_out
+
+
+% --- Executes during object creation, after setting all properties.
+function stuff_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to stuff (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes during object creation, after setting all properties.
+function tree_in_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to tree_in (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: place code in OpeningFcn to populate tree_in
+
+
+% --- Executes on button press in addnode.
+function addnode_Callback(hObject, eventdata, handles)
+% hObject    handle to addnode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in delnode.
+function delnode_Callback(hObject, eventdata, handles)
+% hObject    handle to delnode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in editnode.
+function editnode_Callback(hObject, eventdata, handles)
+% hObject    handle to editnode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on mouse press over axes background.
+function tree_in_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to tree_in (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% find nearest node or joint (if within a radius) and set selected
+% TODO
