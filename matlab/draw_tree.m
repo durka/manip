@@ -5,7 +5,11 @@ function draw_tree(h, S)
     end
     
     axes(h);
+    [x,y] = treelayout(nodes);
     treeplot(nodes);
+    text(x, y, cellstr(num2str([1:length(nodes)]')), ...
+         'VerticalAlignment','middle', ...
+         'HorizontalAlignment','right');
     xlabel('');
     set(gca, 'xticklabel', '');
     set(gca, 'yticklabel', '');

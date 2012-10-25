@@ -223,6 +223,60 @@ function addnode_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
+S = getappdata(handles.stuff, 'TREE');
+n = max([S.a S.b]);
+as = 1:n;
+[a, ok] = listdlg('Name', 'Joint from...', ...
+                  'PromptString', 'a = ', ...
+                  'ListString', cellstr(num2str(as')), ...
+                  'SelectionMode', 'single', ...
+                  'ListSize', [80 15*(n+1)]);
+if ~ok; return; end;
+a = as(a);
+b = n+1;
+joints = {'rigid', 'prismatic', 'revolute'};
+[joint, ok] = listdlg('Name', 'Joint type?', ...
+                      'ListString', joints, ...
+                      'SelectionMode', 'single', ...
+                      'ListSize', [80 15*4]);
+if ~ok; return; end;
+joint = joints{joint};
+switch joint
+    case 'rigid'
+        answer = inputdlg({'Transform: SE(n)'}, ...
+                          'Rigid joint parameters');
+        if isempty(answer); return; end;
+        params = {eval(answer{1})};
+        bounds = [0; 0];
+        state = 0;
+        % TODO check types
+    case 'prismatic'
+        answer = inputdlg({'Transform: SE(n)', ...
+                           'Unit vector: R(n)', ...
+                           'Bounds: R(2)', ...
+                           'Initial state: R'}, ...
+                          'Prismatic joint parameters');
+        if isempty(answer); return; end;
+        params = {eval(answer{1}), eval(answer{2})};
+        bounds = eval(answer{3});
+        state = eval(answer{4});
+        % TODO check types
+    case 'revolute'
+        answer = inputdlg({'Transform: SE(n)', ...
+                           'Radius: SE(n)', ...
+                           'Bounds: R(2)', ...
+                           'Initial state: R'}, ...
+                          'Revolute joint parameters');
+        if isempty(answer); return; end;
+        params = {eval(answer{1}), eval(answer{2})};
+        bounds = eval(answer{3});
+        state = eval(answer{4});
+        % TODO check types
+end
+S(end+1) = struct('a',{a}, 'b',{b}, 'joint',{joint}, 'params',{params}, 'state',{state}, 'bounds',{bounds});
+setappdata(handles.stuff, 'TREE', S);
+draw_tree(handles.tree_in, S);
+
 % --- Executes on button press in delnode.
 function delnode_Callback(hObject, eventdata, handles)
 % hObject    handle to delnode (see GCBO)
