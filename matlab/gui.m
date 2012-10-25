@@ -60,7 +60,8 @@ guidata(hObject, handles);
 % initialize internal state
 % all of the gui's state is going to stored in the properties of this static text control
 setappdata(handles.stuff, 'TREE', struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {T([1 2 3])}, 'state', {0}, 'bounds', {[0;0]}));
-draw_tree(handles.tree_in, getappdata(handles.stuff, 'TREE'));
+setappdata(handles.stuff, 'joint', 1);
+draw_tree(handles.tree_in, getappdata(handles.stuff, 'TREE'), getappdata(handles.stuff, 'joint'));
 
 % UIWAIT makes gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -275,7 +276,8 @@ switch joint
 end
 S(end+1) = struct('a',{a}, 'b',{b}, 'joint',{joint}, 'params',{params}, 'state',{state}, 'bounds',{bounds});
 setappdata(handles.stuff, 'TREE', S);
-draw_tree(handles.tree_in, S);
+setappdata(handles.stuff, 'joint', length(S));
+draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
 
 % --- Executes on button press in delnode.
 function delnode_Callback(hObject, eventdata, handles)
@@ -298,4 +300,32 @@ function tree_in_ButtonDownFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % find nearest node or joint (if within a radius) and set selected
-% TODO
+if (gco == gca)
+    point = get(gco, 'CurrentPoint');
+else
+    point = get(get(gco, 'Parent'), 'CurrentPoint');
+end
+p = subsref(point, substruct('()', {1, 1:2}));
+S = getappdata(handles.stuff, 'TREE');
+[x,y] = draw_tree(handles.tree_in, S, 0);
+min_ratio = 1.1;
+min_i = 0;
+for i=1:length(S)
+    da = norm([x(S(i).a) y(S(i).a)] - p);
+    db = norm([x(S(i).b) y(S(i).b)] - p);
+    d = norm([x(S(i).a) y(S(i).a)] - [x(S(i).b) y(S(i).b)]);
+    % use the triangle inequality with a tolerance
+    if da <= d && db <= d
+        ratio = (da + db)/d;
+        if ratio < min_ratio
+            min_ratio = ratio;
+            min_i = i;
+        end
+    end
+end
+
+if min_i ~= 0
+    setappdata(handles.stuff, 'joint', min_i);
+    set(handles.jointsel, 'String', sprintf('Joint %d-%d', S(min_i).a, S(min_i).b));
+    draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
+end
