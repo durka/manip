@@ -43,6 +43,68 @@ else
 end
 % End initialization code - DO NOT EDIT
 
+function update_sim_plot(handles)
+
+X = getappdata(handles.stuff, 'DATA');
+if isempty(X); return; end;
+
+setappdata(handles.stuff, 'drawing', true);
+
+axes(handles.sim_out);
+S = getappdata(handles.stuff, 'TREE');
+f = getappdata(handles.stuff, 'curframe');
+colors = 'bgrk';
+cla;
+hold on;
+for j = 1:length(S)
+    if size(X,3) == 3
+        % 2D
+        plot([X(f,S(j).a, 1,3), X(f,S(j).b, 1,3)], ...
+             [X(f,S(j).a, 2,3), X(f,S(j).b, 2,3)], ...
+             [colors(j) '.-']);
+        quiver([X(f,S(j).a, 1,3), X(f,S(j).b, 1,3)], ...
+               [X(f,S(j).a, 2,3), X(f,S(j).b, 2,3)], ...
+               [X(f,S(j).a, 1,1), X(f,S(j).b, 1,1)], ...
+               [X(f,S(j).a, 2,1), X(f,S(j).b, 2,1)], ...
+               0.2, colors(j));
+    else
+        % 3D
+        plot3([X(f,S(j).a, 1,4), X(f,S(j).b, 1,4)], ...
+              [X(f,S(j).a, 2,4), X(f,S(j).b, 2,4)], ...
+              [X(f,S(j).a, 3,4), X(f,S(j).b, 3,4)], ...
+              [colors(j) '.-']);
+        quiver3([X(f,S(j).a, 1,4), X(f,S(j).b, 1,4)], ...
+                [X(f,S(j).a, 2,4), X(f,S(j).b, 2,4)], ...
+                [X(f,S(j).a, 3,4), X(f,S(j).b, 3,4)], ...
+                [X(f,S(j).a, 1,1), X(f,S(j).b, 1,1)], ...
+                [X(f,S(j).a, 2,1), X(f,S(j).b, 2,1)], ...
+                [X(f,S(j).a, 3,1), X(f,S(j).b, 3,1)], ...
+                0.2, colors(j));
+    end
+end
+hold off;
+axis(repmat([-5 5], 1, size(X,3)-1));
+
+setappdata(handles.stuff, 'drawing', false);
+
+function advance_sim(handles)
+
+f = getappdata(handles.stuff, 'curframe');
+frames = getappdata(handles.stuff, 'frames');
+animdir = getappdata(handles.stuff, 'animdir');
+f = f + animdir;
+if f > frames
+    animdir = -1;
+    f = frames - 1;
+elseif f < 1
+    animdir = 1;
+    f = 2;
+end
+setappdata(handles.stuff, 'animdir', animdir);
+setappdata(handles.stuff, 'curframe', f);
+set(handles.curframe, 'Value', (f-1)/(frames-1));
+update_sim_plot(handles);
+
 function reset_tree(handles)
 
 setappdata(handles.stuff, 'TREE', struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {{T(1:getappdata(handles.stuff, 'dims'))}}, 'state', {0}, 'bounds', {[0;0]}));
@@ -65,7 +127,11 @@ guidata(hObject, handles);
 % initialize internal state
 % all of the gui's state is going to stored in the properties of this static text control
 setappdata(handles.stuff, 'joint', 1);
-setappdata(handles.stuff, 'dims', 3);
+setappdata(handles.stuff, 'dims', 3); % TODO: load these from the uicontrols
+setappdata(handles.stuff, 'frames', 50);
+setappdata(handles.stuff, 'curframe', 1);
+setappdata(handles.stuff, 'animdir', 1);
+setappdata(handles.stuff, 'drawing', false);
 reset_tree(handles);
 
 % UIWAIT makes gui wait for user response (see UIRESUME)
@@ -92,6 +158,10 @@ function curframe_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
+pct = get(hObject, 'Value');
+frames = getappdata(handles.stuff, 'frames');
+setappdata(handles.stuff, 'curframe', round(pct*(frames-1)+1));
+update_sim_plot(handles);
 
 % --- Executes during object creation, after setting all properties.
 function curframe_CreateFcn(hObject, eventdata, handles)
@@ -160,6 +230,8 @@ function frames_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of frames as text
 %        str2double(get(hObject,'String')) returns contents of frames as a double
 
+setappdata(handles.stuff, 'frames', str2double(get(hObject, 'String')));
+set(handles.maxframe, 'String', get(hObject, 'String'));
 
 % --- Executes during object creation, after setting all properties.
 function frames_CreateFcn(hObject, eventdata, handles)
@@ -180,6 +252,31 @@ function simulate_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+S = getappdata(handles.stuff, 'TREE');
+dims = getappdata(handles.stuff, 'dims');
+frames = getappdata(handles.stuff, 'frames');
+
+ding = getappdata(handles.stuff, 'animating');
+if ~isempty(ding) && strcmp(ding.Running, 'on')
+    was_running = true;
+    stop(ding);
+    while true
+        if ~getappdata(handles.stuff, 'drawing')
+            break;
+        end
+    end
+else
+    was_running = false;
+end
+
+X = manip_simulate(dims, max([S.a S.b]), frames, S);
+setappdata(handles.stuff, 'DATA', X);
+setappdata(handles.stuff, 'simulating', false);
+update_sim_plot(handles);
+
+if was_running
+    start(ding);
+end
 
 % --- Executes on button press in learn.
 function learn_Callback(hObject, eventdata, handles)
@@ -196,6 +293,16 @@ function animate_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+ding = getappdata(handles.stuff, 'animating');
+if isempty(ding)
+    ding = timer('ExecutionMode', 'fixedRate', ...
+                 'Period', 0.1, ...
+                 'TimerFcn', @(varargin) advance_sim(handles));
+    start(ding);
+else
+    feval(subsref({@() start(ding), @() stop(ding)}, substruct('{}', {2 - strcmp(get(ding, 'Running'), 'off')})));
+end
+setappdata(handles.stuff, 'animating', ding);
 
 % --- Executes during object creation, after setting all properties.
 function sim_out_CreateFcn(hObject, eventdata, handles)
