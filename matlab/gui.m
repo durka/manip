@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 24-Oct-2012 18:07:25
+% Last Modified by GUIDE v2.5 25-Oct-2012 22:10:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -43,6 +43,11 @@ else
 end
 % End initialization code - DO NOT EDIT
 
+function reset_tree(handles)
+
+setappdata(handles.stuff, 'TREE', struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {{T(1:getappdata(handles.stuff, 'dims'))}}, 'state', {0}, 'bounds', {[0;0]}));
+draw_tree(handles.tree_in, getappdata(handles.stuff, 'TREE'), getappdata(handles.stuff, 'joint'));
+
 % --- Executes just before gui is made visible.
 function gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -59,9 +64,9 @@ guidata(hObject, handles);
 
 % initialize internal state
 % all of the gui's state is going to stored in the properties of this static text control
-setappdata(handles.stuff, 'TREE', struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {T([1 2 3])}, 'state', {0}, 'bounds', {[0;0]}));
 setappdata(handles.stuff, 'joint', 1);
-draw_tree(handles.tree_in, getappdata(handles.stuff, 'TREE'), getappdata(handles.stuff, 'joint'));
+setappdata(handles.stuff, 'dims', 3);
+reset_tree(handles);
 
 % UIWAIT makes gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -106,8 +111,8 @@ function dims_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns dims contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from dims
+setappdata(handles.stuff, 'dims', str2num(subsref(get(hObject, 'String'), substruct('{}', {get(hObject, 'Value')}))));
+reset_tree(handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -216,10 +221,70 @@ function tree_in_CreateFcn(hObject, eventdata, handles)
 
 % Hint: place code in OpeningFcn to populate tree_in
 
+function [params, bounds, state, ok] = edit_joint(joint, dims)
 
-% --- Executes on button press in addnode.
-function addnode_Callback(hObject, eventdata, handles)
-% hObject    handle to addnode (see GCBO)
+ok = 1;
+params = {};
+bounds = [];
+state = [];
+
+if isa(joint, 'char')
+    joint_type = joint;
+    default = false;
+else
+    joint_type = joint.joint;
+    default = true;
+end
+
+switch joint_type
+    case 'rigid'
+        answer = inputdlg({'Transform: SE(n)'}, ...
+                          'Rigid joint parameters', ...
+                          1, ...
+                          {feval(subsref({@() format_SE(joint.params{1}), @() format_SE(eye(dims+1))}, substruct('{}', {2 - default})))});
+        if isempty(answer); ok = 0; return; end;
+        params = {eval(answer{1})};
+        bounds = [0; 0];
+        state = 0;
+        % TODO check types
+    case 'prismatic'
+        answer = inputdlg({'Transform: SE(n)', ...
+                           'Unit vector: R(n)', ...
+                           'Bounds: R(2)', ...
+                           'Initial state: R'}, ...
+                          'Prismatic joint parameters', ...
+                          1, ...
+                          {feval(subsref({@() format_SE(joint.params{1}), @() format_SE(eye(dims+1))}, substruct('{}', {2 - default}))), ...
+                           feval(subsref({@() mat2str(joint.params{2}),   @() mat2str(eye(1,dims))},   substruct('{}', {2 - default}))), ...
+                           feval(subsref({@() mat2str(joint.bounds),      @() '[0;0]'},                substruct('{}', {2 - default}))), ...
+                           feval(subsref({@() num2str(joint.state),       @() '0'},                    substruct('{}', {2 - default})))});
+        if isempty(answer); ok = 0; return; end;
+        params = {eval(answer{1}), eval(answer{2})};
+        bounds = eval(answer{3});
+        state = eval(answer{4});
+        % TODO check types
+    case 'revolute'
+        answer = inputdlg({'Transform: SE(n)', ...
+                           'Radius: SE(n)', ...
+                           'Bounds: R(2)', ...
+                           'Initial state: R'}, ...
+                          'Revolute joint parameters', ...
+                          1, ...
+                          {feval(subsref({@() format_SE(joint.params{1}), @() format_SE(eye(dims+1))}, substruct('{}', {2 - default}))), ...
+                           feval(subsref({@() mat2str(joint.params{2}),   @() mat2str(eye(1,dims))},   substruct('{}', {2 - default}))), ...
+                           feval(subsref({@() mat2str(joint.bounds),      @() '[0;0]'},                substruct('{}', {2 - default}))), ...
+                           feval(subsref({@() num2str(joint.state),       @() '0'},                    substruct('{}', {2 - default})))});
+        if isempty(answer); ok = 0; return; end;
+        params = {eval(answer{1}), eval(answer{2})};
+        bounds = eval(answer{3});
+        state = eval(answer{4});
+        % TODO check types
+end
+
+
+% --- Executes on button press in addjoint.
+function addjoint_Callback(hObject, eventdata, handles)
+% hObject    handle to addjoint (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -242,55 +307,71 @@ joints = {'rigid', 'prismatic', 'revolute'};
                       'ListSize', [80 15*4]);
 if ~ok; return; end;
 joint = joints{joint};
-switch joint
-    case 'rigid'
-        answer = inputdlg({'Transform: SE(n)'}, ...
-                          'Rigid joint parameters');
-        if isempty(answer); return; end;
-        params = {eval(answer{1})};
-        bounds = [0; 0];
-        state = 0;
-        % TODO check types
-    case 'prismatic'
-        answer = inputdlg({'Transform: SE(n)', ...
-                           'Unit vector: R(n)', ...
-                           'Bounds: R(2)', ...
-                           'Initial state: R'}, ...
-                          'Prismatic joint parameters');
-        if isempty(answer); return; end;
-        params = {eval(answer{1}), eval(answer{2})};
-        bounds = eval(answer{3});
-        state = eval(answer{4});
-        % TODO check types
-    case 'revolute'
-        answer = inputdlg({'Transform: SE(n)', ...
-                           'Radius: SE(n)', ...
-                           'Bounds: R(2)', ...
-                           'Initial state: R'}, ...
-                          'Revolute joint parameters');
-        if isempty(answer); return; end;
-        params = {eval(answer{1}), eval(answer{2})};
-        bounds = eval(answer{3});
-        state = eval(answer{4});
-        % TODO check types
-end
+[params, bounds, state, ok] = edit_joint(joint, getappdata(handles.stuff, 'dims'));
+if ~ok; return; end;
 S(end+1) = struct('a',{a}, 'b',{b}, 'joint',{joint}, 'params',{params}, 'state',{state}, 'bounds',{bounds});
 setappdata(handles.stuff, 'TREE', S);
 setappdata(handles.stuff, 'joint', length(S));
 draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
 
-% --- Executes on button press in delnode.
-function delnode_Callback(hObject, eventdata, handles)
-% hObject    handle to delnode (see GCBO)
+% --- Executes on button press in deljoint.
+function deljoint_Callback(hObject, eventdata, handles)
+% hObject    handle to deljoint (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+joint = getappdata(handles.stuff, 'joint');
+S = getappdata(handles.stuff, 'TREE');
 
-% --- Executes on button press in editnode.
-function editnode_Callback(hObject, eventdata, handles)
-% hObject    handle to editnode (see GCBO)
+if length(S) == 1
+    msgbox('You would leave me without any joints, would you?');
+else
+    a = S(joint).a;
+    b = S(joint).b;
+    S = S([1:joint-1 joint+1:end]);
+    for i=1:length(S)
+        % promote grandchildren to children
+        if S(i).a == b
+            S(i).a = a;
+        end
+        
+        % remove orphan node
+        if S(i).a > b
+            S(i).a = S(i).a - 1;
+        end
+        if S(i).b > b
+            S(i).b = S(i).b - 1;
+        end
+    end
+
+    setappdata(handles.stuff, 'TREE', S);
+    select_joint(handles, 1);
+end
+
+
+% --- Executes on button press in editjoint.
+function editjoint_Callback(hObject, eventdata, handles)
+% hObject    handle to editjoint (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+joint = getappdata(handles.stuff, 'joint');
+S = getappdata(handles.stuff, 'TREE');
+
+[params, bounds, state, ok] = edit_joint(S(joint), getappdata(handles.stuff, 'dims'));
+if ~ok; return; end;
+S(joint).params = params;
+S(joint).bounds = bounds;
+S(joint).state = state;
+setappdata(handles.stuff, 'TREE', S);
+
+
+function select_joint(handles, i)
+
+S = getappdata(handles.stuff, 'TREE');
+setappdata(handles.stuff, 'joint', i);
+set(handles.jointsel, 'String', sprintf('Joint %d-%d', S(i).a, S(i).b));
+draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
 
 
 % --- Executes on mouse press over axes background.
@@ -325,7 +406,5 @@ for i=1:length(S)
 end
 
 if min_i ~= 0
-    setappdata(handles.stuff, 'joint', min_i);
-    set(handles.jointsel, 'String', sprintf('Joint %d-%d', S(min_i).a, S(min_i).b));
-    draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
+    select_joint(handles, min_i);
 end
