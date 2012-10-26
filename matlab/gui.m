@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 25-Oct-2012 22:10:42
+% Last Modified by GUIDE v2.5 26-Oct-2012 13:54:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -515,3 +515,29 @@ end
 if min_i ~= 0
     select_joint(handles, min_i);
 end
+
+
+% --- Executes on button press in changejoint.
+function changejoint_Callback(hObject, eventdata, handles)
+% hObject    handle to changejoint (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+S = getappdata(handles.stuff, 'TREE');
+i = getappdata(handles.stuff, 'joint');
+joints = {'rigid', 'prismatic', 'revolute'};
+[joint, ok] = listdlg('Name', 'Joint type?', ...
+                      'ListString', joints, ...
+                      'SelectionMode', 'single', ...
+                      'ListSize', [80 15*4], ...
+                      'InitialValue', find(strcmp(joints, S(i).joint)));
+if ~ok; return; end;
+joint = joints{joint};
+[params, bounds, state, ok] = edit_joint(joint, getappdata(handles.stuff, 'dims'));
+if ~ok; return; end;
+S(i).joint = joint;
+S(i).params = params;
+S(i).state = state;
+S(i).bounds = bounds;
+setappdata(handles.stuff, 'TREE', S);
+draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
