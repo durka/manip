@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 26-Oct-2012 13:54:36
+% Last Modified by GUIDE v2.5 26-Oct-2012 15:00:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -105,9 +105,17 @@ setappdata(handles.stuff, 'curframe', f);
 set(handles.curframe, 'Value', (f-1)/(frames-1));
 update_sim_plot(handles);
 
+function change_tree(handles, S)
+
+past = getappdata(handles.stuff, 'TREE_past');
+past{end+1} = getappdata(handles.stuff, 'TREE');
+setappdata(handles.stuff, 'TREE_past', past);
+setappdata(handles.stuff, 'TREE_future', {});
+setappdata(handles.stuff, 'TREE', S);
+
 function reset_tree(handles)
 
-setappdata(handles.stuff, 'TREE', struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {{T(1:getappdata(handles.stuff, 'dims'))}}, 'state', {0}, 'bounds', {[0;0]}));
+change_tree(handles, struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {{T(1:getappdata(handles.stuff, 'dims'))}}, 'state', {0}, 'bounds', {[0;0]}));
 draw_tree(handles.tree_in, getappdata(handles.stuff, 'TREE'), getappdata(handles.stuff, 'joint'));
 
 % --- Executes just before gui is made visible.
@@ -132,7 +140,10 @@ setappdata(handles.stuff, 'frames', 50);
 setappdata(handles.stuff, 'curframe', 1);
 setappdata(handles.stuff, 'animdir', 1);
 setappdata(handles.stuff, 'drawing', false);
+setappdata(handles.stuff, 'TREE_past', {});
 reset_tree(handles);
+setappdata(handles.stuff, 'TREE_past', {}); % clear undo state so the empty tree isn't an option
+setappdata(handles.stuff, 'TREE_future', {});
 
 % UIWAIT makes gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -417,7 +428,7 @@ joint = joints{joint};
 [params, bounds, state, ok] = edit_joint(joint, getappdata(handles.stuff, 'dims'));
 if ~ok; return; end;
 S(end+1) = struct('a',{a}, 'b',{b}, 'joint',{joint}, 'params',{params}, 'state',{state}, 'bounds',{bounds});
-setappdata(handles.stuff, 'TREE', S);
+change_tree(handles, S);
 setappdata(handles.stuff, 'joint', length(S));
 draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
 
@@ -451,7 +462,7 @@ else
         end
     end
 
-    setappdata(handles.stuff, 'TREE', S);
+    change_tree(handles, S);
     select_joint(handles, 1);
 end
 
@@ -470,7 +481,7 @@ if ~ok; return; end;
 S(joint).params = params;
 S(joint).bounds = bounds;
 S(joint).state = state;
-setappdata(handles.stuff, 'TREE', S);
+change_tree(handles, S);
 
 
 function select_joint(handles, i)
@@ -539,5 +550,45 @@ S(i).joint = joint;
 S(i).params = params;
 S(i).state = state;
 S(i).bounds = bounds;
-setappdata(handles.stuff, 'TREE', S);
+change_tree(handles, S);
 draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
+
+
+% --- Executes on button press in undo.
+function undo_Callback(hObject, eventdata, handles)
+% hObject    handle to undo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+past = getappdata(handles.stuff, 'TREE_past');
+future = getappdata(handles.stuff, 'TREE_future');
+S = getappdata(handles.stuff, 'TREE');
+if ~isempty(past)
+    future{end+1} = S;
+    S = past{end};
+    past = past(1:end-1);
+    setappdata(handles.stuff, 'TREE_past', past);
+    setappdata(handles.stuff, 'TREE_future', future);
+    setappdata(handles.stuff, 'TREE', S);
+end
+select_joint(handles, 1);
+
+
+% --- Executes on button press in redo.
+function redo_Callback(hObject, eventdata, handles)
+% hObject    handle to redo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+past = getappdata(handles.stuff, 'TREE_past');
+future = getappdata(handles.stuff, 'TREE_future');
+S = getappdata(handles.stuff, 'TREE');
+if ~isempty(future)
+    past{end+1} = S;
+    S = future{end};
+    future = future(1:end-1);
+    setappdata(handles.stuff, 'TREE_past', past);
+    setappdata(handles.stuff, 'TREE_future', future);
+    setappdata(handles.stuff, 'TREE', S);
+end
+select_joint(handles, 1);
