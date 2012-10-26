@@ -5,10 +5,19 @@ function r = R(params)
              0               0              1];
     elseif length(params) == 3
         [a b c] = subsref(num2cell(params), substruct('{}', {':'})); % i.e. [a b c] = num2cell(params){:}
-        r = [cos(a)*cos(b) cos(a)*sin(b)*sin(c)-sin(a)*cos(c) cos(a)*sin(b)*cos(c)-sin(a)*sin(c) 0
-             sin(a)*cos(b) sin(a)*sin(b)*sin(c)+cos(a)*cos(c) sin(a)*sin(b)*cos(c)-cos(a)*sin(c) 0
-             -sin(b)       cos(b)*sin(c)                      cos(b)*cos(c)                      0
-             0             0                                  0                                  1];
+        % 3-1-3 Euler Angles http://en.wikipedia.org/wiki/Rotation_formalisms_in_three_dimensions#Conversion_formulae_between_formalisms
+        ca = cos(a); cb = cos(b); cc = cos(c);
+        sa = sin(a); sb = sin(b); sc = sin(c);
+        r = [  ca sa 0  0
+              -sa ca 0  0
+               0  0  1  0
+               0  0  0  1]*[ cb 0 -sb  0
+                             0  1  0   0
+                             sb 0  cb  0
+                             0  0  0   1 ]*[  cc  sc  0  0
+                                             -sc  cc  0  0
+                                              0   0   1  0
+                                              0   0   0  1 ];
     else
         error('I can only think in 2 or 3 dimensions');
     end
