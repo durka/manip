@@ -112,6 +112,9 @@ past{end+1} = getappdata(handles.stuff, 'TREE');
 setappdata(handles.stuff, 'TREE_past', past);
 setappdata(handles.stuff, 'TREE_future', {});
 setappdata(handles.stuff, 'TREE', S);
+if isappdata(handles.stuff, 'DATA')
+    rmappdata(handles.stuff, 'DATA'); % hard to say whether the data was invalidated, so... assume it was
+end
 
 function reset_tree(handles)
 
@@ -319,7 +322,7 @@ function animate_Callback(hObject, eventdata, handles)
 ding = getappdata(handles.stuff, 'animating');
 if isempty(ding)
     ding = timer('ExecutionMode', 'fixedRate', ...
-                 'Period', 0.1, ...
+                 'Period', 0.2, ...
                  'TimerFcn', @(varargin) advance_sim(handles));
     start(ding);
 else
@@ -518,7 +521,7 @@ else
 end
 p = subsref(point, substruct('()', {1, 1:2}));
 S = getappdata(handles.stuff, 'TREE');
-[x,y] = draw_tree(handles.tree_in, S, 0);
+[x,y] = draw_tree(handles.tree_in, S, -1);
 min_ratio = 1.1;
 min_i = 0;
 for i=1:length(S)

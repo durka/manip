@@ -9,11 +9,13 @@ function [x,y] = draw_tree(h, S, sel)
     axes(h);
     [x,y] = treelayout(nodes);
     
-    if sel > 0
+    if sel >= 0
         treeplot(nodes);
-        hold on
-        plot(x([S(sel).a S(sel).b]), y([S(sel).a S(sel).b]), 'LineWidth',2);
-        hold off
+        if sel > 0
+            hold on
+            plot(x([S(sel).a S(sel).b]), y([S(sel).a S(sel).b]), 'LineWidth',2);
+            hold off
+        end
         text(x, y, cellstr(num2str([1:length(nodes)]')), ...
              'VerticalAlignment','middle', ...
              'HorizontalAlignment','right');
