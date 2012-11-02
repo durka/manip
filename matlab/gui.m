@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 26-Oct-2012 15:00:04
+% Last Modified by GUIDE v2.5 26-Oct-2012 19:36:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -116,7 +116,7 @@ setappdata(handles.stuff, 'TREE', S);
 function reset_tree(handles)
 
 change_tree(handles, struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {{T(1:getappdata(handles.stuff, 'dims'))}}, 'state', {0}, 'bounds', {[0;0]}));
-draw_tree(handles.tree_in, getappdata(handles.stuff, 'TREE'), getappdata(handles.stuff, 'joint'));
+select_joint(handles, 1);
 
 % --- Executes just before gui is made visible.
 function gui_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -186,14 +186,26 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 
+function change_dims(handles, D)
+
+if exist('D', 'var')
+    % caller wants to programmatically change the dropdown
+    set(handles.dims, 'Value', find(strcmp(get(handles.dims, 'String'), num2str(D))));
+else
+    % caller is the callback; dropdown has been changed by user
+    D = str2double(subsref(get(handles.dims, 'String'), substruct('{}', {get(handles.dims, 'Value')})));
+end
+
+setappdata(handles.stuff, 'dims', D);
+reset_tree(handles);
+
 % --- Executes on selection change in dims.
 function dims_Callback(hObject, eventdata, handles)
 % hObject    handle to dims (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-setappdata(handles.stuff, 'dims', str2num(subsref(get(hObject, 'String'), substruct('{}', {get(hObject, 'Value')}))));
-reset_tree(handles);
+change_dims(handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -592,3 +604,28 @@ if ~isempty(future)
     setappdata(handles.stuff, 'TREE', S);
 end
 select_joint(handles, 1);
+
+
+% --- Executes on button press in save.
+function save_Callback(hObject, eventdata, handles)
+% hObject    handle to save (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[filename,path] = uiputfile('*.mat');
+TREE = getappdata(handles.stuff, 'TREE');
+DIMS = getappdata(handles.stuff, 'dims');
+SELJ = getappdata(handles.stuff, 'joint');
+save([path filename], 'TREE', 'DIMS', 'SELJ');
+
+% --- Executes on button press in load.
+function load_Callback(hObject, eventdata, handles)
+% hObject    handle to load (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[filename,path] = uigetfile('*.mat');
+vars = load([path filename]);
+change_dims(handles, vars.DIMS);
+change_tree(handles, vars.TREE);
+select_joint(handles, vars.SELJ);
