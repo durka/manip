@@ -310,8 +310,24 @@ function learn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-msgbox('Not even close to implemented.', 'Nope', 'error');
+if getappdata(handles.stuff, 'simulating')
+    fprintf('Waiting for simulation...\n');
+    while true
+        if ~getappdata(handles.stuff, 'simulating')
+            break;
+        end
+    end
+end
 
+X = getappdata(handles.stuff, 'DATA');
+if isempty(X)
+    msgbox('Simulate first', 'Error');
+    return;
+end
+
+learned = manip_learn(X, true);
+setappdata(handles.stuff, 'GUESS', learned);
+draw_tree(handles.tree_out, learned, 0);
 
 % --- Executes on button press in animate.
 function animate_Callback(hObject, eventdata, handles)
