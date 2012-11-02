@@ -1,4 +1,4 @@
-function s = format_SE(se)
+function [s, t, r] = format_SE(se)
     dims = size(se,1) - 1;
     if dims == 2
         % extract translation

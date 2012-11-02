@@ -37,7 +37,7 @@ function X = manip_simulate(dims, n, f, S)
         
         if frame < f
             % nudge parameters randomly
-            dX = T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [1*(dims==2)+3*(dims==3) 1]));
+            dX = T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [dims*(dims-1)/2 1]));
             origin = squeeze(X(frame,1, :,:));
             X(frame+1,1, :,:) = origin * dX / origin * squeeze(X(frame,1, :,:));  % randomly nudge root
                 
@@ -48,6 +48,15 @@ function X = manip_simulate(dims, n, f, S)
                                      S(j).bounds(2,:)), ...
                                  S(j).bounds(1,:));
             end
+        end
+    end
+    
+    % a little Gaussian noise never hurt anybody
+    for frame = 1:f
+        origin = squeeze(X(frame,1, :,:));
+        for i = 1:n
+            dX = T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.1, .1, [dims*(dims-1)/2 1]));
+            X(frame,i, :,:) = origin * dX / origin * squeeze(X(frame,i, :,:));
         end
     end
 end
@@ -64,34 +73,4 @@ function X = place_objects(X, S, parent, origin)
         % place children
         X = place_objects(X, S, child, origin);
     end
-end
-
-% in 2D and 3D
-%   params{1} SE(n) is the offset from the from-object center to prismatic joint
-%   params{2} R(n)  is the unit vector pointing in the direction of prismaticness
-%   state     R     is the extension of the joint
-function x = forward_prismatic(params, state) %#ok<DEFNU>
-    offset = params{1};
-    u = params{2};
-    pos = state;
-    
-    x = T(u*pos) * offset;
-end
-
-% in 2D and 3D
-%   params{1} SE(n) is the center of rotation (WRT from-object center)
-%   params{2} SE(n) is the offset from the center to the moving part at theta=0
-%   state     R     is the angle around the circle
-function x = forward_revolute(params, state) %#ok<DEFNU>
-    center = params{1};
-    radius = params{2};
-    theta = state;
-    
-    x = radius * R([0 0 theta]) * center;
-end
-
-% in 2D and 3D
-%   params{1} SE(n) is the offset from the from-object center to the to-object center
-function x = forward_rigid(params, ~) %#ok<DEFNU>
-    x = params{1};
 end
