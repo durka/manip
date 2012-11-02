@@ -1,4 +1,8 @@
-function [s, t, r] = format_SE(se)
+function [s, t, r] = format_SE(se, p)
+    if ~exist('p', 'var')
+        p = 4;
+    end
+
     dims = size(se,1) - 1;
     if dims == 2
         % extract translation
@@ -24,12 +28,12 @@ function [s, t, r] = format_SE(se)
     % format string
     s = '';
     if ~all(abs(t) < eps)
-        s = ['T(' mat2str(t) ')'];
+        s = ['T(' mat2str(t, p) ')'];
     end
     if isempty(s) || ~all(abs(r) < eps)
         if ~isempty(s)
             s = [s '*'];
         end
-        s = [s 'R(' mat2str(r) ')'];
+        s = [s 'R(' mat2str(r, p) ')'];
     end
 end
