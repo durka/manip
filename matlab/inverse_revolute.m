@@ -1,0 +1,16 @@
+% in 2D and 3D
+%   params{1} SE(n) is the center of rotation (WRT from-object center)
+%   params{2} SE(n) is the offset from the center to the moving part at theta=0
+%   state     R     is the angle around the circle
+function state = inverse_revolute(x, params)
+    center = params{1};
+    radius = params{2};
+    
+    %rot = radius\x/center;
+    %state = acos(rot(1,1));
+    if size(x,1) == 4
+        state = acos((radius(1,2)*radius(2,3)*x(3,1)*center(2,2)*center(3,3) - radius(1,2)*radius(2,3)*x(3,1)*center(2,3)*center(3,2) - radius(1,2)*radius(2,3)*x(3,2)*center(2,1)*center(3,3) + radius(1,2)*radius(2,3)*x(3,2)*center(2,3)*center(3,1) + radius(1,2)*radius(2,3)*x(3,3)*center(2,1)*center(3,2) - radius(1,2)*radius(2,3)*x(3,3)*center(2,2)*center(3,1) - radius(1,2)*radius(3,3)*x(2,1)*center(2,2)*center(3,3) + radius(1,2)*radius(3,3)*x(2,1)*center(2,3)*center(3,2) + radius(1,2)*radius(3,3)*x(2,2)*center(2,1)*center(3,3) - radius(1,2)*radius(3,3)*x(2,2)*center(2,3)*center(3,1) - radius(1,2)*radius(3,3)*x(2,3)*center(2,1)*center(3,2) + radius(1,2)*radius(3,3)*x(2,3)*center(2,2)*center(3,1) - radius(1,3)*radius(2,2)*x(3,1)*center(2,2)*center(3,3) + radius(1,3)*radius(2,2)*x(3,1)*center(2,3)*center(3,2) + radius(1,3)*radius(2,2)*x(3,2)*center(2,1)*center(3,3) - radius(1,3)*radius(2,2)*x(3,2)*center(2,3)*center(3,1) - radius(1,3)*radius(2,2)*x(3,3)*center(2,1)*center(3,2) + radius(1,3)*radius(2,2)*x(3,3)*center(2,2)*center(3,1) + radius(1,3)*radius(3,2)*x(2,1)*center(2,2)*center(3,3) - radius(1,3)*radius(3,2)*x(2,1)*center(2,3)*center(3,2) - radius(1,3)*radius(3,2)*x(2,2)*center(2,1)*center(3,3) + radius(1,3)*radius(3,2)*x(2,2)*center(2,3)*center(3,1) + radius(1,3)*radius(3,2)*x(2,3)*center(2,1)*center(3,2) - radius(1,3)*radius(3,2)*x(2,3)*center(2,2)*center(3,1) + radius(2,2)*radius(3,3)*x(1,1)*center(2,2)*center(3,3) - radius(2,2)*radius(3,3)*x(1,1)*center(2,3)*center(3,2) - radius(2,2)*radius(3,3)*x(1,2)*center(2,1)*center(3,3) + radius(2,2)*radius(3,3)*x(1,2)*center(2,3)*center(3,1) + radius(2,2)*radius(3,3)*x(1,3)*center(2,1)*center(3,2) - radius(2,2)*radius(3,3)*x(1,3)*center(2,2)*center(3,1) - radius(2,3)*radius(3,2)*x(1,1)*center(2,2)*center(3,3) + radius(2,3)*radius(3,2)*x(1,1)*center(2,3)*center(3,2) + radius(2,3)*radius(3,2)*x(1,2)*center(2,1)*center(3,3) - radius(2,3)*radius(3,2)*x(1,2)*center(2,3)*center(3,1) - radius(2,3)*radius(3,2)*x(1,3)*center(2,1)*center(3,2) + radius(2,3)*radius(3,2)*x(1,3)*center(2,2)*center(3,1))/((radius(1,1)*radius(2,2)*radius(3,3) - radius(1,1)*radius(2,3)*radius(3,2) - radius(1,2)*radius(2,1)*radius(3,3) + radius(1,2)*radius(2,3)*radius(3,1) + radius(1,3)*radius(2,1)*radius(3,2) - radius(1,3)*radius(2,2)*radius(3,1))*(center(1,1)*center(2,2)*center(3,3) - center(1,1)*center(2,3)*center(3,2) - center(1,2)*center(2,1)*center(3,3) + center(1,2)*center(2,3)*center(3,1) + center(1,3)*center(2,1)*center(3,2) - center(1,3)*center(2,2)*center(3,1))));
+    else
+        state = acos(-(radius(1,2)*x(2,1)*center(2,2) - radius(1,2)*x(2,2)*center(2,1) - radius(2,2)*x(1,1)*center(2,2) + radius(2,2)*x(1,2)*center(2,1))/((radius(1,1)*radius(2,2) - radius(1,2)*radius(2,1))*(center(1,1)*center(2,2) - center(1,2)*center(2,1))));
+    end
+end

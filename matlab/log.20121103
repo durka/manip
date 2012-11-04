@@ -1,0 +1,12 @@
+one rigid joint, o=T([1 2 3])*R([pi/2 pi/3 pi/4])
+Begin learning
+Detected f=50, n=2, dims=3
+Fitting all models to all possible joints...
+    Trying joint 1-2...
+        Rigid joint (err=30.176): o=T([1.06 1.97 2.99])*R([-1.54 1.05 0.783])
+        Prismatic joint (err=30.176): o=T([1.06 1.97 2.99])*R([-1.54 1.05 0.783]) u=[-0.00362 0.000138 -0.00569]
+        Revolute joint (err=15.9614): c=T([-1.81 -1.29 2.97])*R([2.09 1.05 0.751]) o=T([0.102 -0.00688 0.00774])*R([-3.13 0.0171 -0.0209])
+Done learning (27.6249 sec)
+
+one prismatic joint, o=T([1 2 3])*R([pi/2 pi/3 pi/4]), u=[3 2 1], b=[0;5], s=0
+

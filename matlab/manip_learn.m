@@ -28,30 +28,66 @@ function S = manip_learn(X, dbg)
                 deltas{frame} = squeeze(X(frame, a, :,:))\squeeze(X(frame, b, :,:));
             end
             
+            options = optimset('fminsearch');
+            optimset(options, 'MaxFunEvals', 100000);
+            
             [rigid_fit, err] = fminsearch(...
                                  @(p) jointfit(deltas, ...
                                                {T(p(1:dims))*R(p(dims+1:end))}, ...
                                                @forward_rigid, @inverse_rigid), ...
-                                 [t r]);
+                                 [t r], ...
+                                 options);
             rigid_params = T(rigid_fit(1:dims))*R(rigid_fit(dims+1:end));
-            dbg('\t\tRigid joint (err=%g): %s\n', err, format_SE(rigid_params, 3));
+            dbg('\t\tRigid joint (err=%g): o=%s\n', err, format_SE(rigid_params, 3));
             
             
             [prismatic_fit, err] = fminsearch(...
                                  @(p) jointfit(deltas, ...
-                                               {T(p(1:dims))*R(p(dims+1:end-dims)) ...
-                                                p(end-dims+1:end)}, ...
+                                               unpack_prismatic(p, dims), ...
                                                @forward_prismatic, @inverse_prismatic), ...
-                                 [t r zeros(1, dims)]);
-            prismatic_params = T(prismatic_fit(1:dims))*R(prismatic_fit(dims+1:end-dims));
-            prismatic_state = prismatic_fit(end-dims+1:end); % hmm, have to record the full range during fitting somehow, or do a max afterwards
-            dbg('\t\tPrismatic joint (err=%g, state=%g): %s\n', err, prismatic_state, format_SE(prismatic_params, 3));
+                                 [t r zeros(1,dims)], ...
+                                 options);
+            prismatic_params = unpack_prismatic(prismatic_fit, dims);
+            dbg('\t\tPrismatic joint (err=%g): o=%s u=%s\n', err, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
+            
+            
+            [revolute_fit, err] = fminsearch(...
+                                 @(p) jointfit(deltas, ...
+                                               unpack_revolute(p, dims), ...
+                                               @forward_revolute, @inverse_revolute), ...
+                                 [t r eye(1,dims) zeros(1,dims)], ...
+                                 options);
+            revolute_params = unpack_revolute(revolute_fit, dims);
+            dbg('\t\tRevolute joint (err=%g): c=%s o=%s\n', err, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
         end
     end
     
     warning('on', 'MATLAB:funm:nonPosRealEig');
     dbg('Done learning (%g sec)\n\n', toc);
     profile viewer;
+end
+
+function params = unpack_prismatic(p, dims)
+	i = 1;
+    
+    t = p(i:i+dims-1); i = i+dims;
+    r = p(i:end-dims);
+    params{1} = T(t)*R(r);
+    
+    params{2} = p(end-dims+1:end);
+end
+
+function params = unpack_revolute(p, dims)
+    i = 1;
+    n = dims*(dims-1)/2;
+    
+    t = p(i:i+dims-1); i = i+dims;
+    r = p(i:i+n-1);    i = i+n;
+    params{1} = T(t)*R(r);
+    
+    t = p(i:i+dims-1); i = i+dims;
+    r = p(i:i+n-1);    i = i+n;
+    params{2} = T(t)*R(r);
 end
 
 function err = jointfit(deltas, p, forward, inverse)
