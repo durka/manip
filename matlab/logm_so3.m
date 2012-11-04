@@ -1,6 +1,6 @@
 function m = logm_so3(M)
 
-    cos_angle = (trace(M) - 1)/2;
+    cos_angle = (M(1,1)+M(2,2)+M(3,3) - 1)/2;
     m = [M(3,2)-M(2,3) M(1,3)-M(3,1) M(2,1)-M(1,2)]/2;
     
     sin_angle_abs = norm(m);
@@ -33,6 +33,8 @@ function m = logm_so3(M)
         m = angle * m2;
     end
 end
+
+% this appears to implement http://en.wikipedia.org/wiki/Axis-angle_representation#Log_map_from_SO.283.29_to_so.283.29
             
 % from http://www.edwardrosten.com/cvd/toon/html-user/so3_8h_source.html
 %inline Vector<3, Precision> SO3<Precision>::ln() const{

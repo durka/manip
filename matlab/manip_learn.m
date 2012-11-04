@@ -23,21 +23,29 @@ function S = manip_learn(X, dbg)
             dbg('\tTrying joint %d-%d...\n', a, b);
             
             [~, t, r] = format_SE(squeeze(X(1,a,:,:))\squeeze(X(1,b,:,:)));
-            [rigid_params, err] = fminsearch(...
-                                    @(p) jointfit(X(:,[a b],:,:), ...
-                                                  {T(p(1:dims))*R(p(dims+1:end))}, ...
-                                                  @forward_rigid, @inverse_rigid), ...
-                                    [t r]);
-            rigid_params = T(rigid_params(1:dims))*R(rigid_params(dims+1:end));
+            deltas = cell(f, 1);
+            for frame = 1:f
+                deltas{frame} = squeeze(X(frame, a, :,:))\squeeze(X(frame, b, :,:));
+            end
+            
+            [rigid_fit, err] = fminsearch(...
+                                 @(p) jointfit(deltas, ...
+                                               {T(p(1:dims))*R(p(dims+1:end))}, ...
+                                               @forward_rigid, @inverse_rigid), ...
+                                 [t r]);
+            rigid_params = T(rigid_fit(1:dims))*R(rigid_fit(dims+1:end));
             dbg('\t\tRigid joint (err=%g): %s\n', err, format_SE(rigid_params, 3));
             
             
-            %[prismatic_params, err] = fminsearch(...
-            %                        @(p) jointfit(X(:,[a b],:,:), ...
-            %                                      {T(p(1:dims))*R(p(dims+1:end-dims)) ...
-            %                                       p(end-dims:end)}, ...
-            %                                      @forward_prismatic, @inverse_prismatic), ...
-            %                        [t r zeros(1, dims)]);
+            [prismatic_fit, err] = fminsearch(...
+                                 @(p) jointfit(deltas, ...
+                                               {T(p(1:dims))*R(p(dims+1:end-dims)) ...
+                                                p(end-dims+1:end)}, ...
+                                               @forward_prismatic, @inverse_prismatic), ...
+                                 [t r zeros(1, dims)]);
+            prismatic_params = T(prismatic_fit(1:dims))*R(prismatic_fit(dims+1:end-dims));
+            prismatic_state = prismatic_fit(end-dims+1:end); % hmm, have to record the full range during fitting somehow, or do a max afterwards
+            dbg('\t\tPrismatic joint (err=%g, state=%g): %s\n', err, prismatic_state, format_SE(prismatic_params, 3));
         end
     end
     
@@ -46,21 +54,18 @@ function S = manip_learn(X, dbg)
     profile viewer;
 end
 
-function err = jointfit(X, p, forward, inverse)
+function err = jointfit(deltas, p, forward, inverse)
     %fprintf('\t\t\t%s\n', format_SE(p{1}));
     err = 0;
     
     % accumulate error at each frame
-    for frame = 1:size(X, 1)
+    for frame = 1:length(deltas)
         % perform IK to get the observed params
-        parent = squeeze(X(frame, 1, :,:));
-        child = squeeze(X(frame, 2, :,:));
-        delta = parent\child;
-        state = inverse(p, delta);
+        state = inverse(deltas{frame}, p);
         
         % get error between real SE pose and observed-modeled SE pose
         err = err + SE_dist(forward(p, state), ...
-                            delta);
+                            deltas{frame});
     end
 end
 
@@ -76,9 +81,16 @@ function dist = SE_dist(u, v)
     ur = u(1:n, 1:n);
     vr = v(1:n, 1:n);
     
-    dr = ur\vr;
+    %dr = ur\vr;
     dt = ut - vt;
-    C = c*norm(logm_so3(dr))^2;
+    %L = logm_so3(dr);
+    %C = c*norm(L)^2;
+    if n == 3
+        tr = (ur(1,1)*ur(2,2)*vr(3,3) - ur(1,1)*ur(2,3)*vr(3,2) - ur(1,1)*ur(3,2)*vr(2,3) + ur(1,1)*ur(3,3)*vr(2,2) - ur(1,2)*ur(2,1)*vr(3,3) + ur(1,2)*ur(2,3)*vr(3,1) + ur(1,2)*ur(3,1)*vr(2,3) - ur(1,2)*ur(3,3)*vr(2,1) + ur(1,3)*ur(2,1)*vr(3,2) - ur(1,3)*ur(2,2)*vr(3,1) - ur(1,3)*ur(3,1)*vr(2,2) + ur(1,3)*ur(3,2)*vr(2,1) + ur(2,1)*ur(3,2)*vr(1,3) - ur(2,1)*ur(3,3)*vr(1,2) - ur(2,2)*ur(3,1)*vr(1,3) + ur(2,2)*ur(3,3)*vr(1,1) + ur(2,3)*ur(3,1)*vr(1,2) - ur(2,3)*ur(3,2)*vr(1,1))/(ur(1,1)*ur(2,2)*ur(3,3) - ur(1,1)*ur(2,3)*ur(3,2) - ur(1,2)*ur(2,1)*ur(3,3) + ur(1,2)*ur(2,3)*ur(3,1) + ur(1,3)*ur(2,1)*ur(3,2) - ur(1,3)*ur(2,2)*ur(3,1));
+    else
+        tr = (ur(1,1)*vr(2,2) - ur(1,2)*vr(2,1) - ur(2,1)*vr(1,2) + ur(2,2)*vr(1,1))/(ur(1,1)*ur(2,2) - ur(1,2)*ur(2,1));
+    end
+    C = c*2*acos((tr-1)/2); % from http://en.wikipedia.org/wiki/Axis-angle_representation#Log_map_from_SO.283.29_to_so.283.29
     D = d*norm(dt)^2;
-    dist = sqrt(C + D);
+    dist = C + D;
 end
