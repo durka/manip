@@ -1,0 +1,66 @@
+HOW TO REPRODUCE THE JACOBIANS
+
+given:
+- FK and IK x=forward(p,s) and s=inverse(x,p)
+    note: these must work with symbolic inputs
+- a sample set of params p and state s (assuming just one state var, but you can fix it if there are more)
+    note: these are numbers. if they require transformation then assume another function q=pre(p) so that x=forward(pre(p),s) and s=inverse(x,pre(p))
+        e.g. in my rigid 2D, p=[tx ty th] and pre(p)=T([tx ty])*R(th)
+note: code in this document is not tested
+
+step 1: check that inverse() is correct
+
+>> x = forward(p, s)
+>> inverse(x, p) % check that it's equal to s
+
+step 2: calculate jacobians for forward()
+
+if you can do it on paper, do that (probably only practical for 2D)
+otherwise, use the symbolic toolbox:
+>> syms ALL THE THINGS real
+>> dr = subsref(jacobian(forward(pre(p), s), [p s]), substruct('()', {1:d,1:d}))
+>> dt = subsref(jacobian(forward(pre(p), s), [p s]), substruct('()', {1:d,d+1}))
+    % of course p and s are symbolic here, not the sample numbers
+
+now copy and paste the jacobians (see footnote)
+use vim to correct t1 t2 t3 => t(1) t(2) t(3) etc
+copy and paste into forward() so we now have [x,Dt,Dr]=forward(p,s)
+
+step 3: calculate jacobian for inverse()
+
+if you can do it on paper, do that (probably only practical for 2D)
+otherwise, use the symbolic toolbox:
+>> syms ALL THE THINGS real
+>> di = jacobian(inverse(x, p), p)
+    % of course p is symbolic here, not the sample numbers
+    % also use a symbolic x in SE(d) (e.g. [x11 x12 x13; x21 x22 x23; 0 0 1])
+
+now copy and paste the jacobian (see footnote)
+use vim to correct t1 t2 t3 => t(1) t(2) t(3) etc
+copy and paste into inverse() so we now have [s,D]=inverse(x,p)
+    don't just return the jacobian of inverse() though
+    instead return [eye(length(p)); jacobian]
+    this makes some of the dimensions match up better
+
+step 4: check correctness of the jacobians
+
+this requires the DERIVest suite (it's on the matlab file exchange)
+
+    % use the numbers now for p and s
+>> [x, dr, dt] = forward(pre(p), s)
+>> [s, di] = inverse(x, pre(p))
+>> jacobianest(@(p) subsref(forward(pre(p(1:end-1)), p(end)), substruct('()', {1:d, 1:d})), [p s]) % compare to dr
+>> jacobianest(@(p) subsref(forward(pre(p(1:end-1)), p(end)), substruct('()', {1:d, d+1})), [p s]) % compare to dt
+>> jacobianest(@(p) inverse(x, pre(p(1:end-1))), p) % compare to di(end,:)
+
+
+footnote: what to do when matlab won't print all the output
+
+sometimes when you do scary things with the symbolic toolbox the output is too long to print in the command window
+to get around this:
+>> f = fopen('blah.txt', 'w');
+>> str = evalc('the command that makes too much output');
+>> fprintf(f, '%s\n', str);
+>> fclose(f);
+now you can open blah.txt in vim
+
