@@ -28,34 +28,48 @@ function S = manip_learn(X, dbg)
                 deltas{frame} = squeeze(X(frame, a, :,:))\squeeze(X(frame, b, :,:));
             end
             
-            options = optimset('fminsearch');
-            optimset(options, 'MaxFunEvals', 100000);
+            options = optimset('fmincon');
+            options = optimset(options, 'Algorithm', 'trust-region-reflective');
+            options = optimset(options, 'MaxFunEvals', 1e10);
+            options = optimset(options, 'MaxIter', 1e10);
             
-            [rigid_fit, err] = fminsearch(...
+            [rigid_fit, err] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                {T(p(1:dims))*R(p(dims+1:end))}, ...
                                                @forward_rigid, @inverse_rigid), ...
                                  [t r], ...
+                                 [], [], [], [], ... % no linear constraints
+                                 [-inf(size(t)) -pi*ones(size(r))], ...
+                                 [ inf(size(t))  pi*ones(size(r))], ...
+                                 [], ... % no nonlinear constraints
                                  options);
             rigid_params = T(rigid_fit(1:dims))*R(rigid_fit(dims+1:end));
             dbg('\t\tRigid joint (err=%g): o=%s\n', err, format_SE(rigid_params, 3));
             
             
-            [prismatic_fit, err] = fminsearch(...
+            [prismatic_fit, err] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                unpack_prismatic(p, dims), ...
                                                @forward_prismatic, @inverse_prismatic), ...
-                                 [t r zeros(1,dims)], ...
+                                 [t r, eye(1,dims)], ...
+                                 [], [], [], [], ... % no linear constraints
+                                 [-inf(size(t)) -pi*ones(size(r)) -ones(1,dims)], ...
+                                 [ inf(size(t))  pi*ones(size(r))  ones(1,dims)], ...
+                                 @(p) nonlcon_unit(p(end-dims+1:end)), ... % constrain unit vector to unit length
                                  options);
             prismatic_params = unpack_prismatic(prismatic_fit, dims);
             dbg('\t\tPrismatic joint (err=%g): o=%s u=%s\n', err, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
             
             
-            [revolute_fit, err] = fminsearch(...
+            [revolute_fit, err] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                unpack_revolute(p, dims), ...
                                                @forward_revolute, @inverse_revolute), ...
-                                 [t r eye(1,dims) zeros(1,dims)], ...
+                                 [t r, eye(1,dims) zeros(1,dims)], ...
+                                 [], [], [], [], ... % no linear constraints
+                                 [-inf(size(t)) -pi*ones(size(r)) -inf(1,dims) -pi*ones(1,dims)], ...
+                                 [ inf(size(t))  pi*ones(size(r))  inf(1,dims)  pi*ones(1,dims)], ...
+                                 [], ... % no nonlinear constraints
                                  options);
             revolute_params = unpack_revolute(revolute_fit, dims);
             dbg('\t\tRevolute joint (err=%g): c=%s o=%s\n', err, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
@@ -65,6 +79,11 @@ function S = manip_learn(X, dbg)
     warning('on', 'MATLAB:funm:nonPosRealEig');
     dbg('Done learning (%g sec)\n\n', toc);
     profile viewer;
+end
+
+function [c,ceq] = nonlcon_unit(p)
+    c = [];
+    ceq = sum(p.^2) - 1;
 end
 
 function params = unpack_prismatic(p, dims)
@@ -90,9 +109,10 @@ function params = unpack_revolute(p, dims)
     params{2} = T(t)*R(r);
 end
 
-function err = jointfit(deltas, p, forward, inverse)
+function [err, grad] = jointfit(deltas, p, forward, inverse)
     %fprintf('\t\t\t%s\n', format_SE(p{1}));
     err = 0;
+    grad = 0;
     
     % accumulate error at each frame
     for frame = 1:length(deltas)
@@ -100,12 +120,16 @@ function err = jointfit(deltas, p, forward, inverse)
         state = inverse(deltas{frame}, p);
         
         % get error between real SE pose and observed-modeled SE pose
-        err = err + SE_dist(forward(p, state), ...
-                            deltas{frame});
+        e, g = SE_dist(forward(p, state), ...
+                       deltas{frame});
+        err = err + e;
+        grad = grad + g;
     end
 end
 
-function dist = SE_dist(u, v)
+% returns "distance" between two elements of SE(n)
+% also returns gradient of the distance WRT u
+function [dist, grad] = SE_dist(u, v)
     % magic scale factors (see, e.g. Park 1995)
     c = 2;
     d = 1;
@@ -129,4 +153,6 @@ function dist = SE_dist(u, v)
     C = c*2*acos((tr-1)/2); % from http://en.wikipedia.org/wiki/Axis-angle_representation#Log_map_from_SO.283.29_to_so.283.29
     D = d*norm(dt)^2;
     dist = C + D;
+    
+    grad = 0;
 end
