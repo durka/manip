@@ -16,8 +16,8 @@ function [x, Dr, Dt] = forward_prismatic(params, state)
                    0 0  cos(r) 0 0 0
                    0 0 -cos(r) 0 0 0
                    0 0 -sin(r) 0 0 0 ];
-            Dt = [ 1 0 0 e 0 u(1)
-                   0 1 0 0 e u(2) ];
+            Dt = [ 1 0 0 pos 0   u(1)
+                   0 1 0 0   pos u(2) ];
         else
             Dr = [ 0, 0, 0, -cos(r(1))*sin(r(3)) - cos(r(2))*cos(r(3))*sin(r(1)), -cos(r(1))*cos(r(3))*sin(r(2)), -cos(r(3))*sin(r(1)) - cos(r(1))*cos(r(2))*sin(r(3)), 0, 0, 0, 0
                    0, 0, 0,  cos(r(1))*cos(r(2))*cos(r(3)) - sin(r(1))*sin(r(3)), -cos(r(3))*sin(r(1))*sin(r(2)),  cos(r(1))*cos(r(3)) - cos(r(2))*sin(r(1))*sin(r(3)), 0, 0, 0, 0

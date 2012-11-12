@@ -16,14 +16,14 @@ function [state, D] = inverse_prismatic(x, params)
     
     if nargout > 1
         d = n*(n+1)/2;
-        D = vertcat(eye(d+n), zeros(d+n));
+        D = vertcat(eye(d+n), zeros([1 d+n]));
         [t, r] = extract_SE(offset);
         if n == 2
-            D(end,:) = [ -u(1)*(x(1,1)*cos(r) - x(1,2)*sin(th)) - u(2)*(x(2,1)*cos(r) - x(2,2)*sin(th))
-                         -x(1,2)*u(1)*cos(r) - x(2,2)*u(2)*cos(r) - x(1,1)*u(1)*sin(th) - x(2,1)*u(2)*sin(th)
-                          x(1,2)*t(1)*u(1)*cos(r) - x(1,1)*t(2)*u(1)*cos(r) + x(2,2)*t(1)*u(2)*cos(r) - x(2,1)*t(2)*u(2)*cos(r) + x(1,1)*t(1)*u(1)*sin(th) + x(1,2)*t(2)*u(1)*sin(th) + x(2,1)*t(1)*u(2)*sin(th) + x(2,2)*t(2)*u(2)*sin(th)
-                          x(1,3) - x(1,1)*t(1)*cos(r) - x(1,2)*t(2)*cos(r) + x(1,2)*t(1)*sin(th) - x(1,1)*t(2)*sin(th)
-                          x(2,3) - x(2,1)*t(1)*cos(r) - x(2,2)*t(2)*cos(r) + x(2,2)*t(1)*sin(th) - x(2,1)*t(2)*sin(th)                                                                                                                      ];
+            D(end,:) = [ -u(1)*(x(1,1)*cos(r) - x(1,2)*sin(r)) - u(2)*(x(2,1)*cos(r) - x(2,2)*sin(r))
+                         -x(1,2)*u(1)*cos(r) - x(2,2)*u(2)*cos(r) - x(1,1)*u(1)*sin(r) - x(2,1)*u(2)*sin(r)
+                          x(1,2)*t(1)*u(1)*cos(r) - x(1,1)*t(2)*u(1)*cos(r) + x(2,2)*t(1)*u(2)*cos(r) - x(2,1)*t(2)*u(2)*cos(r) + x(1,1)*t(1)*u(1)*sin(r) + x(1,2)*t(2)*u(1)*sin(r) + x(2,1)*t(1)*u(2)*sin(r) + x(2,2)*t(2)*u(2)*sin(r)
+                          x(1,3) - x(1,1)*t(1)*cos(r) - x(1,2)*t(2)*cos(r) + x(1,2)*t(1)*sin(r) - x(1,1)*t(2)*sin(r)
+                          x(2,3) - x(2,1)*t(1)*cos(r) - x(2,2)*t(2)*cos(r) + x(2,2)*t(1)*sin(r) - x(2,1)*t(2)*sin(r)                                                                                                                      ];
         else
             D(end,:) = [ x(1,1)*u(1)*sin(r(1))*sin(r(3)) + x(2,1)*u(2)*sin(r(1))*sin(r(3)) + x(3,1)*u(3)*sin(r(1))*sin(r(3)) + x(1,2)*u(1)*cos(r(3))*sin(r(1)) + x(1,3)*u(1)*cos(r(1))*sin(r(2)) + x(2,2)*u(2)*cos(r(3))*sin(r(1)) + x(2,3)*u(2)*cos(r(1))*sin(r(2)) + x(3,2)*u(3)*cos(r(3))*sin(r(1)) + x(3,3)*u(3)*cos(r(1))*sin(r(2)) - x(1,1)*u(1)*cos(r(1))*cos(r(2))*cos(r(3)) - x(2,1)*u(2)*cos(r(1))*cos(r(2))*cos(r(3)) - x(3,1)*u(3)*cos(r(1))*cos(r(2))*cos(r(3)) + x(1,2)*u(1)*cos(r(1))*cos(r(2))*sin(r(3)) + x(2,2)*u(2)*cos(r(1))*cos(r(2))*sin(r(3)) + x(3,2)*u(3)*cos(r(1))*cos(r(2))*sin(r(3))
                          x(1,3)*u(1)*sin(r(1))*sin(r(2)) + x(2,3)*u(2)*sin(r(1))*sin(r(2)) + x(3,3)*u(3)*sin(r(1))*sin(r(2)) - x(1,2)*u(1)*cos(r(1))*cos(r(3)) - x(2,2)*u(2)*cos(r(1))*cos(r(3)) - x(3,2)*u(3)*cos(r(1))*cos(r(3)) - x(1,1)*u(1)*cos(r(1))*sin(r(3)) - x(2,1)*u(2)*cos(r(1))*sin(r(3)) - x(3,1)*u(3)*cos(r(1))*sin(r(3)) - x(1,1)*u(1)*cos(r(2))*cos(r(3))*sin(r(1)) - x(2,1)*u(2)*cos(r(2))*cos(r(3))*sin(r(1)) - x(3,1)*u(3)*cos(r(2))*cos(r(3))*sin(r(1)) + x(1,2)*u(1)*cos(r(2))*sin(r(1))*sin(r(3)) + x(2,2)*u(2)*cos(r(2))*sin(r(1))*sin(r(3)) + x(3,2)*u(3)*cos(r(2))*sin(r(1))*sin(r(3))
