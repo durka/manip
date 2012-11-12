@@ -8,8 +8,7 @@ function S = manip_learn(X, dbg)
     dbg('Begin learning\n');
     tic;
     profile on;
-    warning('off', 'MATLAB:funm:nonPosRealEig'); % shut up already about logm
-
+    
     S = struct('a', {}, 'b', {}, 'joint', {}, 'params', {}, 'state', {}, 'bounds', {});
 
     f = size(X, 1);
@@ -17,26 +16,44 @@ function S = manip_learn(X, dbg)
     dims = size(X, 3) - 1;
     dbg('Detected f=%d, n=%d, dims=%d\n', f, n, dims);
     
+    dbg('Computing jacobians...');
+    dbg(' Dq ');   
+    A = sym('a%d%d', [dims dims]); A = sym(A, 'real');
+    B = sym('b%d%d', [dims dims]); B = sym(B, 'real');
+    s = evalc('simplify(jacobian(2*acos((trace(A\B)-1)/2), A))');
+    Dq = eval(sprintf('@(ur, vr) %s', regexprep(subsref(regexp(s, '\n', 'split'), substruct('{}', {4})), {'a(\d)(\d)', 'b(\d)(\d)'}, {'ur($1,$2)', 'vr($1,$2)'})));
+    dbg(' Dr ');
+    A = sym('a%d%d', [dims 1]); A = sym(A, 'real');
+    B = sym('b%d%d', [dims 1]); B = sym(B, 'real');
+    s = evalc('simplify(jacobian(feval(symengine, ''norm'', A - B, 2), A))');
+    Dr = eval(sprintf('@(ut, vt) %s', regexprep(subsref(regexp(s, '\n', 'split'), substruct('{}', {4})), {'a(\d)(\d)', 'b(\d)(\d)'}, {'ut($1,$2)', 'vt($1,$2)'})));
+    dbg('done.\n');
+    
     dbg('Fitting all models to all possible joints...\n');
     for a = 1:n
         for b = a+1:n
             dbg('\tTrying joint %d-%d...\n', a, b);
             
-            [~, t, r] = format_SE(squeeze(X(1,a,:,:))\squeeze(X(1,b,:,:)));
+            [t, r] = extract_SE(squeeze(X(1,a,:,:))\squeeze(X(1,b,:,:)));
             deltas = cell(f, 1);
             for frame = 1:f
                 deltas{frame} = squeeze(X(frame, a, :,:))\squeeze(X(frame, b, :,:));
             end
             
             options = optimset('fmincon');
-            options = optimset(options, 'Algorithm', 'trust-region-reflective');
+            options = optimset(options, 'Algorithm', 'active-set');
+            options = optimset(options, 'GradObj', 'on');
             options = optimset(options, 'MaxFunEvals', 1e10);
             options = optimset(options, 'MaxIter', 1e10);
+            options = optimset(options, 'Display', 'off');
+            options = optimset(options, 'Diagnostics', 'off');
             
             [rigid_fit, err] = fmincon(...
                                  @(p) jointfit(deltas, ...
-                                               {T(p(1:dims))*R(p(dims+1:end))}, ...
-                                               @forward_rigid, @inverse_rigid), ...
+                                               p, ...
+                                               @forward_rigid, @inverse_rigid, ...
+                                               @(p) {T(p(1:dims))*R(p(dims+1:end))}, ...
+                                               Dq, Dr), ...
                                  [t r], ...
                                  [], [], [], [], ... % no linear constraints
                                  [-inf(size(t)) -pi*ones(size(r))], ...
@@ -49,8 +66,10 @@ function S = manip_learn(X, dbg)
             
             [prismatic_fit, err] = fmincon(...
                                  @(p) jointfit(deltas, ...
-                                               unpack_prismatic(p, dims), ...
-                                               @forward_prismatic, @inverse_prismatic), ...
+                                               p, ...
+                                               @forward_prismatic, @inverse_prismatic, ...
+                                               @(p) unpack_prismatic(p, dims), ...
+                                               Dq, Dr), ...
                                  [t r, eye(1,dims)], ...
                                  [], [], [], [], ... % no linear constraints
                                  [-inf(size(t)) -pi*ones(size(r)) -ones(1,dims)], ...
@@ -63,8 +82,10 @@ function S = manip_learn(X, dbg)
             
             [revolute_fit, err] = fmincon(...
                                  @(p) jointfit(deltas, ...
-                                               unpack_revolute(p, dims), ...
-                                               @forward_revolute, @inverse_revolute), ...
+                                               p, ...
+                                               @forward_revolute, @inverse_revolute, ...
+                                               @(p) unpack_revolute(p, dims), ...
+                                               Dq, Dr), ...
                                  [t r, eye(1,dims) zeros(1,dims)], ...
                                  [], [], [], [], ... % no linear constraints
                                  [-inf(size(t)) -pi*ones(size(r)) -inf(1,dims) -pi*ones(1,dims)], ...
@@ -109,27 +130,27 @@ function params = unpack_revolute(p, dims)
     params{2} = T(t)*R(r);
 end
 
-function [err, grad] = jointfit(deltas, p, forward, inverse)
+function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr)
     %fprintf('\t\t\t%s\n', format_SE(p{1}));
     err = 0;
-    grad = 0;
+    grad = zeros(size(p));
     
     % accumulate error at each frame
     for frame = 1:length(deltas)
         % perform IK to get the observed params
-        state = inverse(deltas{frame}, p);
+        [state, Dki] = inverse(deltas{frame}, unpack(p));
         
         % get error between real SE pose and observed-modeled SE pose
-        e, g = SE_dist(forward(p, state), ...
-                       deltas{frame});
+        [estimate, Dkr, Dkt] = forward(unpack(p), state);
+        [e, Dd] = SE_dist(estimate, deltas{frame}, Dkr, Dkt, Dki, Dq, Dr);
         err = err + e;
-        grad = grad + g;
+        grad = grad + Dd;
     end
 end
 
 % returns "distance" between two elements of SE(n)
 % also returns gradient of the distance WRT u
-function [dist, grad] = SE_dist(u, v)
+function [dist, grad] = SE_dist(u, v, Dkr, Dkt, Dki, Dq, Dr)
     % magic scale factors (see, e.g. Park 1995)
     c = 2;
     d = 1;
@@ -153,6 +174,13 @@ function [dist, grad] = SE_dist(u, v)
     C = c*2*acos((tr-1)/2); % from http://en.wikipedia.org/wiki/Axis-angle_representation#Log_map_from_SO.283.29_to_so.283.29
     D = d*norm(dt)^2;
     dist = C + D;
-    
-    grad = 0;
+
+    if nargout == 2
+        if nargin ~= 7
+            error('To calculate a gradient SE_dist needs gradient inputs');
+        else
+            %fprintf('SIZES: Dq[%d %d] Dr[%d %d] Dkr[%d %d] Dkt[%d %d] Dki[%d %d]\n', size(Dq(ur,vr),1),size(Dq(ur,vr),2), size(Dr(ut,vt),1),size(Dr(ut,vt),2), size(Dkr,1),size(Dkt,2), size(Dkt,1),size(Dkt,2), size(Dki,1),size(Dki,2));
+            grad = c*Dq(ur,vr)*Dkr*Dki + d*Dr(ut,vt)*Dkt*Dki;
+        end
+    end
 end
