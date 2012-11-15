@@ -14,10 +14,12 @@ function [state, D] = inverse_revolute(x, params)
         state = acos(-(radius(1,2)*x(2,1)*center(2,2) - radius(1,2)*x(2,2)*center(2,1) - radius(2,2)*x(1,1)*center(2,2) + radius(2,2)*x(1,2)*center(2,1))/((radius(1,1)*radius(2,2) - radius(1,2)*radius(2,1))*(center(1,1)*center(2,2) - center(1,2)*center(2,1))));
     end
     
+    state = real(state); % HACK HACK HACK COUGH
+    
     if nargout > 1
         n = size(center,1)-1;
         d = n*(n+1)/2;
-        D = vertcat(eye(d*2), zeros(d*2));
+        D = vertcat(eye(d*2), zeros([1 d*2]));
         [ct, cr] = extract_SE(center);
         [rt, rr] = extract_SE(radius);
         if length(ct) == 2

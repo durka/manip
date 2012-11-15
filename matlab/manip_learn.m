@@ -5,6 +5,7 @@ function S = manip_learn(X, dbg)
         dbg = @(varargin) fprintf('');
     end
     
+    clc;
     dbg('Begin learning\n');
     tic;
     profile on;
@@ -41,14 +42,15 @@ function S = manip_learn(X, dbg)
             end
             
             options = optimset('fmincon');
-            options = optimset(options, 'Algorithm', 'active-set');
+            options = optimset(options, 'Algorithm', 'sqp');
             options = optimset(options, 'GradObj', 'on');
+            options = optimset(options, 'GradConstr', 'on');
             options = optimset(options, 'MaxFunEvals', 1e10);
             options = optimset(options, 'MaxIter', 1e10);
-            options = optimset(options, 'Display', 'off');
-            options = optimset(options, 'Diagnostics', 'off');
+            %options = optimset(options, 'Display', 'off');
+            %options = optimset(options, 'Diagnostics', 'off');
             
-            [rigid_fit, err] = fmincon(...
+            [rigid_fit, err, ~, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_rigid, @inverse_rigid, ...
@@ -61,10 +63,11 @@ function S = manip_learn(X, dbg)
                                  [], ... % no nonlinear constraints
                                  options);
             rigid_params = T(rigid_fit(1:dims))*R(rigid_fit(dims+1:end));
-            dbg('\t\tRigid joint (err=%g): o=%s\n', err, format_SE(rigid_params, 3));
+            dbg('\t\tRigid joint (%d steps, err=%g): o=%s\n', output.iterations, err, format_SE(rigid_params, 3));
             
             
-            [prismatic_fit, err] = fmincon(...
+            dbg('\t%s\n', mat2str([t r, eye(1,dims)], 3));
+            [prismatic_fit, err, ~, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_prismatic, @inverse_prismatic, ...
@@ -74,13 +77,13 @@ function S = manip_learn(X, dbg)
                                  [], [], [], [], ... % no linear constraints
                                  [-inf(size(t)) -pi*ones(size(r)) -ones(1,dims)], ...
                                  [ inf(size(t))  pi*ones(size(r))  ones(1,dims)], ...
-                                 @(p) nonlcon_unit(p(end-dims+1:end)), ... % constrain unit vector to unit length
+                                 @(p) nonlcon_unit(p, dims), ... % constrain unit vector to unit length
                                  options);
             prismatic_params = unpack_prismatic(prismatic_fit, dims);
-            dbg('\t\tPrismatic joint (err=%g): o=%s u=%s\n', err, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
+            dbg('\t\tPrismatic joint (%d steps, err=%g): o=%s u=%s\n', output.iterations, err, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
             
             
-            [revolute_fit, err] = fmincon(...
+            [revolute_fit, err, ~, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_revolute, @inverse_revolute, ...
@@ -93,39 +96,18 @@ function S = manip_learn(X, dbg)
                                  [], ... % no nonlinear constraints
                                  options);
             revolute_params = unpack_revolute(revolute_fit, dims);
-            dbg('\t\tRevolute joint (err=%g): c=%s o=%s\n', err, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
+            dbg('\t\tRevolute joint (%d steps, err=%g): c=%s o=%s\n', output.iterations, err, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
         end
     end
     
-    warning('on', 'MATLAB:funm:nonPosRealEig');
     dbg('Done learning (%g sec)\n\n', toc);
     profile viewer;
 end
 
-function [c,ceq] = nonlcon_unit(p)
+function [c,ceq,gc,gceq] = nonlcon_unit(p, dims)
     c = [];
-    ceq = sum(p.^2) - 1;
-end
-
-function params = unpack_prismatic(p, dims)
-	i = 1;
-    
-    t = p(i:i+dims-1); i = i+dims;
-    r = p(i:end-dims);
-    params{1} = T(t)*R(r);
-    
-    params{2} = p(end-dims+1:end);
-end
-
-function params = unpack_revolute(p, dims)
-    i = 1;
-    n = dims*(dims-1)/2;
-    
-    t = p(i:i+dims-1); i = i+dims;
-    r = p(i:i+n-1);    i = i+n;
-    params{1} = T(t)*R(r);
-    
-    t = p(i:i+dims-1); i = i+dims;
-    r = p(i:i+n-1);    i = i+n;
-    params{2} = T(t)*R(r);
+    ceq = sum(p(end-dims+1).^2) - 1;
+    gc = [];
+    gceq = zeros(size(p'));
+    gceq(end-dims+1:end) = 2*p(end-dims+1:end);
 end

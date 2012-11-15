@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 26-Oct-2012 19:36:32
+% Last Modified by GUIDE v2.5 15-Nov-2012 00:47:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -648,3 +648,12 @@ vars = load([path filename]);
 change_dims(handles, vars.DIMS);
 change_tree(handles, vars.TREE);
 select_joint(handles, vars.SELJ);
+
+
+% --- Executes on button press in debug.
+function debug_Callback(hObject, eventdata, handles)
+% hObject    handle to debug (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+keyboard
