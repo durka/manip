@@ -47,10 +47,10 @@ function S = manip_learn(X, dbg)
             options = optimset(options, 'GradConstr', 'on');
             options = optimset(options, 'MaxFunEvals', 1e10);
             options = optimset(options, 'MaxIter', 1e10);
-            %options = optimset(options, 'Display', 'off');
-            %options = optimset(options, 'Diagnostics', 'off');
+            options = optimset(options, 'Display', 'off');
+            options = optimset(options, 'Diagnostics', 'off');
             
-            [rigid_fit, err, ~, output] = fmincon(...
+            [rigid_fit, err, flag, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_rigid, @inverse_rigid, ...
@@ -63,11 +63,11 @@ function S = manip_learn(X, dbg)
                                  [], ... % no nonlinear constraints
                                  options);
             rigid_params = T(rigid_fit(1:dims))*R(rigid_fit(dims+1:end));
-            dbg('\t\tRigid joint (%d steps, err=%g): o=%s\n', output.iterations, err, format_SE(rigid_params, 3));
+            dbg('\t\tRigid joint (%d steps, err=%g, flag=%d): o=%s\n', output.iterations, err, flag, format_SE(rigid_params, 3));
             
             
             dbg('\t%s\n', mat2str([t r, eye(1,dims)], 3));
-            [prismatic_fit, err, ~, output] = fmincon(...
+            [prismatic_fit, err, flag, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_prismatic, @inverse_prismatic, ...
@@ -80,10 +80,10 @@ function S = manip_learn(X, dbg)
                                  @(p) nonlcon_unit(p, dims), ... % constrain unit vector to unit length
                                  options);
             prismatic_params = unpack_prismatic(prismatic_fit, dims);
-            dbg('\t\tPrismatic joint (%d steps, err=%g): o=%s u=%s\n', output.iterations, err, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
+            dbg('\t\tPrismatic joint (%d steps, err=%g, flag=%d): o=%s u=%s\n', output.iterations, err, flag, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
             
             
-            [revolute_fit, err, ~, output] = fmincon(...
+            [revolute_fit, err, flag, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_revolute, @inverse_revolute, ...
@@ -96,7 +96,7 @@ function S = manip_learn(X, dbg)
                                  [], ... % no nonlinear constraints
                                  options);
             revolute_params = unpack_revolute(revolute_fit, dims);
-            dbg('\t\tRevolute joint (%d steps, err=%g): c=%s o=%s\n', output.iterations, err, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
+            dbg('\t\tRevolute joint (%d steps, err=%g, flag=%d): c=%s o=%s\n', output.iterations, err, flag, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
         end
     end
     
