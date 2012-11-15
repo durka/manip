@@ -1,5 +1,5 @@
 function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr)
-    dbstop if infnan
+    %dbstop if infnan
 
     err = 0;
     grad = zeros(size(p));
@@ -16,14 +16,15 @@ function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr)
         grad = grad + Dd;
     end
     
-    fprintf('%s => %s, %s\n', mat2str(p, 3), mat2str(err, 3), mat2str(grad, 3));
+    
+    if imag(err) || any(imag(grad)) || any(isinf(grad)) || any(isnan(grad))
+        fprintf('%s => %s, %s\n', mat2str(p, 3), mat2str(err, 3), mat2str(grad, 3));
+    end
+    
     grad(isnan(grad)) = 0; % HACK HACK HACK COUGH
-    grad(isinf(grad)) = 0; % HACK HACK HACK COUGH
-    grad = real(grad); % HACK HACK HACK COUGH
+    grad(isinf(grad)) = 0;
+    grad = real(grad);
+    err = real(err);
     
-    %if any(imag(grad))
-    %    keyboard
-    %end
-    
-    dbclear if infnan
+    %dbclear if infnan
 end

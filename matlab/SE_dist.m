@@ -30,9 +30,16 @@ function [dist, grad] = SE_dist(u, v, Dkr, Dkt, Dki, Dq, Dr)
             error('To calculate a gradient SE_dist needs gradient inputs');
         else
             %fprintf('SIZES: Dq[%d %d] Dr[%d %d] Dkr[%d %d] Dkt[%d %d] Dki[%d %d]\n', size(Dq(ur,vr),1),size(Dq(ur,vr),2), size(Dr(ut,vt),1),size(Dr(ut,vt),2), size(Dkr,1),size(Dkr,2), size(Dkt,1),size(Dkt,2), size(Dki,1),size(Dki,2));
-            grad = c*Dq(ur,vr)*Dkr*Dki + d*Dr(ut,vt)*Dkt*Dki;
+            toohigh = 10000;
+            dkr = max(min(Dkr, toohigh), -toohigh);
+            dkt = max(min(Dkt, toohigh), -toohigh);
+            dki = max(min(Dki, toohigh), -toohigh);
+            dq = max(min(Dq(ur,vr), toohigh), -toohigh);
+            dr = max(min(Dr(ut,vt), toohigh), -toohigh);
+            grad = c*dq*dkr*dki + d*dr*dkt*dki;
             if any(isnan(grad))
-                fprintf('thar be nannnns up in heer: nan(%d %d %d %d %d %d %d) inf(%d %d %d %d %d %d %d) ', any(isnan(u)), any(isnan(u)), any(any(isnan(Dkr))), any(any(isnan(Dkt))), any(any(isnan(Dki))), any(any(isnan(Dq(ur,vr)))), any(any(isnan(Dr(ut,vt)))), any(isinf(u)), any(isinf(u)), any(any(isinf(Dkr))), any(any(isinf(Dkt))), any(any(isinf(Dki))), any(any(isinf(Dq(ur,vr)))), any(any(isinf(Dr(ut,vt)))));
+                fprintf('\t\tthar be nannnns up in heer: nan(%d %d %d %d %d %d %d) inf(%d %d %d %d %d %d %d)\n', any(any(isnan(u))), any(any(isnan(u))), any(any(isnan(Dkr))), any(any(isnan(Dkt))), any(any(isnan(Dki))), any(any(isnan(Dq(ur,vr)))), any(any(isnan(Dr(ut,vt)))), any(isinf(u)), any(isinf(u)), any(any(isinf(Dkr))), any(any(isinf(Dkt))), any(any(isinf(Dki))), any(any(isinf(Dq(ur,vr)))), any(any(isinf(Dr(ut,vt)))));
+                keyboard
             end
         end
     end
