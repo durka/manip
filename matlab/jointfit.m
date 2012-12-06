@@ -17,9 +17,9 @@ function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr)
     end
     
     
-    %if imag(err) || any(imag(grad)) || any(isinf(grad)) || any(isnan(grad))
+    if imag(err) || any(imag(grad)) || any(isinf(grad)) || any(isnan(grad))
         fprintf('%s => %s, %s\n', mat2str(p, 3), mat2str(err, 3), mat2str(grad, 3));
-    %end
+    end
     
     grad(isnan(grad)) = 0; % HACK HACK HACK COUGH
     grad(isinf(grad)) = 0;
