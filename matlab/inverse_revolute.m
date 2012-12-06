@@ -21,7 +21,7 @@ function [state, D] = inverse_revolute(x, params)
         d = n*(n+1)/2;
         D = vertcat(eye(d*2), zeros([1 d*2]));
         [ct, cr] = extract_SE(center);
-        [rt, rr] = extract_SE(radius);
+        [~, rr] = extract_SE(radius);
         if length(ct) == 2
             D(end,:) = [ 0 0 -1      0 0 -1 ];
         else

@@ -12,7 +12,7 @@ function [x, Dr, Dt] = forward_revolute(params, state)
     
     if nargout > 1
         [ct, cr] = extract_SE(center);
-        [rt, rr] = extract_SE(radius);
+        [~, rr] = extract_SE(radius);
         if length(ct) == 2
             thr = rr + theta;
             th = cr + thr;
