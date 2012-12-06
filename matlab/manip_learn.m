@@ -35,11 +35,14 @@ function S = manip_learn(X, dbg)
         for b = a+1:n
             dbg('\tTrying joint %d-%d...\n', a, b);
             
-            [t, r] = extract_SE(squeeze(X(1,a,:,:))\squeeze(X(1,b,:,:)));
+            [t, r] = extract_SE(squeeze(X(1,b,:,:))\squeeze(X(1,a,:,:)));
             deltas = cell(f, 1);
             for frame = 1:f
-                deltas{frame} = squeeze(X(frame, a, :,:))\squeeze(X(frame, b, :,:));
+                deltas{frame} = squeeze(X(frame, b, :,:))\squeeze(X(frame, a, :,:));
             end
+            [t1, r1] = extract_SE(deltas{1});
+            [t2, r2] = extract_SE(deltas{floor(end/2)});
+            [t3, r3] = extract_SE(deltas{end});
             
             options = optimset('fmincon');
             options = optimset(options, 'Algorithm', 'sqp');
@@ -50,53 +53,107 @@ function S = manip_learn(X, dbg)
             options = optimset(options, 'Display', 'off');
             options = optimset(options, 'Diagnostics', 'off');
             
-            [rigid_fit, err, flag, output] = fmincon(...
+            [rigid_fit, rigid_err, flag, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_rigid, @inverse_rigid, ...
                                                @(p) {T(p(1:dims))*R(p(dims+1:end))}, ...
                                                Dq, Dr), ...
-                                 [t r], ...
+                                 [t1 r1], ...
                                  [], [], [], [], ... % no linear constraints
                                  [-inf(size(t)) -pi*ones(size(r))], ...
                                  [ inf(size(t))  pi*ones(size(r))], ...
                                  [], ... % no nonlinear constraints
                                  options);
             rigid_params = T(rigid_fit(1:dims))*R(rigid_fit(dims+1:end));
-            dbg('\t\tRigid joint (%d steps, err=%g, flag=%d): o=%s\n', output.iterations, err, flag, format_SE(rigid_params, 3));
+            dbg('\t\tRigid joint (%d steps, err=%g, flag=%d): o=%s\n', output.iterations, rigid_err, flag, format_SE(rigid_params, 3));
             
             
-            dbg('\t%s\n', mat2str([t r, eye(1,dims)], 3));
-            [prismatic_fit, err, flag, output] = fmincon(...
+            %dbg('\t%s\n', mat2str([t r, eye(1,dims)], 3));
+            [prismatic_fit, prismatic_err, flag, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_prismatic, @inverse_prismatic, ...
                                                @(p) unpack_prismatic(p, dims), ...
                                                Dq, Dr), ...
-                                 [t r, eye(1,dims)], ...
+                                 [t1 r1, (t3 - t1)/norm(t3 - t1)], ...
                                  [], [], [], [], ... % no linear constraints
                                  [-inf(size(t)) -pi*ones(size(r)) -ones(1,dims)], ...
                                  [ inf(size(t))  pi*ones(size(r))  ones(1,dims)], ...
-                                 @(p) nonlcon_unit(p, dims), ... % constrain unit vector to unit length
+                                 [],...%@(p) nonlcon_unit(p, dims), ... % constrain unit vector to unit length
                                  options);
             prismatic_params = unpack_prismatic(prismatic_fit, dims);
-            dbg('\t\tPrismatic joint (%d steps, err=%g, flag=%d): o=%s u=%s\n', output.iterations, err, flag, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
+            dbg('\t\tPrismatic joint (%d steps, err=%g, flag=%d): o=%s u=%s\n', output.iterations, prismatic_err, flag, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
             
-            
-            [revolute_fit, err, flag, output] = fmincon(...
+            % TODO implement this for 2D
+            nhat = cross(t3 - t1, t2 - t1);
+            nhat = nhat/norm(nhat);
+            % for the translation, use the circumcenter of the three points
+            % (have to dance around projecting in and out of the plane)
+            plane = createPlane(t1, t2, t3);
+            in_plane = planePosition([t1; t2; t3], plane);
+            ct = planePoint(plane, circumCenter(in_plane(1,:), in_plane(2,:), in_plane(3,:)));
+            % for the rotation, the Z axis needs to go to n
+            % and the X axis has to go to norm(t1 - ct)
+            % so we can cross those to get the Y axis
+            % and use the three axes to make up the rotation matrix?
+            cr = zeros(3,3);
+            cr(:,1) = (t1 - ct)/norm(t1 - ct);
+            cr(:,2) = cross(nhat, cr(:,1));
+            cr(:,3) = nhat;
+            [~, cr] = extract_SE([cr, [0 0 0]'; 0 0 0 1]);
+            dbg('\t\tinitial revolute params: %s\n', mat2str([-ct cr, ct-t1 r1], 3));
+            [revolute_fit, revolute_err, flag, output] = fmincon(...
                                  @(p) jointfit(deltas, ...
                                                p, ...
                                                @forward_revolute, @inverse_revolute, ...
                                                @(p) unpack_revolute(p, dims), ...
                                                Dq, Dr), ...
-                                 [t r, eye(1,dims) zeros(1,dims)], ...
+                                 [-ct cr, ct-t1 r1], ...
                                  [], [], [], [], ... % no linear constraints
                                  [-inf(size(t)) -pi*ones(size(r)) -inf(1,dims) -pi*ones(1,dims)], ...
                                  [ inf(size(t))  pi*ones(size(r))  inf(1,dims)  pi*ones(1,dims)], ...
                                  [], ... % no nonlinear constraints
                                  options);
             revolute_params = unpack_revolute(revolute_fit, dims);
-            dbg('\t\tRevolute joint (%d steps, err=%g, flag=%d): c=%s o=%s\n', output.iterations, err, flag, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
+            dbg('\t\tRevolute joint (%d steps, err=%g, flag=%d): c=%s o=%s\n', output.iterations, revolute_err, flag, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
+            
+            names = {'rigid', 'prismatic', 'revolute'};
+            fits = {rigid_fit, prismatic_fit, revolute_fit};
+            params = {rigid_params, prismatic_params, revolute_params};
+            errs = [rigid_err, prismatic_err, revolute_err];
+            crits = errs + 5*cellfun(@length, fits); % TODO need weights here
+            [best_crit, best] = min(crits);
+            dbg('\tBest: %s (bics %s)\n', names{best}, mat2str(crits, 3));
+            i = length(S)+1;
+            S(i).a = a;
+            S(i).b = b;
+            S(i).joint = names{best};
+            S(i).params = params{best};
+            S(i).bounds = [0;0];
+            S(i).state = 0;
+            S(i).cost = best_crit;
+        end
+    end
+    
+    dbg('Finding minimum spanning tree...\n');
+    [S.a; S.b; S.cost]
+    {S.joint}
+    G = sparse([S.a], [S.b], [S.cost], max([S.a S.b]), max([S.a S.b]));
+    G = tril(G + G'); % convert to undirected
+    [MST, pred] = graphminspantree(G)
+    SS = S;
+    S = struct('a', {}, 'b', {}, 'joint', {}, 'params', {}, 'state', {}, 'bounds', {}, 'cost', {});
+    for i = 2:length(pred)
+        a = pred(i);
+        b = i;
+        S(i-1) = SS(([SS.a] == a & [SS.b] == b) | ([SS.a] == b & [SS.b] == a));
+        
+        % might have to reverse the edge
+        if S(i-1).a == b
+            S(i-1).a = a;
+            S(i-1).b = b;
+            % TODO S(i-1).params = feval(['reverse_' S(i-1).joint], S(i-1).params);
         end
     end
     
