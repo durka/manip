@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of grSimplifyBranches_old</title>
+  <meta name="keywords" content="grSimplifyBranches_old">
+  <meta name="description" content="GRSIMPLIFYBRANCHES_OLD Replace branches of a graph by single edges">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; grSimplifyBranches_old.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>grSimplifyBranches_old
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GRSIMPLIFYBRANCHES_OLD Replace branches of a graph by single edges</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = grSimplifyBranches_old(nodes, edges) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GRSIMPLIFYBRANCHES_OLD Replace branches of a graph by single edges
+
+   [NODES2 EDGES2] = grSimplifyBranches(NODES, EDGES)
+   Replaces each branch (composed of a series of edges connected only by
+   2-degree nodes) by a single edge, whose extremities are nodes with
+   degree &gt;= 3.
+
+   -----
+
+   author : David Legland 
+   INRA - TPV URPOI - BIA IMASTE
+   created the 13/08/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>	GRNEIGHBORNODES Find adjacent nodes of a given node</li><li><a href="grRemoveNode.html" class="code" title="function [nodes2, edges2] = grRemoveNode(nodes, edges, node)">grRemoveNode</a>	GRREMOVENODE Remove a node in a graph</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = grSimplifyBranches_old(nodes, edges)</a>
+0002 <span class="comment">%GRSIMPLIFYBRANCHES_OLD Replace branches of a graph by single edges</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [NODES2 EDGES2] = grSimplifyBranches(NODES, EDGES)</span>
+0005 <span class="comment">%   Replaces each branch (composed of a series of edges connected only by</span>
+0006 <span class="comment">%   2-degree nodes) by a single edge, whose extremities are nodes with</span>
+0007 <span class="comment">%   degree &gt;= 3.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   -----</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   author : David Legland</span>
+0012 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0013 <span class="comment">%   created the 13/08/2003.</span>
+0014 <span class="comment">%</span>
+0015 
+0016 <span class="comment">%   HISTORY</span>
+0017 <span class="comment">%   10/02/2004 doc</span>
+0018 
+0019 n = 1;
+0020 <span class="keyword">while</span> n &lt; length(nodes)
+0021     neigh = <a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>(edges, n);
+0022     <span class="keyword">if</span> length(neigh) == 2
+0023         <span class="comment">% find other node of first edge</span>
+0024         edge = edges(neigh(1), :);
+0025         <span class="keyword">if</span> edge(1) == n
+0026             node1 = edge(2);
+0027         <span class="keyword">else</span>
+0028             node1 = edge(1);
+0029         <span class="keyword">end</span>
+0030 
+0031         <span class="comment">% replace current node in the edge by the other node</span>
+0032         <span class="comment">% of first edge</span>
+0033         edge = edges(neigh(2), :);
+0034         <span class="keyword">if</span> edge(1) == n
+0035             edges(neigh(2), 1) = node1;
+0036         <span class="keyword">else</span>
+0037             edges(neigh(2), 2) = node1;
+0038         <span class="keyword">end</span>
+0039         
+0040         [nodes edges] = <a href="grRemoveNode.html" class="code" title="function [nodes2, edges2] = grRemoveNode(nodes, edges, node)">grRemoveNode</a>(nodes, edges, n);
+0041         <span class="keyword">continue</span>
+0042     <span class="keyword">end</span>
+0043     
+0044     n = n + 1;
+0045 <span class="keyword">end</span>
+0046 
+0047 <span class="comment">% process output depending on how many arguments are needed</span>
+0048 <span class="keyword">if</span> nargout == 1
+0049     out{1} = nodes;
+0050     out{2} = edges;
+0051     varargout = {out};
+0052 <span class="keyword">end</span>
+0053 
+0054 <span class="keyword">if</span> nargout == 2
+0055     varargout = {nodes, edges};
+0056 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawGraphEdges</title>
+  <meta name="keywords" content="drawGraphEdges">
+  <meta name="description" content="DRAWGRAPHEDGES Draw edges of a graph">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; drawGraphEdges.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawGraphEdges
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWGRAPHEDGES Draw edges of a graph</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = drawGraphEdges(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWGRAPHEDGES Draw edges of a graph
+
+   drawGraphEdges(NODES, EDGES) 
+   Draws a graph specified by a set of nodes (array N-by-2 or N-by-3,
+   corresponding to coordinate of each node), and a set of edges (an array
+   Ne-by-2, containing to the first and the second node of each edge).
+
+   drawGraphEdges(..., SEDGES)
+   Specifies the draw mode for each element, as in the classical 'plot'
+   function.
+   Default drawing is a blue line for edges.
+
+
+   H = drawGraphEdges(...) 
+   return handle to the set of edges.
+   
+   See also
+   <a href="drawGraph.html" class="code" title="function varargout = drawGraph(varargin)">drawGraph</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2005-11-24
+ Copyright 2005 INRA - CEPIA Nantes - MIAJ (Jouy-en-Josas).</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="drawGraphEdges.html" class="code" title="function varargout = drawGraphEdges(varargin)">drawGraphEdges</a>	DRAWGRAPHEDGES Draw edges of a graph</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="drawGraphEdges.html" class="code" title="function varargout = drawGraphEdges(varargin)">drawGraphEdges</a>	DRAWGRAPHEDGES Draw edges of a graph</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = drawGraphEdges(varargin)</a>
+0002 <span class="comment">%DRAWGRAPHEDGES Draw edges of a graph</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawGraphEdges(NODES, EDGES)</span>
+0005 <span class="comment">%   Draws a graph specified by a set of nodes (array N-by-2 or N-by-3,</span>
+0006 <span class="comment">%   corresponding to coordinate of each node), and a set of edges (an array</span>
+0007 <span class="comment">%   Ne-by-2, containing to the first and the second node of each edge).</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   drawGraphEdges(..., SEDGES)</span>
+0010 <span class="comment">%   Specifies the draw mode for each element, as in the classical 'plot'</span>
+0011 <span class="comment">%   function.</span>
+0012 <span class="comment">%   Default drawing is a blue line for edges.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   H = drawGraphEdges(...)</span>
+0016 <span class="comment">%   return handle to the set of edges.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%   See also</span>
+0019 <span class="comment">%   drawGraph</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% ------</span>
+0022 <span class="comment">% Author: David Legland</span>
+0023 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0024 <span class="comment">% Created: 2005-11-24</span>
+0025 <span class="comment">% Copyright 2005 INRA - CEPIA Nantes - MIAJ (Jouy-en-Josas).</span>
+0026 
+0027 <span class="comment">%   HISTORY</span>
+0028 
+0029 
+0030 <span class="comment">%% Input argument processing</span>
+0031 
+0032 <span class="comment">% initialisations</span>
+0033 e = [];
+0034 
+0035 <span class="comment">% check input arguments number</span>
+0036 <span class="keyword">if</span> nargin == 0
+0037     help <a href="drawGraphEdges.html" class="code" title="function varargout = drawGraphEdges(varargin)">drawGraphEdges</a>;
+0038     <span class="keyword">return</span>;
+0039 <span class="keyword">end</span>
+0040 
+0041 <span class="comment">% First extract the graph structure</span>
+0042 var = varargin{1};
+0043 <span class="keyword">if</span> iscell(var)
+0044     <span class="comment">% TODO: should consider array of graph structures.</span>
+0045     <span class="comment">% graph is stored as a cell array : first cell is nodes, second one is</span>
+0046     <span class="comment">% edges, and third is faces</span>
+0047     n = var{1};
+0048     <span class="keyword">if</span> length(var) &gt; 1
+0049         e = var{2};
+0050     <span class="keyword">end</span>
+0051     varargin(1) = [];
+0052     
+0053 <span class="keyword">elseif</span> isstruct(var)
+0054     <span class="comment">% graph is stored as a structure, with fields 'nodes', 'edges'</span>
+0055     n = var.nodes;
+0056     e = var.edges;
+0057     varargin(1) = [];
+0058     
+0059 <span class="keyword">else</span>
+0060     <span class="comment">% graph is stored as set of variables: nodes + edges</span>
+0061     n = varargin{1};
+0062     e = varargin{2};
+0063     varargin(1:2) = [];
+0064 <span class="keyword">end</span>
+0065 
+0066 <span class="comment">% check if there are edges to draw</span>
+0067 <span class="keyword">if</span> size(e, 1) == 0
+0068     <span class="keyword">return</span>;
+0069 <span class="keyword">end</span>
+0070 
+0071 <span class="comment">% setup default drawing style if not specified</span>
+0072 <span class="keyword">if</span> isempty(varargin)
+0073     varargin = {<span class="string">'-b'</span>};
+0074 <span class="keyword">end</span>
+0075 
+0076 
+0077 <span class="comment">%% main drawing processing</span>
+0078 
+0079 <span class="keyword">if</span> size(n, 2) == 2
+0080     <span class="comment">% Draw 2D edges</span>
+0081     x = [n(e(:,1), 1) n(e(:,2), 1)]';
+0082     y = [n(e(:,1), 2) n(e(:,2), 2)]';
+0083     he = plot(x, y, varargin{:});
+0084     
+0085 <span class="keyword">elseif</span> size(n, 2) == 3
+0086     <span class="comment">% Draw 3D edges</span>
+0087     x = [n(e(:,1), 1) n(e(:,2), 1)]';
+0088     y = [n(e(:,1), 2) n(e(:,2), 2)]';
+0089     z = [n(e(:,1), 3) n(e(:,2), 3)]';
+0090     he = plot3(x, y, z, varargin{:});
+0091     
+0092 <span class="keyword">end</span>
+0093 
+0094 
+0095 <span class="comment">%% format output arguments</span>
+0096 
+0097 <span class="keyword">if</span> nargout == 1
+0098     varargout = {he};
+0099 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

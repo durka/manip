@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of onEdge</title>
+  <meta name="keywords" content="onEdge">
+  <meta name="description" content="ONEDGE test if a point belongs to an edge">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; onEdge.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>onEdge
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>ONEDGE test if a point belongs to an edge</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function b = onEdge(point, edge) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ONEDGE test if a point belongs to an edge
+
+   B = onEdge(POINT, EDGE)
+   with POINT being [xp yp], and EDGE being [x1 y1 x2 y2].
+
+   See also:
+   <a href="edges2d.html" class="code" title="function edges2d(varargin)">edges2d</a>, <a href="points2d.html" class="code" title="function points2d">points2d</a>, <a href="onLine.html" class="code" title="function b = onLine(point, line)">onLine</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 31/10/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function b = onEdge(point, edge)</a>
+0002 <span class="comment">%ONEDGE test if a point belongs to an edge</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   B = onEdge(POINT, EDGE)</span>
+0005 <span class="comment">%   with POINT being [xp yp], and EDGE being [x1 y1 x2 y2].</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   See also:</span>
+0008 <span class="comment">%   edges2d, points2d, onLine</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   ---------</span>
+0011 <span class="comment">%   author : David Legland</span>
+0012 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0013 <span class="comment">%   created the 31/10/2003.</span>
+0014 <span class="comment">%</span>
+0015 
+0016 <span class="comment">% HISTORY</span>
+0017 <span class="comment">% 11/03/2004 : change input format : edge is [x1 y1 x2 y2].</span>
+0018 <span class="comment">% 17/01/2005 : if test N edges with N points, return N boolean.</span>
+0019 <span class="comment">% 21/01/2005 : normalize test for colinearity, so enhance precision</span>
+0020 <span class="comment">%   22/05/2009 deprecate</span>
+0021 
+0022 <span class="comment">% deprecation warning</span>
+0023 warning(<span class="string">'geom2d:deprecated'</span>, <span class="keyword">...</span>
+0024     <span class="string">'''onEdge'' is deprecated, use ''isPointOnEdge'' instead'</span>);
+0025 
+0026 Np = size(point, 1);
+0027 Ne = size(edge, 1);
+0028 
+0029 <span class="keyword">if</span> Np==1 || Ne==1
+0030     x0 = repmat(edge(:,1)', Np, 1);
+0031     y0 = repmat(edge(:,2)', Np, 1);
+0032     dx = repmat(edge(:,3)', Np, 1)-x0;
+0033     dy = repmat(edge(:,4)', Np, 1)-y0;
+0034     xp = repmat(point(:,1), 1, Ne);
+0035     yp = repmat(point(:,2), 1, Ne);
+0036 <span class="keyword">elseif</span> Np==Ne
+0037     x0 = edge(:,1);
+0038     y0 = edge(:,2);
+0039     dx = edge(:,3)-x0;
+0040     dy = edge(:,4)-y0;
+0041     xp = point(:,1);
+0042     yp = point(:,2);
+0043     
+0044 <span class="keyword">end</span>
+0045 
+0046 
+0047 <span class="comment">% test if lines are colinear</span>
+0048 b1 = abs((xp-x0).*dy - (yp-y0).*dx)./(dx.*dx+dy.*dy)&lt;1e-13;
+0049 
+0050 ind  = abs(dx)&gt;abs(dy);
+0051 t = zeros(max(Np, Ne), 1);
+0052 t(ind) = (xp(ind)-x0(ind))./dx(ind);
+0053 t(~ind) = (yp(~ind)-y0(~ind))./dy(~ind);
+0054 b = t&gt;-1e-14 &amp; t-1&lt;1e-14 &amp; b1;
+0055 
+0056 
+0057 
+0058</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

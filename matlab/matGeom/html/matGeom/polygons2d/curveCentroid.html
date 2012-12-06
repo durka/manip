@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of curveCentroid</title>
+  <meta name="keywords" content="curveCentroid">
+  <meta name="description" content="CURVECENTROID compute centroid of a curve defined by a series of points">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; curveCentroid.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>curveCentroid
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CURVECENTROID compute centroid of a curve defined by a series of points</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function center = curveCentroid(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CURVECENTROID compute centroid of a curve defined by a series of points
+
+   PT = curveCentroid(POINTS);
+   Computes center of mass of a curve defined by POINTS. POINTS is a [NxD]
+   array of double, N D-dimensional points.
+
+   PT = curveCentroid(PTX, PTY);
+   PT = curveCentroid(PTX, PTY, PTZ);
+   Specifies points as separate column vectors
+
+   PT = curveCentroid(..., TYPE);
+   Specifies if the last point is connected to the first one. TYPE can be
+   either 'closed' or 'open'.
+
+
+   See also :
+   polygons2d, centroid, <a href="polygonCentroid.html" class="code" title="function [centroid area] = polygonCentroid(varargin)">polygonCentroid</a>, <a href="curveLength.html" class="code" title="function len = curveLength(varargin)">curveLength</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 22/05/2006.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function center = curveCentroid(varargin)</a>
+0002 <span class="comment">%CURVECENTROID compute centroid of a curve defined by a series of points</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   PT = curveCentroid(POINTS);</span>
+0005 <span class="comment">%   Computes center of mass of a curve defined by POINTS. POINTS is a [NxD]</span>
+0006 <span class="comment">%   array of double, N D-dimensional points.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   PT = curveCentroid(PTX, PTY);</span>
+0009 <span class="comment">%   PT = curveCentroid(PTX, PTY, PTZ);</span>
+0010 <span class="comment">%   Specifies points as separate column vectors</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   PT = curveCentroid(..., TYPE);</span>
+0013 <span class="comment">%   Specifies if the last point is connected to the first one. TYPE can be</span>
+0014 <span class="comment">%   either 'closed' or 'open'.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   See also :</span>
+0018 <span class="comment">%   polygons2d, centroid, polygonCentroid, curveLength</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   ---------</span>
+0021 <span class="comment">%   author : David Legland</span>
+0022 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0023 <span class="comment">%   created the 22/05/2006.</span>
+0024 <span class="comment">%</span>
+0025 
+0026 <span class="comment">%   HISTORY</span>
+0027 <span class="comment">%   23/07/2009 deprecate and replace by 'reverseLine'.</span>
+0028 
+0029 <span class="comment">% deprecation warning</span>
+0030 warning(<span class="string">'geom2d:deprecated'</span>, <span class="keyword">...</span>
+0031     <span class="string">'''curveCentroid'' is deprecated, use ''polylineCentroid'' instead'</span>);
+0032 
+0033 
+0034 <span class="comment">%% process input arguments</span>
+0035 
+0036 <span class="comment">% check whether the curve is closed</span>
+0037 closed = false;
+0038 var = varargin{end};
+0039 <span class="keyword">if</span> ischar(var)
+0040     <span class="keyword">if</span> strcmpi(var, <span class="string">'closed'</span>)
+0041         closed = true;
+0042     <span class="keyword">end</span>
+0043     varargin = varargin(1:end-1);
+0044 <span class="keyword">end</span>
+0045 
+0046 <span class="comment">% extract point coordinates</span>
+0047 <span class="keyword">if</span> length(varargin)==1
+0048     points = varargin{1};
+0049 <span class="keyword">elseif</span> length(varargin)==2
+0050     points = [varargin{1} varargin{2}];
+0051 <span class="keyword">end</span>
+0052 
+0053 <span class="comment">% compute centers and lengths composing the curve</span>
+0054 <span class="keyword">if</span> closed
+0055     centers = (points + points([2:end 1],:))/2;
+0056     lengths = sqrt(sum(diff(points([1:end 1],:)).^2, 2));
+0057 <span class="keyword">else</span>
+0058     centers = (points(1:end-1,:) + points(2:<span class="keyword">end</span>,:))/2;
+0059     lengths = sqrt(sum(diff(points).^2, 2));
+0060 <span class="keyword">end</span>
+0061 
+0062 <span class="comment">% centroid of edge centers weighted by edge length</span>
+0063 <span class="comment">%weigths = repmat(lengths/sum(lengths), [1 size(points, 2)]);</span>
+0064 center = sum(centers.*repmat(lengths, [1 size(points, 2)]), 1)/sum(lengths);
+0065</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

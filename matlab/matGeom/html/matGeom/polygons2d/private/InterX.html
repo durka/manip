@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of InterX</title>
+  <meta name="keywords" content="InterX">
+  <meta name="description" content="INTERX Intersection of curves">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; <a href="#">private</a> &gt; InterX.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d\private&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>InterX
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>INTERX Intersection of curves</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function P = InterX(L1,varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">INTERX Intersection of curves
+   P = INTERX(L1,L2) returns the intersection points of two curves L1 
+   and L2. The curves L1,L2 can be either closed or open and are described
+   by two-row-matrices, where each row contains its x- and y- coordinates.
+   The intersection of groups of curves (e.g. contour lines, multiply 
+   connected regions etc) can also be computed by separating them with a
+   column of NaNs as for example
+
+         L  = [x11 x12 x13 ... NaN x21 x22 x23 ...;
+               y11 y12 y13 ... NaN y21 y22 y23 ...]
+
+   P has the same structure as L1 and L2, and its rows correspond to the
+   x- and y- coordinates of the intersection points of L1 and L2. If no
+   intersections are found, the returned P is empty.
+
+   P = INTERX(L1) returns the self-intersection points of L1. To keep
+   the code simple, the points at which the curve is tangent to itself are
+   not included. P = INTERX(L1,L1) returns all the points of the curve 
+   together with any self-intersection points.
+   
+   Example:
+       t = linspace(0,2*pi);
+       r1 = sin(4*t)+2;  x1 = r1.*cos(t); y1 = r1.*sin(t);
+       r2 = sin(8*t)+2;  x2 = r2.*cos(t); y2 = r2.*sin(t);
+       P = InterX([x1;y1],[x2;y2]);
+       plot(x1,y1,x2,y2,P(1,:),P(2,:),'ro')</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../.././matGeom/polygons2d/intersectPolylines.html" class="code" title="function pts = intersectPolylines(poly1, varargin)">intersectPolylines</a>	INTERSECTPOLYLINES Find the common points between 2 polylines</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function u = D(x,y)</a></li></ul>
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function P = InterX(L1,varargin)</a>
+0002 <span class="comment">%INTERX Intersection of curves</span>
+0003 <span class="comment">%   P = INTERX(L1,L2) returns the intersection points of two curves L1</span>
+0004 <span class="comment">%   and L2. The curves L1,L2 can be either closed or open and are described</span>
+0005 <span class="comment">%   by two-row-matrices, where each row contains its x- and y- coordinates.</span>
+0006 <span class="comment">%   The intersection of groups of curves (e.g. contour lines, multiply</span>
+0007 <span class="comment">%   connected regions etc) can also be computed by separating them with a</span>
+0008 <span class="comment">%   column of NaNs as for example</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%         L  = [x11 x12 x13 ... NaN x21 x22 x23 ...;</span>
+0011 <span class="comment">%               y11 y12 y13 ... NaN y21 y22 y23 ...]</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   P has the same structure as L1 and L2, and its rows correspond to the</span>
+0014 <span class="comment">%   x- and y- coordinates of the intersection points of L1 and L2. If no</span>
+0015 <span class="comment">%   intersections are found, the returned P is empty.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   P = INTERX(L1) returns the self-intersection points of L1. To keep</span>
+0018 <span class="comment">%   the code simple, the points at which the curve is tangent to itself are</span>
+0019 <span class="comment">%   not included. P = INTERX(L1,L1) returns all the points of the curve</span>
+0020 <span class="comment">%   together with any self-intersection points.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   Example:</span>
+0023 <span class="comment">%       t = linspace(0,2*pi);</span>
+0024 <span class="comment">%       r1 = sin(4*t)+2;  x1 = r1.*cos(t); y1 = r1.*sin(t);</span>
+0025 <span class="comment">%       r2 = sin(8*t)+2;  x2 = r2.*cos(t); y2 = r2.*sin(t);</span>
+0026 <span class="comment">%       P = InterX([x1;y1],[x2;y2]);</span>
+0027 <span class="comment">%       plot(x1,y1,x2,y2,P(1,:),P(2,:),'ro')</span>
+0028 
+0029 <span class="comment">%   Author : NS</span>
+0030 <span class="comment">%   Version: 3.0, 21 Sept. 2010</span>
+0031 
+0032 <span class="comment">%   Two words about the algorithm: Most of the code is self-explanatory.</span>
+0033 <span class="comment">%   The only trick lies in the calculation of C1 and C2. To be brief, this</span>
+0034 <span class="comment">%   is essentially the two-dimensional analog of the condition that needs</span>
+0035 <span class="comment">%   to be satisfied by a function F(x) that has a zero in the interval</span>
+0036 <span class="comment">%   [a,b], namely</span>
+0037 <span class="comment">%           F(a)*F(b) &lt;= 0</span>
+0038 <span class="comment">%   C1 and C2 exactly do this for each segment of curves 1 and 2</span>
+0039 <span class="comment">%   respectively. If this condition is satisfied simultaneously for two</span>
+0040 <span class="comment">%   segments then we know that they will cross at some point.</span>
+0041 <span class="comment">%   Each factor of the 'C' arrays is essentially a matrix containing</span>
+0042 <span class="comment">%   the numerators of the signed distances between points of one curve</span>
+0043 <span class="comment">%   and line segments of the other.</span>
+0044 
+0045     <span class="comment">%...Argument checks and assignment of L2</span>
+0046     error(nargchk(1,2,nargin));
+0047     <span class="keyword">if</span> nargin == 1,
+0048         L2 = L1;    hF = @lt;   <span class="comment">%...Avoid the inclusion of common points</span>
+0049     <span class="keyword">else</span>
+0050         L2 = varargin{1}; hF = @le;
+0051     <span class="keyword">end</span>
+0052        
+0053     <span class="comment">%...Preliminary stuff</span>
+0054     x1  = L1(1,:)';  x2 = L2(1,:);
+0055     y1  = L1(2,:)';  y2 = L2(2,:);
+0056     dx1 = diff(x1); dy1 = diff(y1);
+0057     dx2 = diff(x2); dy2 = diff(y2);
+0058     
+0059     <span class="comment">%...Determine 'signed distances'</span>
+0060     S1 = dx1.*y1(1:end-1) - dy1.*x1(1:end-1);
+0061     S2 = dx2.*y2(1:end-1) - dy2.*x2(1:end-1);
+0062     
+0063     C1 = feval(hF,<a href="#_sub1" class="code" title="subfunction u = D(x,y)">D</a>(bsxfun(@times,dx1,y2)-bsxfun(@times,dy1,x2),S1),0);
+0064     C2 = feval(hF,<a href="#_sub1" class="code" title="subfunction u = D(x,y)">D</a>((bsxfun(@times,y1,dx2)-bsxfun(@times,x1,dy2))',S2'),0)';
+0065 
+0066     <span class="comment">%...Obtain the segments where an intersection is expected</span>
+0067     [i,j] = find(C1 &amp; C2); 
+0068     <span class="keyword">if</span> isempty(i),P = zeros(2,0);<span class="keyword">return</span>; <span class="keyword">end</span>;
+0069     
+0070     <span class="comment">%...Transpose and prepare for output</span>
+0071     i=i'; dx2=dx2'; dy2=dy2'; S2 = S2';
+0072     L = dy2(j).*dx1(i) - dy1(i).*dx2(j);
+0073     i = i(L~=0); j=j(L~=0); L=L(L~=0);  <span class="comment">%...Avoid divisions by 0</span>
+0074     
+0075     <span class="comment">%...Solve system of eqs to get the common points</span>
+0076     P = unique([dx2(j).*S1(i) - dx1(i).*S2(j), <span class="keyword">...</span>
+0077                 dy2(j).*S1(i) - dy1(i).*S2(j)]./[L L],<span class="string">'rows'</span>)';
+0078               
+0079     <span class="keyword">function</span> u = <a href="#_sub1" class="code" title="subfunction u = D(x,y)">D</a>(x,y)
+0080         u = bsxfun(@minus,x(:,1:end-1),y).*bsxfun(@minus,x(:,2:end),y);
+0081     <span class="keyword">end</span>
+0082 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

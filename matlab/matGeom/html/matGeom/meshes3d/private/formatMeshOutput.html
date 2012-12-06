@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of formatMeshOutput</title>
+  <meta name="keywords" content="formatMeshOutput">
+  <meta name="description" content="FORMATMESHOUTPUT Format mesh output depending on nargout">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; <a href="#">private</a> &gt; formatMeshOutput.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d\private&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>formatMeshOutput
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>FORMATMESHOUTPUT Format mesh output depending on nargout</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function res = formatMeshOutput(nbArgs, vertices, edges, faces) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">FORMATMESHOUTPUT Format mesh output depending on nargout
+
+   OUTPUT = formatMeshOutput(NARGOUT, VERTICES, EDGES, FACES)
+   Utilitary function to convert mesh data .
+   If NARGOUT is 0 or 1, return a matlab structure with fields vertices,
+   edges and faces.
+   If NARGOUT is 2, return a cell array with data VERTICES and FACES.
+   If NARGOUT is 3, return a cell array with data VERTICES, EDGES and
+   FACES. 
+
+   OUTPUT = formatMeshOutput(NARGOUT, VERTICES, FACES)
+   Same as before, but do not intialize EDGES in output. NARGOUT can not
+   be equal to 3.
+
+   Example
+     % Typical calling sequence (for a very basic mesh of only one face)
+     v = [0 0; 0 1;1 0;1 1];
+     e = [1 2;1 3;2 4;3 4];
+     f = [1 2 3 4];
+ 
+     varargout = formatMeshOutput(nargout, v, e, f);
+
+   See also
+   meshes3d, <a href="parseMeshData.html" class="code" title="function varargout = parseMeshData(varargin)">parseMeshData</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2010-12-06,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2010 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../.././matGeom/meshes3d/createCube.html" class="code" title="function varargout = createCube()">createCube</a>	CREATECUBE Create a 3D mesh representing the unit cube</li><li><a href="../../.././matGeom/meshes3d/createCubeOctahedron.html" class="code" title="function varargout = createCubeOctahedron()">createCubeOctahedron</a>	CREATECUBEOCTAHEDRON Create a 3D mesh representing a cube-octahedron</li><li><a href="../../.././matGeom/meshes3d/createDodecahedron.html" class="code" title="function varargout = createDodecahedron()">createDodecahedron</a>	CREATEDODECAHEDRON Create a 3D mesh representing a dodecahedron</li><li><a href="../../.././matGeom/meshes3d/createDurerPolyhedron.html" class="code" title="function varargout = createDurerPolyhedron(varargin)">createDurerPolyhedron</a>	CREATEDURERPOLYHEDRON  Create a mesh representing Durer's polyhedron</li><li><a href="../../.././matGeom/meshes3d/createIcosahedron.html" class="code" title="function varargout = createIcosahedron()">createIcosahedron</a>	CREATEICOSAHEDRON Create a 3D mesh representing an Icosahedron.</li><li><a href="../../.././matGeom/meshes3d/createMengerSponge.html" class="code" title="function varargout = createMengerSponge()">createMengerSponge</a>	CREATEMENGERSPONGE Create a cube with an inside cross removed</li><li><a href="../../.././matGeom/meshes3d/createOctahedron.html" class="code" title="function varargout = createOctahedron()">createOctahedron</a>	CREATEOCTAHEDRON Create a 3D mesh representing an octahedron</li><li><a href="../../.././matGeom/meshes3d/createRhombododecahedron.html" class="code" title="function varargout = createRhombododecahedron()">createRhombododecahedron</a>	CREATERHOMBODODECAHEDRON Create a 3D mesh representing a rhombododecahedron</li><li><a href="../../.././matGeom/meshes3d/createSoccerBall.html" class="code" title="function varargout = createSoccerBall()">createSoccerBall</a>	CREATESOCCERBALL Create a 3D mesh representing a soccer ball</li><li><a href="../../.././matGeom/meshes3d/createTetrahedron.html" class="code" title="function varargout = createTetrahedron()">createTetrahedron</a>	CREATETETRAHEDRON Create a 3D mesh representing a tetrahedron</li><li><a href="../../.././matGeom/meshes3d/createTetrakaidecahedron.html" class="code" title="function varargout = createTetrakaidecahedron()">createTetrakaidecahedron</a>	CREATETETRAKAIDECAHEDRON Create a 3D mesh representing a tetrakaidecahedron</li><li><a href="../../.././matGeom/meshes3d/cylinderMesh.html" class="code" title="function varargout = cylinderMesh(cyl, varargin)">cylinderMesh</a>	CYLINDERMESH  Create a 3D mesh representing a cylinder</li><li><a href="parseMeshData.html" class="code" title="function varargout = parseMeshData(varargin)">parseMeshData</a>	PARSEMESHDATA Conversion of data representation for meshes</li><li><a href="../../.././matGeom/meshes3d/sphereMesh.html" class="code" title="function varargout = sphereMesh(sphere, varargin)">sphereMesh</a>	SPHEREMESH  Create a 3D mesh representing a sphere</li><li><a href="../../.././matGeom/meshes3d/surfToMesh.html" class="code" title="function varargout = surfToMesh(x, y, varargin)">surfToMesh</a>	SURFTOMESH Convert surface grids into face-vertex mesh</li><li><a href="../../.././matGeom/meshes3d/torusMesh.html" class="code" title="function varargout = torusMesh(torus, varargin)">torusMesh</a>	TORUSMESH  Create a 3D mesh representing a torus</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function res = formatMeshOutput(nbArgs, vertices, edges, faces)</a>
+0002 <span class="comment">%FORMATMESHOUTPUT Format mesh output depending on nargout</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   OUTPUT = formatMeshOutput(NARGOUT, VERTICES, EDGES, FACES)</span>
+0005 <span class="comment">%   Utilitary function to convert mesh data .</span>
+0006 <span class="comment">%   If NARGOUT is 0 or 1, return a matlab structure with fields vertices,</span>
+0007 <span class="comment">%   edges and faces.</span>
+0008 <span class="comment">%   If NARGOUT is 2, return a cell array with data VERTICES and FACES.</span>
+0009 <span class="comment">%   If NARGOUT is 3, return a cell array with data VERTICES, EDGES and</span>
+0010 <span class="comment">%   FACES.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   OUTPUT = formatMeshOutput(NARGOUT, VERTICES, FACES)</span>
+0013 <span class="comment">%   Same as before, but do not intialize EDGES in output. NARGOUT can not</span>
+0014 <span class="comment">%   be equal to 3.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   Example</span>
+0017 <span class="comment">%     % Typical calling sequence (for a very basic mesh of only one face)</span>
+0018 <span class="comment">%     v = [0 0; 0 1;1 0;1 1];</span>
+0019 <span class="comment">%     e = [1 2;1 3;2 4;3 4];</span>
+0020 <span class="comment">%     f = [1 2 3 4];</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%     varargout = formatMeshOutput(nargout, v, e, f);</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%   See also</span>
+0025 <span class="comment">%   meshes3d, parseMeshData</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% ------</span>
+0028 <span class="comment">% Author: David Legland</span>
+0029 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0030 <span class="comment">% Created: 2010-12-06,    using Matlab 7.9.0.529 (R2009b)</span>
+0031 <span class="comment">% Copyright 2010 INRA - Cepia Software Platform.</span>
+0032 
+0033 <span class="keyword">if</span> nargin &lt; 4
+0034     faces = edges;
+0035     edges = [];
+0036 <span class="keyword">end</span>
+0037 
+0038 <span class="keyword">switch</span> nbArgs
+0039     <span class="keyword">case</span> {0, 1}
+0040         <span class="comment">% output is a data structure with fields vertices, edges and faces</span>
+0041         mesh.vertices = vertices;
+0042         mesh.edges = edges;
+0043         mesh.faces = faces;
+0044         res = {mesh};
+0045 
+0046     <span class="keyword">case</span> 2
+0047         <span class="comment">% keep only vertices and faces</span>
+0048         res = cell(nbArgs, 1);
+0049         res{1} = vertices;
+0050         res{2} = faces;
+0051         
+0052     <span class="keyword">case</span> 3
+0053         <span class="comment">% return vertices, edges and faces as 3 separate outputs</span>
+0054         res = cell(nbArgs, 1);
+0055         res{1} = vertices;
+0056         res{2} = edges;
+0057         res{3} = faces;
+0058         
+0059     <span class="keyword">otherwise</span>
+0060         error(<span class="string">'Can not manage more than 3 outputs'</span>);
+0061 <span class="keyword">end</span>
+0062</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

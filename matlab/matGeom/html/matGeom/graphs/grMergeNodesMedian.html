@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of grMergeNodesMedian</title>
+  <meta name="keywords" content="grMergeNodesMedian">
+  <meta name="description" content="GRMERGENODESMEDIAN Replace several nodes by their median coordinate">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; grMergeNodesMedian.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>grMergeNodesMedian
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GRMERGENODESMEDIAN Replace several nodes by their median coordinate</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [nodes2, edges2] = grMergeNodesMedian(nodes, edges, mnodes) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GRMERGENODESMEDIAN Replace several nodes by their median coordinate
+
+   [NODES2 EDGES2] = grMergeNodesMedian(NODES, EDGES, NODES2MERGE)
+   NODES ans EDGES are the graph structure, and NODES2MERGE is the list of
+   indices of nodes to be merged.
+   The median coordinate of merged nodes is computed, and all nodes are
+   merged to this new node.
+
+
+   -----
+
+   author : David Legland 
+   INRA - TPV URPOI - BIA IMASTE
+   created the 13/08/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>	GRNEIGHBORNODES Find adjacent nodes of a given node</li><li><a href="grRemoveNode.html" class="code" title="function [nodes2, edges2] = grRemoveNode(nodes, edges, node)">grRemoveNode</a>	GRREMOVENODE Remove a node in a graph</li><li><a href="../.././matGeom/polygons2d/findPoint.html" class="code" title="function index = findPoint(coord, points)">findPoint</a>	FINDPOINT Find index of a point in an set from its coordinates</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [nodes2, edges2] = grMergeNodesMedian(nodes, edges, mnodes)</a>
+0002 <span class="comment">%GRMERGENODESMEDIAN Replace several nodes by their median coordinate</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [NODES2 EDGES2] = grMergeNodesMedian(NODES, EDGES, NODES2MERGE)</span>
+0005 <span class="comment">%   NODES ans EDGES are the graph structure, and NODES2MERGE is the list of</span>
+0006 <span class="comment">%   indices of nodes to be merged.</span>
+0007 <span class="comment">%   The median coordinate of merged nodes is computed, and all nodes are</span>
+0008 <span class="comment">%   merged to this new node.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   -----</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   author : David Legland</span>
+0014 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0015 <span class="comment">%   created the 13/08/2003.</span>
+0016 <span class="comment">%</span>
+0017 
+0018 <span class="comment">%   HISTORY</span>
+0019 <span class="comment">%   10/02/2004 : documentation</span>
+0020 
+0021 
+0022 <span class="comment">% coordinates of reference node</span>
+0023 x = median(nodes(mnodes, 1));
+0024 y = median(nodes(mnodes, 2));
+0025 
+0026 <span class="comment">% index of reference node</span>
+0027 refNode = <a href="../.././matGeom/polygons2d/findPoint.html" class="code" title="function index = findPoint(coord, points)">findPoint</a>([x y], nodes);
+0028 mnodes = sort(mnodes(mnodes ~= refNode));
+0029 
+0030 <span class="keyword">for</span> n = 1:length(mnodes)
+0031     node = mnodes(n);
+0032     
+0033     <span class="comment">% process each neighbor of the current node</span>
+0034     neighbors = <a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>(edges, node);
+0035     <span class="keyword">for</span> e = 1:length(neighbors)
+0036         edge = neighbors(e);
+0037         
+0038         <span class="keyword">if</span> edges(edge, 1) == refNode || edges(edge, 2) == refNode
+0039             <span class="keyword">continue</span>;
+0040         <span class="keyword">end</span>
+0041 
+0042         <span class="comment">% find if the node is referenced as 1 or 2 in the edge,</span>
+0043         <span class="comment">% and replace it with the reference node.</span>
+0044         <span class="keyword">if</span> edges(edge, 1) == node
+0045             edges(edge, 1) = refNode;
+0046         <span class="keyword">else</span>
+0047             edges(edge, 2) = refNode;
+0048         <span class="keyword">end</span>  
+0049         
+0050     <span class="keyword">end</span>
+0051 <span class="keyword">end</span>   
+0052 
+0053 <span class="comment">% remove nodes from the list, except the reference node.</span>
+0054 <span class="keyword">for</span> n = 1:length(mnodes)
+0055     [nodes edges] = <a href="grRemoveNode.html" class="code" title="function [nodes2, edges2] = grRemoveNode(nodes, edges, node)">grRemoveNode</a>(nodes, edges, mnodes(n)-n+1);
+0056 <span class="keyword">end</span>
+0057 
+0058 nodes2 = nodes;
+0059 edges2 = edges;
+0060 
+0061</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

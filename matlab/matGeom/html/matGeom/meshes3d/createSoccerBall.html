@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of createSoccerBall</title>
+  <meta name="keywords" content="createSoccerBall">
+  <meta name="description" content="CREATESOCCERBALL Create a 3D mesh representing a soccer ball">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; createSoccerBall.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>createSoccerBall
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CREATESOCCERBALL Create a 3D mesh representing a soccer ball</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = createSoccerBall() </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CREATESOCCERBALL Create a 3D mesh representing a soccer ball
+
+   It is basically a wrapper of the 'bucky' function in matlab.
+   [V E F] = createSoccerBall
+   return vertices, edges and faces that constitute a soccerball
+   V is a 60-by-3 array containing vertex coordinates
+   E is a 90-by-2 array containing indices of neighbor vertices
+   F is a 32-by-1 cell array containing vertex indices of each face
+   Example
+   [v f] = createSoccerBall;
+   drawMesh(v, f);
+
+   See also
+   meshes, <a href="drawMesh.html" class="code" title="function varargout = drawMesh(vertices, faces, varargin)">drawMesh</a>, bucky
+
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@jouy.inra.fr
+ Created: 2006-08-09
+ Copyright 2006 INRA - CEPIA Nantes - MIAJ (Jouy-en-Josas).</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="minConvexHull.html" class="code" title="function faces = minConvexHull(nodes, varargin)">minConvexHull</a>	MINCONVEXHULL Return the unique minimal convex hull of a set of 3D points</li><li><a href="../.././matGeom/meshes3d/private/formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>	FORMATMESHOUTPUT Format mesh output depending on nargout</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = createSoccerBall()</a>
+0002 <span class="comment">%CREATESOCCERBALL Create a 3D mesh representing a soccer ball</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   It is basically a wrapper of the 'bucky' function in matlab.</span>
+0005 <span class="comment">%   [V E F] = createSoccerBall</span>
+0006 <span class="comment">%   return vertices, edges and faces that constitute a soccerball</span>
+0007 <span class="comment">%   V is a 60-by-3 array containing vertex coordinates</span>
+0008 <span class="comment">%   E is a 90-by-2 array containing indices of neighbor vertices</span>
+0009 <span class="comment">%   F is a 32-by-1 cell array containing vertex indices of each face</span>
+0010 <span class="comment">%   Example</span>
+0011 <span class="comment">%   [v f] = createSoccerBall;</span>
+0012 <span class="comment">%   drawMesh(v, f);</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   See also</span>
+0015 <span class="comment">%   meshes, drawMesh, bucky</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% ------</span>
+0019 <span class="comment">% Author: David Legland</span>
+0020 <span class="comment">% e-mail: david.legland@jouy.inra.fr</span>
+0021 <span class="comment">% Created: 2006-08-09</span>
+0022 <span class="comment">% Copyright 2006 INRA - CEPIA Nantes - MIAJ (Jouy-en-Josas).</span>
+0023 
+0024 <span class="comment">%   HISTORY</span>
+0025 <span class="comment">%   2007-01-04 remove unused variables, enhance output processing</span>
+0026 <span class="comment">%   2010-12-07 clean up edges, uses formatMeshOutput</span>
+0027 
+0028 
+0029 <span class="comment">% get vertices and adjacency matrix of the buckyball</span>
+0030 [b n] = bucky;
+0031 
+0032 <span class="comment">% compute edges</span>
+0033 [i j] = find(b);
+0034 e = [i j];
+0035 e = unique(sort(e, 2), <span class="string">'rows'</span>);
+0036 
+0037 <span class="comment">% compute polygons that correspond to each 3D face</span>
+0038 f = <a href="minConvexHull.html" class="code" title="function faces = minConvexHull(nodes, varargin)">minConvexHull</a>(n)';
+0039 
+0040 <span class="comment">% format output</span>
+0041 varargout = <a href="../.././matGeom/meshes3d/private/formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>(nargout, n, e, f);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawPoint</title>
+  <meta name="keywords" content="drawPoint">
+  <meta name="description" content="DRAWPOINT Draw the point on the axis.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; drawPoint.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawPoint
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWPOINT Draw the point on the axis.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = drawPoint(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWPOINT Draw the point on the axis.
+
+   drawPoint(X, Y);
+   Draws points defined by coordinates X and Y.
+   X and Y should be array the same size.
+
+   drawPoint(COORD);
+   Packs coordinates in a single N-by-2 array.
+
+   drawPoint(..., OPT);
+   Draws each point with given option. OPT is a series of arguments pairs
+   compatible with 'plot' model. Default drawing option is 'bo',
+   corresponding to blue circles.
+
+   drawPoint(AX, ...);
+   Specifies the axis to draw to point in. AX should be a handle to a axis
+   object. By default, display on current axis.
+
+   H = drawPoint(...) also return a handle to each of the drawn points.
+
+   Example
+     % display a single point
+     figure;
+     drawPoint([10 10]);
+
+     % display several points forming a circle
+     t = linspace(0, 2*pi, 20)';
+     drawPoint([5*cos(t)+10 3*sin(t)+10], 'r+');
+     axis equal;
+
+   See also
+   <a href="points2d.html" class="code" title="function points2d">points2d</a>, <a href="clipPoints.html" class="code" title="function points = clipPoints(points, box)">clipPoints</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 31/10/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="isAxisHandle.html" class="code" title="function b = isAxisHandle(arg)">isAxisHandle</a>	ISAXISHANDLE Check if the input corresponds to a valid axis hanfle</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = drawPoint(varargin)</a>
+0002 <span class="comment">%DRAWPOINT Draw the point on the axis.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawPoint(X, Y);</span>
+0005 <span class="comment">%   Draws points defined by coordinates X and Y.</span>
+0006 <span class="comment">%   X and Y should be array the same size.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   drawPoint(COORD);</span>
+0009 <span class="comment">%   Packs coordinates in a single N-by-2 array.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   drawPoint(..., OPT);</span>
+0012 <span class="comment">%   Draws each point with given option. OPT is a series of arguments pairs</span>
+0013 <span class="comment">%   compatible with 'plot' model. Default drawing option is 'bo',</span>
+0014 <span class="comment">%   corresponding to blue circles.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   drawPoint(AX, ...);</span>
+0017 <span class="comment">%   Specifies the axis to draw to point in. AX should be a handle to a axis</span>
+0018 <span class="comment">%   object. By default, display on current axis.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   H = drawPoint(...) also return a handle to each of the drawn points.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   Example</span>
+0023 <span class="comment">%     % display a single point</span>
+0024 <span class="comment">%     figure;</span>
+0025 <span class="comment">%     drawPoint([10 10]);</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">%     % display several points forming a circle</span>
+0028 <span class="comment">%     t = linspace(0, 2*pi, 20)';</span>
+0029 <span class="comment">%     drawPoint([5*cos(t)+10 3*sin(t)+10], 'r+');</span>
+0030 <span class="comment">%     axis equal;</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">%   See also</span>
+0033 <span class="comment">%   points2d, clipPoints</span>
+0034 <span class="comment">%</span>
+0035 <span class="comment">%   ---------</span>
+0036 <span class="comment">%   author : David Legland</span>
+0037 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0038 <span class="comment">%   created the 31/10/2003.</span>
+0039 <span class="comment">%</span>
+0040 
+0041 <span class="comment">%   HISTORY</span>
+0042 <span class="comment">%   23/02/2004 add more documentation. Manage different kind of inputs.</span>
+0043 <span class="comment">%     Does not draw points outside visible area.</span>
+0044 <span class="comment">%   26/02/2007 update processing of input arguments.</span>
+0045 <span class="comment">%   30/04/2009 remove clipping of points (use clipPoints if necessary)</span>
+0046 <span class="comment">%   2011-10-11 add management of axes handle</span>
+0047 
+0048 <span class="comment">% extract handle of axis to draw on</span>
+0049 <span class="keyword">if</span> <a href="isAxisHandle.html" class="code" title="function b = isAxisHandle(arg)">isAxisHandle</a>(varargin{1})
+0050     ax = varargin{1};
+0051     varargin(1) = [];
+0052 <span class="keyword">else</span>
+0053     ax = gca;
+0054 <span class="keyword">end</span>
+0055 
+0056 <span class="comment">% extract point(s) coordinates</span>
+0057 var = varargin{1};
+0058 <span class="keyword">if</span> size(var, 2) == 1
+0059     <span class="comment">% points stored in separate arrays</span>
+0060     px = varargin{1};
+0061     py = varargin{2};
+0062     varargin(1:2) = [];
+0063 <span class="keyword">else</span>
+0064     <span class="comment">% points packed in one array</span>
+0065     px = var(:, 1);
+0066     py = var(:, 2);
+0067     varargin(1) = [];
+0068 <span class="keyword">end</span>
+0069 
+0070 <span class="comment">% ensure we have column vectors</span>
+0071 px = px(:);
+0072 py = py(:);
+0073 
+0074 <span class="comment">% default drawing options, but keep specified options if it has the form of</span>
+0075 <span class="comment">% a bundled string</span>
+0076 <span class="keyword">if</span> length(varargin) ~= 1
+0077     varargin = [{<span class="string">'linestyle'</span>, <span class="string">'none'</span>, <span class="string">'marker'</span>, <span class="string">'o'</span>, <span class="string">'color'</span>, <span class="string">'b'</span>}, varargin];
+0078 <span class="keyword">end</span>
+0079 
+0080 <span class="comment">% plot the points, using specified drawing options</span>
+0081 h = plot(ax, px(:), py(:), varargin{:});
+0082 
+0083 <span class="comment">% process output arguments</span>
+0084 <span class="keyword">if</span> nargout &gt; 0
+0085     varargout = {h};
+0086 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

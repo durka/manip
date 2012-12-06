@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of grRemoveNodes</title>
+  <meta name="keywords" content="grRemoveNodes">
+  <meta name="description" content="GRREMOVENODES Remove several nodes in a graph">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; grRemoveNodes.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>grRemoveNodes
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GRREMOVENODES Remove several nodes in a graph</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [nodes2, edges2] = grRemoveNodes(nodes, edges, rmNodes) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GRREMOVENODES Remove several nodes in a graph
+
+   usage:
+   [NODES2 EDGES2] = grRemoveNodes(NODES, EDGES, NODES2REMOVE)
+   remove the nodes with indices NODE2REMOVE from array NODES, and also
+   remove edges containing the nodes NODE2REMOVE.
+
+   -----
+
+   author: David Legland 
+   INRA - TPV URPOI - BIA IMASTE
+   created the 13/08/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>	GRNEIGHBORNODES Find adjacent nodes of a given node</li><li><a href="grRemoveEdges.html" class="code" title="function [nodes2, edges2] = grRemoveEdges(nodes, edges, rmEdges)">grRemoveEdges</a>	GRREMOVEEDGES Remove several edges from a graph</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [nodes2, edges2] = grRemoveNodes(nodes, edges, rmNodes)</a>
+0002 <span class="comment">%GRREMOVENODES Remove several nodes in a graph</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   usage:</span>
+0005 <span class="comment">%   [NODES2 EDGES2] = grRemoveNodes(NODES, EDGES, NODES2REMOVE)</span>
+0006 <span class="comment">%   remove the nodes with indices NODE2REMOVE from array NODES, and also</span>
+0007 <span class="comment">%   remove edges containing the nodes NODE2REMOVE.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   -----</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   author: David Legland</span>
+0012 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0013 <span class="comment">%   created the 13/08/2003.</span>
+0014 <span class="comment">%</span>
+0015 
+0016 <span class="comment">%   HISTORY</span>
+0017 <span class="comment">%   10/02/2004 doc</span>
+0018 
+0019 
+0020 <span class="comment">%% edges processing</span>
+0021 
+0022 <span class="comment">% remove all edges connected to each node</span>
+0023 <span class="keyword">for</span> i = 1:length(rmNodes)
+0024     neighbours = <a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>(edges, rmNodes(i));
+0025     <span class="keyword">if</span> ~isempty(neighbours)
+0026         [nodes, edges] = <a href="grRemoveEdges.html" class="code" title="function [nodes2, edges2] = grRemoveEdges(nodes, edges, rmEdges)">grRemoveEdges</a>(nodes, edges, neighbours);
+0027     <span class="keyword">end</span>
+0028 <span class="keyword">end</span>
+0029 
+0030 <span class="comment">% change edges information, due to the node index shift</span>
+0031 <span class="keyword">for</span> n = 1:length(rmNodes)
+0032     <span class="keyword">for</span> i = 1:length(edges)
+0033         <span class="keyword">if</span> edges(i,1) &gt; rmNodes(n)-n+1
+0034             edges(i,1) = edges(i,1) - 1;
+0035         <span class="keyword">end</span>
+0036         <span class="keyword">if</span> edges(i,2) &gt; rmNodes(n)-n+1
+0037             edges(i,2) = edges(i,2) - 1;
+0038         <span class="keyword">end</span>
+0039     <span class="keyword">end</span> 
+0040 <span class="keyword">end</span>
+0041 
+0042 edges2 = edges;
+0043 
+0044 
+0045 <span class="comment">%% nodes processing</span>
+0046 
+0047 <span class="comment">% number of nodes</span>
+0048 N   = size(nodes, 1);
+0049 NR  = length(rmNodes);
+0050 N2  = N-NR;
+0051 
+0052 <span class="comment">% allocate memory</span>
+0053 nodes2 = zeros(N2, 2);
+0054 
+0055 <span class="comment">% process the first node</span>
+0056 nodes2(1:rmNodes(1)-1,:) = nodes(1:rmNodes(1)-1,:);
+0057 
+0058 <span class="comment">% process the classical nodes</span>
+0059 <span class="keyword">for</span> i = 2:NR
+0060     nodes2(rmNodes(i-1)-i+2:rmNodes(i)-i, :) = nodes(rmNodes(i-1)+1:rmNodes(i)-1, :);
+0061 <span class="keyword">end</span>
+0062 
+0063 <span class="comment">% process the last node</span>
+0064 nodes2(rmNodes(NR)-NR+1:N2, :) = nodes(rmNodes(NR)+1:N, :);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

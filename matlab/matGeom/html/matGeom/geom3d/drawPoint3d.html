@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawPoint3d</title>
+  <meta name="keywords" content="drawPoint3d">
+  <meta name="description" content="DRAWPOINT3D Draw 3D point on the current axis.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; drawPoint3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawPoint3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWPOINT3D Draw 3D point on the current axis.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = drawPoint3d(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWPOINT3D Draw 3D point on the current axis.
+
+   drawPoint3d(X, Y, Z) 
+   will draw points defined by coordinates X and Y. 
+   X and Y are N*1 array, with N being number of points to be drawn.
+   
+   drawPoint3d(COORD) 
+   packs coordinates in a single [N*3] array.
+
+   drawPoint3d(..., OPT) 
+   will draw each point with given option. OPT is a string compatible with
+   'plot' model.
+
+   H = drawPoint3d(...) 
+   Also return a handle to each of the drawn points.
+
+   
+   See also
+   <a href="points3d.html" class="code" title="function points3d(varargin)">points3d</a>, <a href="clipPoints3d.html" class="code" title="function varargout = clipPoints3d(points, box)">clipPoints3d</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 18/02/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = drawPoint3d(varargin)</a>
+0002 <span class="comment">%DRAWPOINT3D Draw 3D point on the current axis.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawPoint3d(X, Y, Z)</span>
+0005 <span class="comment">%   will draw points defined by coordinates X and Y.</span>
+0006 <span class="comment">%   X and Y are N*1 array, with N being number of points to be drawn.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   drawPoint3d(COORD)</span>
+0009 <span class="comment">%   packs coordinates in a single [N*3] array.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   drawPoint3d(..., OPT)</span>
+0012 <span class="comment">%   will draw each point with given option. OPT is a string compatible with</span>
+0013 <span class="comment">%   'plot' model.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   H = drawPoint3d(...)</span>
+0016 <span class="comment">%   Also return a handle to each of the drawn points.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   See also</span>
+0020 <span class="comment">%   points3d, clipPoints3d</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   ---------</span>
+0023 <span class="comment">%   author : David Legland</span>
+0024 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0025 <span class="comment">%   created the 18/02/2005.</span>
+0026 <span class="comment">%</span>
+0027 
+0028 <span class="comment">%   HISTORY</span>
+0029 <span class="comment">%   04/01/2007: remove unused variables, and enhance support for plot</span>
+0030 <span class="comment">%       options</span>
+0031 <span class="comment">%   12/02/2010 does not clip points anymore</span>
+0032 
+0033 
+0034 var = varargin{1};
+0035 <span class="keyword">if</span> size(var, 2)==3
+0036     <span class="comment">% points are given as one single array with 3 columns</span>
+0037     px = var(:, 1);
+0038     py = var(:, 2);
+0039     pz = var(:, 3);
+0040     varargin = varargin(2:end);
+0041 <span class="keyword">elseif</span> length(varargin)&lt;3
+0042     error(<span class="string">'wrong number of arguments in drawPoint3d'</span>);
+0043 <span class="keyword">else</span>
+0044     <span class="comment">% points are given as 3 columns with equal length</span>
+0045     px = varargin{1};
+0046     py = varargin{2};
+0047     pz = varargin{3};
+0048     varargin = varargin(4:end);
+0049 <span class="keyword">end</span>
+0050 
+0051 <span class="comment">% default draw style: no line, marker is 'o'</span>
+0052 <span class="keyword">if</span> length(varargin)~=1
+0053     varargin = [<span class="string">'linestyle'</span>, <span class="string">'none'</span>, <span class="string">'marker'</span>, <span class="string">'o'</span>, varargin];
+0054 <span class="keyword">end</span>
+0055 
+0056 <span class="comment">% plot only points inside the axis.</span>
+0057 h = plot3(px, py, pz, varargin{:});
+0058 
+0059 <span class="keyword">if</span> nargout&gt;0
+0060     varargout{1} = h;
+0061 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

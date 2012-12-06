@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawPolyline3d</title>
+  <meta name="keywords" content="drawPolyline3d">
+  <meta name="description" content="DRAWPOLYLINE3D Draw a 3D polyline specified by a list of vertices">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; drawPolyline3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawPolyline3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWPOLYLINE3D Draw a 3D polyline specified by a list of vertices</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = drawPolyline3d(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWPOLYLINE3D Draw a 3D polyline specified by a list of vertices
+
+   drawPolyline3d(POLY);
+   packs coordinates in a single N-by-3 array.
+
+   drawPolyline3d(PX, PY, PZ);
+   specify coordinates in separate arrays.
+
+   drawPolyline3d(..., CLOSED);
+   Specifies if the polyline is closed or open. CLOSED can be one of:
+   - 'closed'
+   - 'open'    (the default)
+   - a boolean variable with value TRUE for closed polylines.
+
+   drawPolyline3d(..., PARAM, VALUE);
+   Specifies style options to draw the polyline, see plot for details.
+
+   H = drawPolyline3d(...);
+   also return a handle to the list of line objects.
+
+   See Also:
+   <a href="polygons3d.html" class="code" title="function polygons3d(varargin)">polygons3d</a>, <a href="drawPolygon3d.html" class="code" title="function varargout = drawPolygon3d(varargin)">drawPolygon3d</a>, <a href="fillPolygon3d.html" class="code" title="function varargout = fillPolygon3d(varargin)">fillPolygon3d</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 18/02/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="drawPolyline3d.html" class="code" title="function varargout = drawPolyline3d(varargin)">drawPolyline3d</a>	DRAWPOLYLINE3D Draw a 3D polyline specified by a list of vertices</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="drawCircle3d.html" class="code" title="function varargout = drawCircle3d(varargin)">drawCircle3d</a>	DRAWCIRCLE3D Draw a 3D circle</li><li><a href="drawCircleArc3d.html" class="code" title="function varargout = drawCircleArc3d(arc, varargin)">drawCircleArc3d</a>	DRAWCIRCLEARC3D Draw a 3D circle arc</li><li><a href="drawEllipse3d.html" class="code" title="function varargout = drawEllipse3d(varargin)">drawEllipse3d</a>	DRAWELLIPSE3D Draw a 3D ellipse</li><li><a href="drawPartialPatch.html" class="code" title="function drawPartialPatch(u, v, z, varargin)">drawPartialPatch</a>	DRAWPARTIALPATCH draw surface patch, with 2 parametrized surfaces</li><li><a href="drawPolyline3d.html" class="code" title="function varargout = drawPolyline3d(varargin)">drawPolyline3d</a>	DRAWPOLYLINE3D Draw a 3D polyline specified by a list of vertices</li><li><a href="drawSurfPatch.html" class="code" title="function drawSurfPatch(u, v, z, varargin)">drawSurfPatch</a>	DRAWSURFPATCH Draw a 3D surface patch, with 2 parametrized surfaces</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = drawPolyline3d(varargin)</a>
+0002 <span class="comment">%DRAWPOLYLINE3D Draw a 3D polyline specified by a list of vertices</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawPolyline3d(POLY);</span>
+0005 <span class="comment">%   packs coordinates in a single N-by-3 array.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   drawPolyline3d(PX, PY, PZ);</span>
+0008 <span class="comment">%   specify coordinates in separate arrays.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   drawPolyline3d(..., CLOSED);</span>
+0011 <span class="comment">%   Specifies if the polyline is closed or open. CLOSED can be one of:</span>
+0012 <span class="comment">%   - 'closed'</span>
+0013 <span class="comment">%   - 'open'    (the default)</span>
+0014 <span class="comment">%   - a boolean variable with value TRUE for closed polylines.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   drawPolyline3d(..., PARAM, VALUE);</span>
+0017 <span class="comment">%   Specifies style options to draw the polyline, see plot for details.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   H = drawPolyline3d(...);</span>
+0020 <span class="comment">%   also return a handle to the list of line objects.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   See Also:</span>
+0023 <span class="comment">%   polygons3d, drawPolygon3d, fillPolygon3d</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%   ---------</span>
+0026 <span class="comment">%   author : David Legland</span>
+0027 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0028 <span class="comment">%   created the 18/02/2005.</span>
+0029 <span class="comment">%</span>
+0030 
+0031 <span class="comment">% HISTORY</span>
+0032 <span class="comment">% 2010-03-08 rename as drawPolyline3d</span>
+0033 
+0034 
+0035 <span class="comment">%% Process input arguments</span>
+0036 
+0037 <span class="comment">% check case we want to draw several curves, stored in a cell array</span>
+0038 var = varargin{1};
+0039 <span class="keyword">if</span> iscell(var)
+0040     hold on;
+0041     h = [];
+0042     <span class="keyword">for</span> i = 1:length(var(:))
+0043         h = [h; <a href="drawPolyline3d.html" class="code" title="function varargout = drawPolyline3d(varargin)">drawPolyline3d</a>(var{i}, varargin{2:end})]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0044     <span class="keyword">end</span>
+0045     <span class="keyword">if</span> nargout &gt; 0
+0046         varargout = {h};
+0047     <span class="keyword">end</span>
+0048     <span class="keyword">return</span>;
+0049 <span class="keyword">end</span>
+0050 
+0051 <span class="comment">% extract curve coordinates</span>
+0052 <span class="keyword">if</span> size(var, 2) == 1
+0053     <span class="comment">% first argument contains x coord, second argument contains y coord</span>
+0054     <span class="comment">% and third one the z coord</span>
+0055     px = var;
+0056     <span class="keyword">if</span> length(varargin) &lt; 3
+0057         error(<span class="string">'Wrong number of arguments in drawPolyline3d'</span>);
+0058     <span class="keyword">end</span>
+0059     py = varargin{2};
+0060     pz = varargin{3};
+0061     varargin = varargin(4:end);
+0062     
+0063 <span class="keyword">else</span>
+0064     <span class="comment">% all coordinates are grouped in the first argument</span>
+0065     px = var(:, 1);
+0066     py = var(:, 2);
+0067     pz = var(:, 3);
+0068     varargin = varargin(2:end);
+0069 <span class="keyword">end</span>
+0070 
+0071 <span class="comment">% check if curve is closed or open (default is open)</span>
+0072 closed = false;
+0073 <span class="keyword">if</span> ~isempty(varargin)
+0074     var = varargin{1};
+0075     <span class="keyword">if</span> islogical(var)
+0076         <span class="comment">% check boolean flag</span>
+0077         closed = var;
+0078         varargin = varargin(2:end);
+0079         
+0080     <span class="keyword">elseif</span> ischar(var)
+0081         <span class="comment">% check string indicating close or open</span>
+0082         <span class="keyword">if</span> strncmpi(var, <span class="string">'close'</span>, 5)
+0083             closed = true;
+0084             varargin = varargin(2:end);
+0085             
+0086         <span class="keyword">elseif</span> strncmpi(var, <span class="string">'open'</span>, 4)
+0087             closed = false;
+0088             varargin = varargin(2:end);
+0089         <span class="keyword">end</span>
+0090         
+0091     <span class="keyword">end</span>
+0092 <span class="keyword">end</span>
+0093 
+0094 
+0095 <span class="comment">%% draw the curve</span>
+0096 
+0097 <span class="comment">% for closed curve, add the first point at the end to close curve</span>
+0098 <span class="keyword">if</span> closed
+0099     px = [px; px(1)];
+0100     py = [py; py(1)];
+0101     pz = [pz; pz(1)];
+0102 <span class="keyword">end</span>
+0103 
+0104 h = plot3(px, py, pz, varargin{:});
+0105 
+0106 <span class="keyword">if</span> nargout &gt; 0
+0107     varargout = {h};
+0108 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

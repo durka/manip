@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of clipPoints3d</title>
+  <meta name="keywords" content="clipPoints3d">
+  <meta name="description" content="CLIPPOINTS3D Clip a set of points by a box">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; clipPoints3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>clipPoints3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CLIPPOINTS3D Clip a set of points by a box</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = clipPoints3d(points, box) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CLIPPOINTS3D Clip a set of points by a box
+
+   CLIP = clipPoints3d(POINTS, BOX);
+   Returns the set of points which are located inside of the box BOX.
+
+   [CLIP IND] = clipPoints2d(POINTS, BOX);
+   Also returns the indices of clipepd points.
+
+   See also
+   <a href="points3d.html" class="code" title="function points3d(varargin)">points3d</a>, <a href="boxes3d.html" class="code" title="function boxes3d(varargin)">boxes3d</a>
+
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@nantes.inra.fr
+ Created: 2008-10-13,    using Matlab 7.4.0.287 (R2007a)
+ Copyright 2008 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/meshes3d/clipMeshVertices.html" class="code" title="function [cVertices cFaces] = clipMeshVertices(vertices, faces, box)">clipMeshVertices</a>	CLIPMESHVERTICES Clip vertices of a surfacic mesh and remove outer faces</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = clipPoints3d(points, box)</a>
+0002 <span class="comment">%CLIPPOINTS3D Clip a set of points by a box</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   CLIP = clipPoints3d(POINTS, BOX);</span>
+0005 <span class="comment">%   Returns the set of points which are located inside of the box BOX.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   [CLIP IND] = clipPoints2d(POINTS, BOX);</span>
+0008 <span class="comment">%   Also returns the indices of clipepd points.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   See also</span>
+0011 <span class="comment">%   points3d, boxes3d</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% ------</span>
+0015 <span class="comment">% Author: David Legland</span>
+0016 <span class="comment">% e-mail: david.legland@nantes.inra.fr</span>
+0017 <span class="comment">% Created: 2008-10-13,    using Matlab 7.4.0.287 (R2007a)</span>
+0018 <span class="comment">% Copyright 2008 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0019 
+0020 <span class="comment">% get bounding box limits</span>
+0021 xmin = box(1);
+0022 xmax = box(2);
+0023 ymin = box(3);
+0024 ymax = box(4);
+0025 zmin = box(5);
+0026 zmax = box(6);
+0027 
+0028 <span class="comment">% compute indices of points inside visible area</span>
+0029 xOk = points(:,1) &gt;= xmin &amp; points(:,1) &lt;= xmax;
+0030 yOk = points(:,2) &gt;= ymin &amp; points(:,2) &lt;= ymax;
+0031 zOk = points(:,3) &gt;= zmin &amp; points(:,3) &lt;= zmax;
+0032 
+0033 <span class="comment">% keep only points inside box</span>
+0034 ind = find(xOk &amp; yOk &amp; zOk);
+0035 points = points(ind, :);
+0036 
+0037 <span class="comment">% process output arguments</span>
+0038 varargout{1} = points;
+0039 <span class="keyword">if</span> nargout == 2
+0040     varargout{2} = ind;
+0041 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

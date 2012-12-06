@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polynomialCurveNormal</title>
+  <meta name="keywords" content="polynomialCurveNormal">
+  <meta name="description" content="POLYNOMIALCURVENORMAL Compute the normal of a polynomial curve">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polynomialCurves2d</a> &gt; polynomialCurveNormal.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polynomialCurves2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polynomialCurveNormal
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYNOMIALCURVENORMAL Compute the normal of a polynomial curve</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function v = polynomialCurveNormal(t, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYNOMIALCURVENORMAL Compute the normal of a polynomial curve
+
+   N = polynomialCurveNormal(T, XCOEF, YCOEF)
+   XCOEF and YCOEF are row vectors of coefficients, in the form:
+       [a0 a1 a2 ... an]
+   T is a 1x2 row vector, containing the bounds of the parametrization
+   variable: T = [T0 T1], with T taking all values between T0 and T1.
+   T can also be a larger vector, in this case only bounds are kept.
+   N is a 1x2 row vector, containing direction of curve normal in T.
+   If T is column vector, the result is a matrix with 2 columns containing
+   normal vector for each position.
+
+   The normal is oriented such that oriented angle from derivative
+   vector to normal vector equals PI/2. The normal points to the 'left'
+   when travelling along the curve.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polynomialCurveDerivative.html" class="code" title="function v = polynomialCurveDerivative(t, varargin)">polynomialCurveDerivative</a>	POLYNOMIALCURVEDERIVATIVE Compute derivative vector of a polynomial curve</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function v = polynomialCurveNormal(t, varargin)</a>
+0002 <span class="comment">%POLYNOMIALCURVENORMAL Compute the normal of a polynomial curve</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   N = polynomialCurveNormal(T, XCOEF, YCOEF)</span>
+0005 <span class="comment">%   XCOEF and YCOEF are row vectors of coefficients, in the form:</span>
+0006 <span class="comment">%       [a0 a1 a2 ... an]</span>
+0007 <span class="comment">%   T is a 1x2 row vector, containing the bounds of the parametrization</span>
+0008 <span class="comment">%   variable: T = [T0 T1], with T taking all values between T0 and T1.</span>
+0009 <span class="comment">%   T can also be a larger vector, in this case only bounds are kept.</span>
+0010 <span class="comment">%   N is a 1x2 row vector, containing direction of curve normal in T.</span>
+0011 <span class="comment">%   If T is column vector, the result is a matrix with 2 columns containing</span>
+0012 <span class="comment">%   normal vector for each position.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   The normal is oriented such that oriented angle from derivative</span>
+0015 <span class="comment">%   vector to normal vector equals PI/2. The normal points to the 'left'</span>
+0016 <span class="comment">%   when travelling along the curve.</span>
+0017 
+0018 <span class="comment">%   N = polynomialCurveNormal(T, COEFS)</span>
+0019 <span class="comment">%   COEFS is either a 2xN matrix (one row for the coefficients of each</span>
+0020 <span class="comment">%   coordinate), or a cell array.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   N = polynomialCurveNormal(..., TOL)</span>
+0023 <span class="comment">%   TOL is the tolerance fo computation (absolute).</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%   Example</span>
+0026 <span class="comment">%   polynomialCurveNormal</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">%   See also</span>
+0029 <span class="comment">%   polynomialCurves2d, polynomialCurveDerivative</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">% ------</span>
+0032 <span class="comment">% Author: David Legland</span>
+0033 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0034 <span class="comment">% Created: 2007-02-23</span>
+0035 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0036 
+0037 <span class="comment">% extract the derivative</span>
+0038 v = <a href="polynomialCurveDerivative.html" class="code" title="function v = polynomialCurveDerivative(t, varargin)">polynomialCurveDerivative</a>(t, varargin{:});
+0039 
+0040 <span class="comment">% rotate by PI/2 Counter clockwise</span>
+0041 v = [-v(:,2) v(:,1)];</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

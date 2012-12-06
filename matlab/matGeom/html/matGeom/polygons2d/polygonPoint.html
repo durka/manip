@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polygonPoint</title>
+  <meta name="keywords" content="polygonPoint">
+  <meta name="description" content="POLYGONPOINT Extract a point from a polygon">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; polygonPoint.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polygonPoint
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYGONPOINT Extract a point from a polygon</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function point = polygonPoint(poly, pos) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYGONPOINT Extract a point from a polygon
+
+   POINT = polygonPoint(POLYGON, POS)
+   
+
+   Example
+   polygonPoint
+
+   See also
+   polygons2d, <a href="polylinePoint.html" class="code" title="function point = polylinePoint(poly, pos)">polylinePoint</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2009-04-30,    using Matlab 7.7.0.471 (R2008b)
+ Copyright 2009 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polygonSubcurve.html" class="code" title="function res = polygonSubcurve(poly, t0, t1)">polygonSubcurve</a>	POLYGONSUBCURVE Extract a portion of a polygon</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function point = polygonPoint(poly, pos)</a>
+0002 <span class="comment">%POLYGONPOINT Extract a point from a polygon</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   POINT = polygonPoint(POLYGON, POS)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   Example</span>
+0008 <span class="comment">%   polygonPoint</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   See also</span>
+0011 <span class="comment">%   polygons2d, polylinePoint</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% ------</span>
+0014 <span class="comment">% Author: David Legland</span>
+0015 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0016 <span class="comment">% Created: 2009-04-30,    using Matlab 7.7.0.471 (R2008b)</span>
+0017 <span class="comment">% Copyright 2009 INRA - Cepia Software Platform.</span>
+0018 
+0019 <span class="comment">% eventually copy first point at the end to ensure closed polygon</span>
+0020 <span class="keyword">if</span> sum(poly(<span class="keyword">end</span>, :)==poly(1,:))~=2
+0021     poly = [poly; poly(1,:)];
+0022 <span class="keyword">end</span>
+0023 
+0024 <span class="comment">% number of points to compute</span>
+0025 Np = length(pos(:));
+0026 
+0027 <span class="comment">% number of vertices in polygon</span>
+0028 Nv = size(poly, 1)-1;
+0029 
+0030 <span class="comment">% allocate memory results</span>
+0031 point = zeros(Np, 2);
+0032 
+0033 <span class="comment">% iterate on points</span>
+0034 <span class="keyword">for</span> i=1:Np
+0035     <span class="comment">% compute index of edge (between 0 and Nv)</span>
+0036     ind = floor(pos(i));
+0037     
+0038     <span class="comment">% special case of last point of polyline</span>
+0039     <span class="keyword">if</span> ind==Nv
+0040         point(i,:) = poly(<span class="keyword">end</span>,:);
+0041         <span class="keyword">continue</span>;
+0042     <span class="keyword">end</span>
+0043     
+0044     <span class="comment">% format index to ensure being on polygon</span>
+0045     ind = min(max(ind, 0), Nv-1);
+0046     
+0047     <span class="comment">% position on current edge</span>
+0048     t = min(max(pos(i)-ind, 0), 1);
+0049     
+0050     <span class="comment">% parameters of current edge</span>
+0051     x0 = poly(ind+1, 1);
+0052     y0 = poly(ind+1, 2);
+0053     dx = poly(ind+2,1)-x0;
+0054     dy = poly(ind+2,2)-y0;
+0055     
+0056     <span class="comment">% compute position of current point</span>
+0057     point(i, :) = [x0+t*dx, y0+t*dy];
+0058 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

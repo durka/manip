@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of intersectPlaneMesh</title>
+  <meta name="keywords" content="intersectPlaneMesh">
+  <meta name="description" content="INTERSECTPLANEMESH Compute the polygons resulting from plane-mesh intersection">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; intersectPlaneMesh.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>intersectPlaneMesh
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>INTERSECTPLANEMESH Compute the polygons resulting from plane-mesh intersection</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function polys = intersectPlaneMesh(plane, v, f) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">INTERSECTPLANEMESH Compute the polygons resulting from plane-mesh intersection
+
+   POLYS = intersectPlaneMesh(P, V, F)
+   Computes the interection between a plane and a mesh given by vertex and
+   face lists. The result is a cell array of polygons.
+
+   The function currenlty returns at most one polygon in the cell array
+   POLYS.
+
+
+   Example
+     % Intersect a cube by a plane
+     [v f] = createCube; v = v * 10;
+     plane = createPlane([5 5 5], [3 4 5]);
+     % draw the primitives
+     figure; hold on; set(gcf, 'renderer', 'opengl');
+     axis([-10 20 -10 20 -10 20]); view(3);
+     drawMesh(v, f); drawPlane3d(plane);
+     % compute intersection polygon
+     polys = intersectPlaneMesh(plane, v, f);
+     drawPolygon3d(polys, 'LineWidth', 2);
+
+   See also
+     meshes3d, intersectPlanes, intersectEdgePlane
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2012-07-31,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2012 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom3d/intersectEdgePlane.html" class="code" title="function point = intersectEdgePlane(edge, plane, varargin)">intersectEdgePlane</a>	INTERSECTEDGEPLANE Return intersection point between a plane and a edge</li><li><a href="computeMeshEdges.html" class="code" title="function edges = computeMeshEdges(faces)">computeMeshEdges</a>	COMPUTEMESHEDGES Computes edges array from face array</li><li><a href="meshEdgeFaces.html" class="code" title="function edgeFaces = meshEdgeFaces(vertices, edges, faces) %#ok<INUSL>">meshEdgeFaces</a>	MESHEDGEFACES Compute index of faces adjacent to each edge of a mesh</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function polys = intersectPlaneMesh(plane, v, f)</a>
+0002 <span class="comment">%INTERSECTPLANEMESH Compute the polygons resulting from plane-mesh intersection</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   POLYS = intersectPlaneMesh(P, V, F)</span>
+0005 <span class="comment">%   Computes the interection between a plane and a mesh given by vertex and</span>
+0006 <span class="comment">%   face lists. The result is a cell array of polygons.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   The function currenlty returns at most one polygon in the cell array</span>
+0009 <span class="comment">%   POLYS.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   Example</span>
+0013 <span class="comment">%     % Intersect a cube by a plane</span>
+0014 <span class="comment">%     [v f] = createCube; v = v * 10;</span>
+0015 <span class="comment">%     plane = createPlane([5 5 5], [3 4 5]);</span>
+0016 <span class="comment">%     % draw the primitives</span>
+0017 <span class="comment">%     figure; hold on; set(gcf, 'renderer', 'opengl');</span>
+0018 <span class="comment">%     axis([-10 20 -10 20 -10 20]); view(3);</span>
+0019 <span class="comment">%     drawMesh(v, f); drawPlane3d(plane);</span>
+0020 <span class="comment">%     % compute intersection polygon</span>
+0021 <span class="comment">%     polys = intersectPlaneMesh(plane, v, f);</span>
+0022 <span class="comment">%     drawPolygon3d(polys, 'LineWidth', 2);</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%   See also</span>
+0025 <span class="comment">%     meshes3d, intersectPlanes, intersectEdgePlane</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% ------</span>
+0028 <span class="comment">% Author: David Legland</span>
+0029 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0030 <span class="comment">% Created: 2012-07-31,    using Matlab 7.9.0.529 (R2009b)</span>
+0031 <span class="comment">% Copyright 2012 INRA - Cepia Software Platform.</span>
+0032 
+0033 <span class="comment">% compute the edge list</span>
+0034 e = <a href="computeMeshEdges.html" class="code" title="function edges = computeMeshEdges(faces)">computeMeshEdges</a>(f);
+0035 edges = [ v(e(:,1), :) v(e(:,2), :) ];
+0036 
+0037 <span class="comment">% associate two neighbour face to each edge</span>
+0038 faceEdges = <a href="meshEdgeFaces.html" class="code" title="function edgeFaces = meshEdgeFaces(vertices, edges, faces) %#ok<INUSL>">meshEdgeFaces</a>(v, e, f);
+0039 
+0040 <span class="comment">% compute one intersection point for each edge</span>
+0041 intersectionsPoints = <a href="../.././matGeom/geom3d/intersectEdgePlane.html" class="code" title="function point = intersectEdgePlane(edge, plane, varargin)">intersectEdgePlane</a>(edges, plane);
+0042 
+0043 <span class="comment">% keep only 'valid' intersection points and intersected edges</span>
+0044 validEdges = isfinite(intersectionsPoints(:,1));
+0045 validEdgeInds = find(isfinite(intersectionsPoints(:,1)));
+0046 
+0047 validFaceEdge = faceEdges(validEdges, :);
+0048 <span class="comment">% validFaceInds = unique(validFaceEdge(:));</span>
+0049 
+0050 <span class="comment">% processedEdge = false(size(e, 1), 1);</span>
+0051 
+0052 polys = {};
+0053 <span class="keyword">while</span> ~isempty(validEdgeInds)
+0054     <span class="comment">% start new polygon</span>
+0055     
+0056     <span class="comment">% start at any edge, mark it as current</span>
+0057     startEdgeIndex = validEdgeInds(1);
+0058     currentEdgeIndex = startEdgeIndex;
+0059     
+0060     <span class="comment">% initialize new set of edge indices</span>
+0061     polyEdgeInds = currentEdgeIndex;
+0062     
+0063     <span class="comment">% choose one of the two faces around the edge</span>
+0064     currentFace = faceEdges(currentEdgeIndex, 1);
+0065     
+0066 <span class="comment">%     % current edge is ready</span>
+0067 <span class="comment">%     processedEdge(currentEdgeIndex) = true;</span>
+0068     
+0069     <span class="comment">% iterate along current face-edge couples until back to first edge</span>
+0070     <span class="keyword">while</span> true
+0071         <span class="comment">% indices of the two valid edges for current face</span>
+0072         <span class="comment">% (length should be equal to 2)</span>
+0073         inds = validEdgeInds(sum(validFaceEdge == currentFace, 2) &gt; 0);
+0074         currentEdgeIndex = inds(inds ~= currentEdgeIndex);
+0075         
+0076         inds = faceEdges(currentEdgeIndex, :);
+0077         currentFace = inds(inds ~= currentFace);
+0078     
+0079         <span class="comment">% check end of current loop</span>
+0080         <span class="keyword">if</span> currentEdgeIndex == startEdgeIndex
+0081             <span class="keyword">break</span>;
+0082         <span class="keyword">end</span>
+0083         
+0084         <span class="comment">% add index of current edge</span>
+0085         polyEdgeInds = [polyEdgeInds currentEdgeIndex]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0086     <span class="keyword">end</span>
+0087     
+0088     poly = intersectionsPoints(polyEdgeInds, :);
+0089     
+0090     polys = [polys, {poly}]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0091     <span class="keyword">break</span>;
+0092 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

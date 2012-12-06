@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of cylinderMesh</title>
+  <meta name="keywords" content="cylinderMesh">
+  <meta name="description" content="CYLINDERMESH  Create a 3D mesh representing a cylinder">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; cylinderMesh.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>cylinderMesh
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CYLINDERMESH  Create a 3D mesh representing a cylinder</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = cylinderMesh(cyl, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CYLINDERMESH  Create a 3D mesh representing a cylinder
+
+   [V F] = cylinderMesh(CYL)
+   Computes vertex coordinates and face vertex indices of a mesh
+   representing a 3D cylinder given as [X1 Y1 Z1 X2 Y2 Z2 R].
+
+   Example
+     % Draw a rotated cylinder
+     cyl = [0 0 0 10 20 30 5];
+     [v f] = cylinderMesh(cyl);
+     figure;drawMesh(v, f, 'FaceColor', 'r');
+     view(3); axis equal;
+
+     % Draw three mutually intersecting cylinders
+       p0 = [30 30 30];
+       p1 = [90 30 30];
+       p2 = [30 90 30];
+       p3 = [30 30 90];
+       [v1 f1] = cylinderMesh([p0 p1 25]);
+       [v2 f2] = cylinderMesh([p0 p2 25]);
+       [v3 f3] = cylinderMesh([p0 p3 25]);
+       figure; hold on;
+       drawMesh(v1, f1, 'FaceColor', 'r');
+       drawMesh(v2, f2, 'FaceColor', 'g');
+       drawMesh(v3, f3, 'FaceColor', 'b');
+       view(3); axis equal
+       set(gcf, 'renderer', 'opengl')
+  
+   See also
+     drawCylinder
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2012-10-25,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2012 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom3d/cart2sph2d.html" class="code" title="function varargout = cart2sph2d(x, y, z)">cart2sph2d</a>	CART2SPH2D Convert cartesian coordinates to spherical coordinates in degrees</li><li><a href="../.././matGeom/geom3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>	LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system</li><li><a href="../.././matGeom/geom3d/transformPoint3d.html" class="code" title="function varargout = transformPoint3d(varargin)">transformPoint3d</a>	TRANSFORMPOINT3D Transform a point with a 3D affine transform</li><li><a href="../.././matGeom/meshes3d/private/formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>	FORMATMESHOUTPUT Format mesh output depending on nargout</li><li><a href="../.././matGeom/meshes3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>	LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system</li><li><a href="surfToMesh.html" class="code" title="function varargout = surfToMesh(x, y, varargin)">surfToMesh</a>	SURFTOMESH Convert surface grids into face-vertex mesh</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = cylinderMesh(cyl, varargin)</a>
+0002 <span class="comment">%CYLINDERMESH  Create a 3D mesh representing a cylinder</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [V F] = cylinderMesh(CYL)</span>
+0005 <span class="comment">%   Computes vertex coordinates and face vertex indices of a mesh</span>
+0006 <span class="comment">%   representing a 3D cylinder given as [X1 Y1 Z1 X2 Y2 Z2 R].</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   Example</span>
+0009 <span class="comment">%     % Draw a rotated cylinder</span>
+0010 <span class="comment">%     cyl = [0 0 0 10 20 30 5];</span>
+0011 <span class="comment">%     [v f] = cylinderMesh(cyl);</span>
+0012 <span class="comment">%     figure;drawMesh(v, f, 'FaceColor', 'r');</span>
+0013 <span class="comment">%     view(3); axis equal;</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%     % Draw three mutually intersecting cylinders</span>
+0016 <span class="comment">%       p0 = [30 30 30];</span>
+0017 <span class="comment">%       p1 = [90 30 30];</span>
+0018 <span class="comment">%       p2 = [30 90 30];</span>
+0019 <span class="comment">%       p3 = [30 30 90];</span>
+0020 <span class="comment">%       [v1 f1] = cylinderMesh([p0 p1 25]);</span>
+0021 <span class="comment">%       [v2 f2] = cylinderMesh([p0 p2 25]);</span>
+0022 <span class="comment">%       [v3 f3] = cylinderMesh([p0 p3 25]);</span>
+0023 <span class="comment">%       figure; hold on;</span>
+0024 <span class="comment">%       drawMesh(v1, f1, 'FaceColor', 'r');</span>
+0025 <span class="comment">%       drawMesh(v2, f2, 'FaceColor', 'g');</span>
+0026 <span class="comment">%       drawMesh(v3, f3, 'FaceColor', 'b');</span>
+0027 <span class="comment">%       view(3); axis equal</span>
+0028 <span class="comment">%       set(gcf, 'renderer', 'opengl')</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%   See also</span>
+0031 <span class="comment">%     drawCylinder</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">% ------</span>
+0034 <span class="comment">% Author: David Legland</span>
+0035 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0036 <span class="comment">% Created: 2012-10-25,    using Matlab 7.9.0.529 (R2009b)</span>
+0037 <span class="comment">% Copyright 2012 INRA - Cepia Software Platform.</span>
+0038 
+0039 <span class="comment">% extract cylinder data</span>
+0040 p1 = cyl(:, 1:3);
+0041 p2 = cyl(:, 4:6);
+0042 r  = cyl(:, 7);
+0043 
+0044 <span class="comment">% compute length and orientation</span>
+0045 [theta phi rho] = <a href="../.././matGeom/geom3d/cart2sph2d.html" class="code" title="function varargout = cart2sph2d(x, y, z)">cart2sph2d</a>(p2 - p1);
+0046 
+0047 <span class="comment">% parametrisation on x</span>
+0048 t = linspace(0, 2*pi, 20);
+0049 lx = r * cos(t);
+0050 ly = r * sin(t);
+0051 lz = linspace(0, rho, 10);
+0052 
+0053 <span class="comment">% generate surface grids</span>
+0054 x = repmat(lx, [length(lz) 1]);
+0055 y = repmat(ly, [length(lz) 1]);
+0056 z = repmat(lz, [1 length(t)]);
+0057 
+0058 <span class="comment">% transform points</span>
+0059 trans   = <a href="../.././matGeom/geom3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>(p1, theta, phi, 0);
+0060 [x y z] = <a href="../.././matGeom/geom3d/transformPoint3d.html" class="code" title="function varargout = transformPoint3d(varargin)">transformPoint3d</a>(x, y, z, trans);
+0061 
+0062 <span class="comment">% convert to FV mesh</span>
+0063 [vertices faces] = <a href="surfToMesh.html" class="code" title="function varargout = surfToMesh(x, y, varargin)">surfToMesh</a>(x, y, z);
+0064 
+0065 <span class="comment">% format output</span>
+0066 varargout = <a href="../.././matGeom/meshes3d/private/formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>(nargout, vertices, faces);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

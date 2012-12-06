@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polynomialCurvePosition</title>
+  <meta name="keywords" content="polynomialCurvePosition">
+  <meta name="description" content="POLYNOMIALCURVEPOSITION Compute position on a curve for a given length">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polynomialCurves2d</a> &gt; polynomialCurvePosition.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polynomialCurves2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polynomialCurvePosition
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYNOMIALCURVEPOSITION Compute position on a curve for a given length</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function pos = polynomialCurvePosition(tBounds, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYNOMIALCURVEPOSITION Compute position on a curve for a given length
+
+   POS = polynomialCurvePosition(T, XCOEF, YCOEF, L)
+   XCOEF and YCOEF are row vectors of coefficients, in the form:
+       [a0 a1 a2 ... an]
+   T is a 1x2 row vector, containing the bounds of the parametrization
+   variable: T = [T0 T1], with T taking all values between T0 and T1.
+   L is the geodesic length corresponding to the searched position.
+   POS is a scalar, verifying relation:
+   L = polynomialCurveLength([T(1) POS], XCOEF, YCOEF);
+
+   POS = polynomialCurvePosition(T, COEFS, L)
+   COEFS is either a 2xN matrix (one row for the coefficients of each
+   coordinate), or a cell array.
+
+   POS = polynomialCurvePosition(..., TOL)
+   TOL is the tolerance fo computation (absolute).
+
+   See also
+   polynomialCurves2d
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2007-02-26
+ Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polynomialDerivate.html" class="code" title="function deriv = polynomialDerivate(poly)">polynomialDerivate</a>	POLYNOMIALDERIVATE Derivate a polynomial</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function res = funCurveLength(t0, t1, c1, c2, varargin)</a></li></ul>
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function pos = polynomialCurvePosition(tBounds, varargin)</a>
+0002 <span class="comment">%POLYNOMIALCURVEPOSITION Compute position on a curve for a given length</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   POS = polynomialCurvePosition(T, XCOEF, YCOEF, L)</span>
+0005 <span class="comment">%   XCOEF and YCOEF are row vectors of coefficients, in the form:</span>
+0006 <span class="comment">%       [a0 a1 a2 ... an]</span>
+0007 <span class="comment">%   T is a 1x2 row vector, containing the bounds of the parametrization</span>
+0008 <span class="comment">%   variable: T = [T0 T1], with T taking all values between T0 and T1.</span>
+0009 <span class="comment">%   L is the geodesic length corresponding to the searched position.</span>
+0010 <span class="comment">%   POS is a scalar, verifying relation:</span>
+0011 <span class="comment">%   L = polynomialCurveLength([T(1) POS], XCOEF, YCOEF);</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   POS = polynomialCurvePosition(T, COEFS, L)</span>
+0014 <span class="comment">%   COEFS is either a 2xN matrix (one row for the coefficients of each</span>
+0015 <span class="comment">%   coordinate), or a cell array.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   POS = polynomialCurvePosition(..., TOL)</span>
+0018 <span class="comment">%   TOL is the tolerance fo computation (absolute).</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   See also</span>
+0021 <span class="comment">%   polynomialCurves2d</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% ------</span>
+0024 <span class="comment">% Author: David Legland</span>
+0025 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0026 <span class="comment">% Created: 2007-02-26</span>
+0027 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0028 
+0029 <span class="comment">% parametrization bounds</span>
+0030 t0 = tBounds(1);
+0031 t1 = tBounds(end);
+0032 
+0033 <span class="comment">% polynomial coefficients for each coordinate</span>
+0034 var = varargin{1};
+0035 <span class="keyword">if</span> iscell(var)
+0036     xCoef = var{1};
+0037     yCoef = var{2};
+0038     varargin(1) = [];
+0039 <span class="keyword">elseif</span> size(var, 1)==1
+0040     xCoef = varargin{1};
+0041     yCoef = varargin{2};
+0042     varargin(1:2)=[];
+0043 <span class="keyword">else</span>
+0044     xCoef = var(1,:);
+0045     yCoef = var(2,:);
+0046     varargin(1)=[];
+0047 <span class="keyword">end</span>
+0048 
+0049 <span class="comment">% geodesic length corresponding to searched position</span>
+0050 L = varargin{1};
+0051 varargin(1)=[];
+0052 
+0053 <span class="comment">% tolerance</span>
+0054 tol = 1e-6;
+0055 <span class="keyword">if</span> ~isempty(varargin)
+0056     tol = varargin{1};
+0057 <span class="keyword">end</span>
+0058 
+0059 <span class="comment">% compute derivative of the polynomial</span>
+0060 dx = <a href="polynomialDerivate.html" class="code" title="function deriv = polynomialDerivate(poly)">polynomialDerivate</a>(xCoef);
+0061 dy = <a href="polynomialDerivate.html" class="code" title="function deriv = polynomialDerivate(poly)">polynomialDerivate</a>(yCoef);
+0062 
+0063 <span class="comment">% convert to format of polyval</span>
+0064 dx = dx(end:-1:1);
+0065 dy = dy(end:-1:1);
+0066 
+0067 <span class="comment">% avoid warning for t=0</span>
+0068 warning off <span class="string">'MATLAB:quad:MinStepSize'</span>
+0069 
+0070 <span class="comment">% set up precision for t</span>
+0071 options = optimset(<span class="string">'TolX'</span>, tol);
+0072 
+0073 <span class="comment">% starting point, located in the middle of the paramtrization domain</span>
+0074 ts = (t0+t1)/2;
+0075 
+0076 <span class="comment">% compute parameter corresponding to geodesic position by solving g(t)-tg=0</span>
+0077 pos = fzero(@(t)<a href="#_sub1" class="code" title="subfunction res = funCurveLength(t0, t1, c1, c2, varargin)">funCurveLength</a>(t0, t, dx, dy, tol)- L, ts, options);
+0078 
+0079 
+0080 
+0081 <a name="_sub1" href="#_subfunctions" class="code">function res = funCurveLength(t0, t1, c1, c2, varargin)</a>
+0082 <span class="comment">%FUNCURVELENGTH  return the length of polynomial curve arc</span>
+0083 <span class="comment">%   output = funCurveLength(t0, t1, c1, c2)</span>
+0084 <span class="comment">%   t0 and t1 are the limits of the integral</span>
+0085 <span class="comment">%   c1 and c2 are derivative polynoms of each coordinate parametrization,</span>
+0086 <span class="comment">%   given from greater order to lower order (polyval convention).</span>
+0087 <span class="comment">%   c1 = [an a_n-1 ... a2 a1 a0].</span>
+0088 <span class="comment">%</span>
+0089 <span class="comment">%   Example</span>
+0090 <span class="comment">%   funCurveLength(0, 1, C2, C2);</span>
+0091 <span class="comment">%   funCurveLength(0, 1, C2, C2, RES);</span>
+0092 <span class="comment">%   RES is the resolution (ex: 1e-6).</span>
+0093 <span class="comment">%</span>
+0094 <span class="comment">%   See also</span>
+0095 <span class="comment">%</span>
+0096 <span class="comment">%</span>
+0097 <span class="comment">% ------</span>
+0098 <span class="comment">% Author: David Legland</span>
+0099 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0100 <span class="comment">% Created: 2007-02-14</span>
+0101 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0102 
+0103 res = quad(@(t)sqrt(polyval(c1, t).^2+polyval(c2, t).^2), t0, t1, varargin{:});
+0104 
+0105</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

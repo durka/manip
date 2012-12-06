@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of grOpen</title>
+  <meta name="keywords" content="grOpen">
+  <meta name="description" content="GROPEN Morphological opening on graph">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; grOpen.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>grOpen
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GROPEN Morphological opening on graph</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = grOpen(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GROPEN Morphological opening on graph
+
+   LBL2 = grOpen(EDGES, LBL1)
+   The labels are the result of a morphological erosion followed by a
+   morphological dilation.
+
+   Example
+   grOpen
+
+   See also
+   <a href="grClose.html" class="code" title="function varargout = grClose(varargin)">grClose</a>, <a href="grErode.html" class="code" title="function varargout = grErode(varargin)">grErode</a>, <a href="grDilate.html" class="code" title="function varargout = grDilate(varargin)">grDilate</a>
+
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2006-01-20
+ Copyright 2006 INRA - CEPIA Nantes - MIAJ (Jouy-en-Josas).</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>	GRNEIGHBORNODES Find adjacent nodes of a given node</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = grOpen(varargin)</a>
+0002 <span class="comment">%GROPEN Morphological opening on graph</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   LBL2 = grOpen(EDGES, LBL1)</span>
+0005 <span class="comment">%   The labels are the result of a morphological erosion followed by a</span>
+0006 <span class="comment">%   morphological dilation.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   Example</span>
+0009 <span class="comment">%   grOpen</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   See also</span>
+0012 <span class="comment">%   grClose, grErode, grDilate</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% ------</span>
+0016 <span class="comment">% Author: David Legland</span>
+0017 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0018 <span class="comment">% Created: 2006-01-20</span>
+0019 <span class="comment">% Copyright 2006 INRA - CEPIA Nantes - MIAJ (Jouy-en-Josas).</span>
+0020 
+0021 
+0022 <span class="keyword">if</span> length(varargin) == 2
+0023     edges   = varargin{1};
+0024     lbl     = varargin{2};
+0025 <span class="keyword">elseif</span> length(varargin) == 3
+0026     edges   = varargin{2};
+0027     lbl     = varargin{3};
+0028 <span class="keyword">else</span>
+0029     error(<span class="string">'Wrong number of arguments in &quot;grOpen&quot;'</span>);
+0030 <span class="keyword">end</span>
+0031    
+0032 
+0033 uni = unique(edges(:));
+0034 
+0035 <span class="comment">% performs erosion</span>
+0036 lbl2 = zeros(size(lbl));
+0037 <span class="keyword">for</span> n = 1:length(uni)
+0038     neigh = <a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>(edges, uni(n));
+0039     lbl2(uni(n)) = min(lbl([uni(n); neigh]));    
+0040 <span class="keyword">end</span>
+0041 
+0042 <span class="comment">% performs dilation</span>
+0043 <span class="keyword">for</span> n = 1:length(uni)
+0044     neigh = <a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>(edges, uni(n));
+0045     lbl(uni(n)) = max(lbl2([uni(n); neigh]));    
+0046 <span class="keyword">end</span>
+0047 
+0048 varargout{1} = lbl;</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

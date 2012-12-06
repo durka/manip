@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawLine3d</title>
+  <meta name="keywords" content="drawLine3d">
+  <meta name="description" content="DRAWLINE3D Draw a 3D line on the current axis">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; drawLine3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawLine3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWLINE3D Draw a 3D line on the current axis</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = drawLine3d(lin, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWLINE3D Draw a 3D line on the current axis
+
+   drawline3d(LINE);
+   Draws the line LINE on the current axis, by clipping with the current
+   axis. If line is not clipepd by the axis, function return -1.
+
+   drawLine3d(LINE, PARAM, VALUE)
+   Accepts parameter/value pairs, like for plot function.
+   Color of the line can also be given as a single parameter.
+   
+   H = drawLine3d(...)
+   Returns a handle to the created graphic line object.
+
+
+   See also:
+   <a href="lines3d.html" class="code" title="function lines3d(varargin)">lines3d</a>, <a href="createLine3d.html" class="code" title="function line = createLine3d(varargin)">createLine3d</a>, <a href="clipLine3d.html" class="code" title="function edge = clipLine3d(line, box)">clipLine3d</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 17/02/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="clipLine3d.html" class="code" title="function edge = clipLine3d(line, box)">clipLine3d</a>	CLIPLINE3D Clip a line with a box and return an edge</li><li><a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>	DRAWEDGE3D Draw 3D edge in the current Window</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = drawLine3d(lin, varargin)</a>
+0002 <span class="comment">%DRAWLINE3D Draw a 3D line on the current axis</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawline3d(LINE);</span>
+0005 <span class="comment">%   Draws the line LINE on the current axis, by clipping with the current</span>
+0006 <span class="comment">%   axis. If line is not clipepd by the axis, function return -1.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   drawLine3d(LINE, PARAM, VALUE)</span>
+0009 <span class="comment">%   Accepts parameter/value pairs, like for plot function.</span>
+0010 <span class="comment">%   Color of the line can also be given as a single parameter.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   H = drawLine3d(...)</span>
+0013 <span class="comment">%   Returns a handle to the created graphic line object.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   See also:</span>
+0017 <span class="comment">%   lines3d, createLine3d, clipLine3d</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   ---------</span>
+0020 <span class="comment">%   author : David Legland</span>
+0021 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0022 <span class="comment">%   created the 17/02/2005.</span>
+0023 <span class="comment">%</span>
+0024 
+0025 <span class="comment">%   HISTORY</span>
+0026 <span class="comment">%   30/10/2008 replace intersectPlaneLine by intersectLinePlane</span>
+0027 
+0028 
+0029 <span class="comment">% ensure color is given as name-value pair</span>
+0030 <span class="keyword">if</span> length(varargin)==1
+0031     varargin = {<span class="string">'color'</span>, varargin{1}};
+0032 <span class="keyword">end</span>
+0033 
+0034 <span class="comment">% extract limits of the bounding box</span>
+0035 lim = get(gca, <span class="string">'xlim'</span>);
+0036 xmin = lim(1);
+0037 xmax = lim(2);
+0038 lim = get(gca, <span class="string">'ylim'</span>);
+0039 ymin = lim(1);
+0040 ymax = lim(2);
+0041 lim = get(gca, <span class="string">'zlim'</span>);
+0042 zmin = lim(1);
+0043 zmax = lim(2);
+0044 
+0045 <span class="comment">% clip the ine with the limits of the current axis</span>
+0046 edge = <a href="clipLine3d.html" class="code" title="function edge = clipLine3d(line, box)">clipLine3d</a>(lin, [xmin xmax ymin ymax zmin zmax]);
+0047 
+0048 <span class="comment">% draw the clipped line</span>
+0049 <span class="keyword">if</span> sum(isnan(edge))==0
+0050     h  = <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>(edge);
+0051     <span class="keyword">if</span> ~isempty(varargin)
+0052         set(h, varargin{:});
+0053     <span class="keyword">end</span>
+0054 <span class="keyword">else</span>
+0055     h  = -1;
+0056 <span class="keyword">end</span>
+0057 
+0058 <span class="comment">% process output</span>
+0059 <span class="keyword">if</span> nargout&gt;0
+0060     varargout{1}=h;
+0061 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

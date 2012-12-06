@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawBox3d</title>
+  <meta name="keywords" content="drawBox3d">
+  <meta name="description" content="DRAWBOX3D Draw a 3D box defined by coordinate extents">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; drawBox3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawBox3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWBOX3D Draw a 3D box defined by coordinate extents</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function drawBox3d(box, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWBOX3D Draw a 3D box defined by coordinate extents
+   
+   drawBox3d(BOX);
+   Draw a box defined by its coordinate extents: 
+   BOX = [XMIN XMAX YMIN YMAX ZMIN ZMAX].
+   The function draws only the outline edges of the box.
+
+   Example
+     % Draw bounding box of a cubeoctehedron
+     [v e f] = createCubeOctahedron;
+     box3d = boundingBox3d(v);
+     figure; hold on;
+     drawMesh(v, f);
+     drawBox3d(box3d);
+     set(gcf, 'renderer', 'opengl')
+     axis([-2 2 -2 2 -2 2]);
+     view(3)
+
+   See Also:
+   <a href="boxes3d.html" class="code" title="function boxes3d(varargin)">boxes3d</a>, <a href="boundingBox3d.html" class="code" title="function box = boundingBox3d(points)">boundingBox3d</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 10/12/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>	DRAWEDGE3D Draw 3D edge in the current Window</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function drawBox3d(box, varargin)</a>
+0002 <span class="comment">%DRAWBOX3D Draw a 3D box defined by coordinate extents</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawBox3d(BOX);</span>
+0005 <span class="comment">%   Draw a box defined by its coordinate extents:</span>
+0006 <span class="comment">%   BOX = [XMIN XMAX YMIN YMAX ZMIN ZMAX].</span>
+0007 <span class="comment">%   The function draws only the outline edges of the box.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   Example</span>
+0010 <span class="comment">%     % Draw bounding box of a cubeoctehedron</span>
+0011 <span class="comment">%     [v e f] = createCubeOctahedron;</span>
+0012 <span class="comment">%     box3d = boundingBox3d(v);</span>
+0013 <span class="comment">%     figure; hold on;</span>
+0014 <span class="comment">%     drawMesh(v, f);</span>
+0015 <span class="comment">%     drawBox3d(box3d);</span>
+0016 <span class="comment">%     set(gcf, 'renderer', 'opengl')</span>
+0017 <span class="comment">%     axis([-2 2 -2 2 -2 2]);</span>
+0018 <span class="comment">%     view(3)</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   See Also:</span>
+0021 <span class="comment">%   boxes3d, boundingBox3d</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   ---------</span>
+0024 <span class="comment">%   author : David Legland</span>
+0025 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0026 <span class="comment">%   created the 10/12/2003.</span>
+0027 <span class="comment">%</span>
+0028 
+0029 <span class="comment">% HISTORY</span>
+0030 <span class="comment">% 2010-02-22 creation</span>
+0031 
+0032 
+0033 <span class="comment">% default values</span>
+0034 
+0035 xmin = box(:,1);
+0036 xmax = box(:,2);
+0037 ymin = box(:,3);
+0038 ymax = box(:,4);
+0039 zmin = box(:,5);
+0040 zmax = box(:,6);
+0041 
+0042 nBoxes = size(box, 1);
+0043 
+0044 <span class="keyword">for</span> i=1:length(nBoxes)
+0045     <span class="comment">% lower face (z=zmin)</span>
+0046     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmin(i) ymin(i) zmin(i)     xmax(i) ymin(i) zmin(i)], varargin{:});
+0047     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmin(i) ymin(i) zmin(i)     xmin(i) ymax(i) zmin(i)], varargin{:});
+0048     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmax(i) ymin(i) zmin(i)     xmax(i) ymax(i) zmin(i)], varargin{:});
+0049     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmin(i) ymax(i) zmin(i)     xmax(i) ymax(i) zmin(i)], varargin{:});
+0050  
+0051     <span class="comment">% front face (y=ymin)</span>
+0052     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmin(i) ymin(i) zmin(i)     xmin(i) ymin(i) zmax(i)], varargin{:});
+0053     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmax(i) ymin(i) zmin(i)     xmax(i) ymin(i) zmax(i)], varargin{:});
+0054     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmin(i) ymin(i) zmax(i)     xmax(i) ymin(i) zmax(i)], varargin{:});
+0055 
+0056     <span class="comment">% left face (x=xmin)</span>
+0057     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmin(i) ymax(i) zmin(i)     xmin(i) ymax(i) zmax(i)], varargin{:});
+0058     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmin(i) ymin(i) zmax(i)     xmin(i) ymax(i) zmax(i)], varargin{:});
+0059 
+0060     <span class="comment">% the last 3 remaining edges</span>
+0061     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmin(i) ymax(i) zmax(i)     xmax(i) ymax(i) zmax(i)], varargin{:});
+0062     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmax(i) ymax(i) zmin(i)     xmax(i) ymax(i) zmax(i)], varargin{:});
+0063     <a href="drawEdge3d.html" class="code" title="function varargout = drawEdge3d(varargin)">drawEdge3d</a>([xmax(i) ymin(i) zmax(i)     xmax(i) ymax(i) zmax(i)], varargin{:});
+0064 
+0065 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

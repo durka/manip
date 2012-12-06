@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of torusMesh</title>
+  <meta name="keywords" content="torusMesh">
+  <meta name="description" content="TORUSMESH  Create a 3D mesh representing a torus">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; torusMesh.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>torusMesh
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>TORUSMESH  Create a 3D mesh representing a torus</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = torusMesh(torus, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">TORUSMESH  Create a 3D mesh representing a torus
+
+   [v f] = torusMesh(torus)
+   Converts the torus in TORUS into a face-vertex quadrangular mesh.
+   TORUS is given by [XC YC ZY R1 R2 THETA PHI]
+   where (XC YZ ZC) is the center of the torus, R1 is the main radius, R2
+   is the radius of the torus section, and (THETA PHI) is the angle of the
+   torus normal vector (both in degrees).
+
+   Example
+     [v f] = torusMesh([50 50 50 30 10 30 45]);
+     figure; drawMesh(v, f, 'linestyle', 'none');
+     view(3); axis equal; 
+     lighting gouraud; light;
+
+
+   See also
+     drawTorus, revolutionSurface, <a href="cylinderMesh.html" class="code" title="function varargout = cylinderMesh(cyl, varargin)">cylinderMesh</a>, <a href="drawMesh.html" class="code" title="function varargout = drawMesh(vertices, faces, varargin)">drawMesh</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2012-10-25,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2012 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom2d/circleToPolygon.html" class="code" title="function varargout = circleToPolygon(circle, varargin)">circleToPolygon</a>	CIRCLETOPOLYGON Convert a circle into a series of points</li><li><a href="../.././matGeom/geom3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>	LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system</li><li><a href="../.././matGeom/geom3d/revolutionSurface.html" class="code" title="function varargout = revolutionSurface(varargin)">revolutionSurface</a>	REVOLUTIONSURFACE Create a surface of revolution from a planar curve</li><li><a href="../.././matGeom/geom3d/transformPoint3d.html" class="code" title="function varargout = transformPoint3d(varargin)">transformPoint3d</a>	TRANSFORMPOINT3D Transform a point with a 3D affine transform</li><li><a href="../.././matGeom/meshes3d/private/formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>	FORMATMESHOUTPUT Format mesh output depending on nargout</li><li><a href="../.././matGeom/meshes3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>	LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system</li><li><a href="surfToMesh.html" class="code" title="function varargout = surfToMesh(x, y, varargin)">surfToMesh</a>	SURFTOMESH Convert surface grids into face-vertex mesh</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = torusMesh(torus, varargin)</a>
+0002 <span class="comment">%TORUSMESH  Create a 3D mesh representing a torus</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [v f] = torusMesh(torus)</span>
+0005 <span class="comment">%   Converts the torus in TORUS into a face-vertex quadrangular mesh.</span>
+0006 <span class="comment">%   TORUS is given by [XC YC ZY R1 R2 THETA PHI]</span>
+0007 <span class="comment">%   where (XC YZ ZC) is the center of the torus, R1 is the main radius, R2</span>
+0008 <span class="comment">%   is the radius of the torus section, and (THETA PHI) is the angle of the</span>
+0009 <span class="comment">%   torus normal vector (both in degrees).</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   Example</span>
+0012 <span class="comment">%     [v f] = torusMesh([50 50 50 30 10 30 45]);</span>
+0013 <span class="comment">%     figure; drawMesh(v, f, 'linestyle', 'none');</span>
+0014 <span class="comment">%     view(3); axis equal;</span>
+0015 <span class="comment">%     lighting gouraud; light;</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%   See also</span>
+0019 <span class="comment">%     drawTorus, revolutionSurface, cylinderMesh, drawMesh</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% ------</span>
+0022 <span class="comment">% Author: David Legland</span>
+0023 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0024 <span class="comment">% Created: 2012-10-25,    using Matlab 7.9.0.529 (R2009b)</span>
+0025 <span class="comment">% Copyright 2012 INRA - Cepia Software Platform.</span>
+0026 
+0027 center = torus(1:3);
+0028 r1 = torus(4);
+0029 r2 = torus(5);
+0030 
+0031 <span class="keyword">if</span> size(torus, 2) &gt;= 7
+0032     normal = torus(6:7);
+0033 <span class="keyword">end</span>
+0034 
+0035 <span class="comment">% create base torus</span>
+0036 circle = <a href="../.././matGeom/geom2d/circleToPolygon.html" class="code" title="function varargout = circleToPolygon(circle, varargin)">circleToPolygon</a>([r1 0 r2], 60);
+0037 [x y z] = <a href="../.././matGeom/geom3d/revolutionSurface.html" class="code" title="function varargout = revolutionSurface(varargin)">revolutionSurface</a>(circle, linspace(0, 2*pi, 60));
+0038 
+0039 <span class="comment">% transform torus</span>
+0040 trans = <a href="../.././matGeom/geom3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>([center normal]);
+0041 [x y z] = <a href="../.././matGeom/geom3d/transformPoint3d.html" class="code" title="function varargout = transformPoint3d(varargin)">transformPoint3d</a>(x, y, z, trans);
+0042 
+0043 <span class="comment">% convert to FV mesh</span>
+0044 [vertices faces] = <a href="surfToMesh.html" class="code" title="function varargout = surfToMesh(x, y, varargin)">surfToMesh</a>(x, y, z);
+0045 
+0046 <span class="comment">% format output</span>
+0047 varargout = <a href="../.././matGeom/meshes3d/private/formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>(nargout, vertices, faces);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

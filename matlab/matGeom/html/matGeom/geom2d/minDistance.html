@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of minDistance</title>
+  <meta name="keywords" content="minDistance">
+  <meta name="description" content="MINDISTANCE compute minimum distance between a point and a set of points">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; minDistance.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>minDistance
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>MINDISTANCE compute minimum distance between a point and a set of points</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [dist, varargout] = minDistance(p, curve) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">MINDISTANCE compute minimum distance between a point and a set of points
+
+   Deprecated: use minDistancePoints instead
+
+   usage:
+   d = MINDISTANCE(P, POINTS)
+   POINTS is a [N*2] array of points, and P a single point. function
+   return the minimum distance between P and one of the points.
+
+   Also works for several points in P. In this case, return minimum
+   distance between each element of P and all element of POINTS. d is the
+   same length than P.
+
+   [d, i] = MINDISTANCE(P, POINTS)
+   also return index of closest point in POINTS.
+
+
+   ---------
+
+   author : David Legland 
+   INRA - TPV URPOI - BIA IMASTE
+   created the 23/02/2004.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [dist, varargout] = minDistance(p, curve)</a>
+0002 <span class="comment">%MINDISTANCE compute minimum distance between a point and a set of points</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   Deprecated: use minDistancePoints instead</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%   usage:</span>
+0007 <span class="comment">%   d = MINDISTANCE(P, POINTS)</span>
+0008 <span class="comment">%   POINTS is a [N*2] array of points, and P a single point. function</span>
+0009 <span class="comment">%   return the minimum distance between P and one of the points.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   Also works for several points in P. In this case, return minimum</span>
+0012 <span class="comment">%   distance between each element of P and all element of POINTS. d is the</span>
+0013 <span class="comment">%   same length than P.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   [d, i] = MINDISTANCE(P, POINTS)</span>
+0016 <span class="comment">%   also return index of closest point in POINTS.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   ---------</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%   author : David Legland</span>
+0022 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0023 <span class="comment">%   created the 23/02/2004.</span>
+0024 <span class="comment">%</span>
+0025 
+0026 <span class="comment">%   HISTORY :</span>
+0027 <span class="comment">%   18/03/2004 : can also return index of closest point</span>
+0028 <span class="comment">%   08/04/2004 : return vertical array when input multiple points</span>
+0029 
+0030 dist = inf;
+0031 
+0032 <span class="keyword">for</span> i=1:size(p, 1)
+0033     dx = curve(:,1)-p(i,1);
+0034     dy = curve(:,2)-p(i,2);
+0035     [dist(i,1), ind(i,1)] = min(sqrt(dx.*dx + dy.*dy));
+0036 <span class="keyword">end</span>
+0037 
+0038 <span class="keyword">if</span> nargout&gt;1
+0039     varargout{1} = ind;
+0040 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

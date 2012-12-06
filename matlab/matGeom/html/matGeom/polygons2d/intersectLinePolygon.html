@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of intersectLinePolygon</title>
+  <meta name="keywords" content="intersectLinePolygon">
+  <meta name="description" content="INTERSECTLINEPOLYGON Intersection points between a line and a polygon">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; intersectLinePolygon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>intersectLinePolygon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>INTERSECTLINEPOLYGON Intersection points between a line and a polygon</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [intersects edgeIndices] = intersectLinePolygon(line, poly, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">INTERSECTLINEPOLYGON Intersection points between a line and a polygon
+
+   P = intersectLinePolygon(LINE, POLY)
+   Returns the intersection points of the lines LINE with polygon POLY. 
+   LINE is a 1-by-4 row vector containing parametric representation of the
+   line (in the format [x0 y0 dx dy], see the function 'createLine' for
+   details). 
+   POLY is a NV-by-2 array containing coordinates of the polygon vertices
+   P is a K-by-2 array containing the coordinates of the K intersection
+   points.
+
+   P = intersectLinePolygon(LINE, POLY, TOL)
+   Specifies the tolerance for geometric tests. Default is 1e-14.
+
+   [P INDS] = intersectLinePolygon(...)
+   Also returns the indices of edges involved in intersections. INDS is a
+   K-by-1 column vector, such that P(i,:) corresponds to intersection of
+   the line with the i-th edge of the polygon. If the intersection occurs
+   at a polygon vertex, the index of only one of the two neighbor edges is
+   returned. 
+   Note that due to numerical approximations, the use of function
+   'isPointOnEdge' may give results not consistent with this function.
+
+
+   Examples
+   % compute intersections between a square and an horizontal line
+     poly = [0 0;10 0;10 10;0 10];
+     line = [5 5 1 0];
+     intersectLinePolygon(line, poly)
+     ans =
+           10     5
+            0     5
+     % also return indices of edges
+     [inters inds] = intersectLinePolygon(line, poly)
+     inters =
+           10     5
+            0     5
+     inds =
+           4
+           2
+      
+   % compute intersections between a square and a diagonal line
+     poly = [0 0;10 0;10 10;0 10];
+     line = [5 5 1 1];
+     intersectLinePolygon(line, poly)
+     ans =
+            0     0
+           10    10
+
+   See Also
+   lines2d, polygons2d, intersectLines, <a href="intersectRayPolygon.html" class="code" title="function intersects = intersectRayPolygon(ray, poly, varargin)">intersectRayPolygon</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 31/10/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom2d/edgeToLine.html" class="code" title="function line = edgeToLine(edge)">edgeToLine</a>	EDGETOLINE Convert an edge to a straight line</li><li><a href="../.././matGeom/geom2d/intersectLines.html" class="code" title="function point = intersectLines(line1, line2, varargin)">intersectLines</a>	INTERSECTLINES Return all intersection points of N lines in 2D</li><li><a href="../.././matGeom/geom2d/linePosition.html" class="code" title="function pos = linePosition(point, line, varargin)">linePosition</a>	LINEPOSITION Position of a point on a line</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="intersectEdgePolygon.html" class="code" title="function [intersects inds] = intersectEdgePolygon(edge, poly, varargin)">intersectEdgePolygon</a>	INTERSECTEDGEPOLYGON  Intersection point of an edge with a polygon</li><li><a href="intersectRayPolygon.html" class="code" title="function intersects = intersectRayPolygon(ray, poly, varargin)">intersectRayPolygon</a>	INTERSECTRAYPOLYGON Intersection points between a ray and a polygon</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [intersects edgeIndices] = intersectLinePolygon(line, poly, varargin)</a>
+0002 <span class="comment">%INTERSECTLINEPOLYGON Intersection points between a line and a polygon</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   P = intersectLinePolygon(LINE, POLY)</span>
+0005 <span class="comment">%   Returns the intersection points of the lines LINE with polygon POLY.</span>
+0006 <span class="comment">%   LINE is a 1-by-4 row vector containing parametric representation of the</span>
+0007 <span class="comment">%   line (in the format [x0 y0 dx dy], see the function 'createLine' for</span>
+0008 <span class="comment">%   details).</span>
+0009 <span class="comment">%   POLY is a NV-by-2 array containing coordinates of the polygon vertices</span>
+0010 <span class="comment">%   P is a K-by-2 array containing the coordinates of the K intersection</span>
+0011 <span class="comment">%   points.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   P = intersectLinePolygon(LINE, POLY, TOL)</span>
+0014 <span class="comment">%   Specifies the tolerance for geometric tests. Default is 1e-14.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   [P INDS] = intersectLinePolygon(...)</span>
+0017 <span class="comment">%   Also returns the indices of edges involved in intersections. INDS is a</span>
+0018 <span class="comment">%   K-by-1 column vector, such that P(i,:) corresponds to intersection of</span>
+0019 <span class="comment">%   the line with the i-th edge of the polygon. If the intersection occurs</span>
+0020 <span class="comment">%   at a polygon vertex, the index of only one of the two neighbor edges is</span>
+0021 <span class="comment">%   returned.</span>
+0022 <span class="comment">%   Note that due to numerical approximations, the use of function</span>
+0023 <span class="comment">%   'isPointOnEdge' may give results not consistent with this function.</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%   Examples</span>
+0027 <span class="comment">%   % compute intersections between a square and an horizontal line</span>
+0028 <span class="comment">%     poly = [0 0;10 0;10 10;0 10];</span>
+0029 <span class="comment">%     line = [5 5 1 0];</span>
+0030 <span class="comment">%     intersectLinePolygon(line, poly)</span>
+0031 <span class="comment">%     ans =</span>
+0032 <span class="comment">%           10     5</span>
+0033 <span class="comment">%            0     5</span>
+0034 <span class="comment">%     % also return indices of edges</span>
+0035 <span class="comment">%     [inters inds] = intersectLinePolygon(line, poly)</span>
+0036 <span class="comment">%     inters =</span>
+0037 <span class="comment">%           10     5</span>
+0038 <span class="comment">%            0     5</span>
+0039 <span class="comment">%     inds =</span>
+0040 <span class="comment">%           4</span>
+0041 <span class="comment">%           2</span>
+0042 <span class="comment">%</span>
+0043 <span class="comment">%   % compute intersections between a square and a diagonal line</span>
+0044 <span class="comment">%     poly = [0 0;10 0;10 10;0 10];</span>
+0045 <span class="comment">%     line = [5 5 1 1];</span>
+0046 <span class="comment">%     intersectLinePolygon(line, poly)</span>
+0047 <span class="comment">%     ans =</span>
+0048 <span class="comment">%            0     0</span>
+0049 <span class="comment">%           10    10</span>
+0050 <span class="comment">%</span>
+0051 <span class="comment">%   See Also</span>
+0052 <span class="comment">%   lines2d, polygons2d, intersectLines, intersectRayPolygon</span>
+0053 <span class="comment">%</span>
+0054 <span class="comment">%   ---------</span>
+0055 <span class="comment">%   author : David Legland</span>
+0056 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0057 <span class="comment">%   created the 31/10/2003.</span>
+0058 <span class="comment">%</span>
+0059 
+0060 <span class="comment">%   HISTORY</span>
+0061 <span class="comment">%   2008-11-24 rename 'pi' as 'intersects', update doc</span>
+0062 <span class="comment">%   2009-07-23 removed forgotten occurence of 'pi' variable (thanks to Bala</span>
+0063 <span class="comment">%       Krishnamoorthy)</span>
+0064 <span class="comment">%   2010-01-26 rewrite using vectorisation</span>
+0065 <span class="comment">%   2011-05-20 returns unique results</span>
+0066 <span class="comment">%   2011-07-20 returns intersected edge indices</span>
+0067 <span class="comment">%   2012-11-33 add 'diag' option for linePosition</span>
+0068 
+0069 <span class="comment">% get computation tolerance</span>
+0070 tol = 1e-14;
+0071 <span class="keyword">if</span> ~isempty(varargin)
+0072     tol = varargin{1};
+0073 <span class="keyword">end</span>
+0074 
+0075 <span class="comment">% create the array of edges</span>
+0076 N = size(poly, 1);
+0077 edges = [poly(1:N, :) poly([2:N 1], :)];
+0078 
+0079 <span class="comment">% compute intersections with supporting lines of polygon edges</span>
+0080 supportLines = <a href="../.././matGeom/geom2d/edgeToLine.html" class="code" title="function line = edgeToLine(edge)">edgeToLine</a>(edges);
+0081 intersects = <a href="../.././matGeom/geom2d/intersectLines.html" class="code" title="function point = intersectLines(line1, line2, varargin)">intersectLines</a>(line, supportLines, tol);
+0082 
+0083 <span class="comment">% find edges that are not parallel to the input line</span>
+0084 inds = find(isfinite(intersects(:, 1)));
+0085 
+0086 <span class="comment">% compute position of intersection points on corresponding lines</span>
+0087 pos = <a href="../.././matGeom/geom2d/linePosition.html" class="code" title="function pos = linePosition(point, line, varargin)">linePosition</a>(intersects(inds, :), supportLines(inds, :), <span class="string">'diag'</span>);
+0088 
+0089 <span class="comment">% and keep only intersection points located on edges</span>
+0090 b = pos &gt; -tol &amp; pos &lt; 1+tol;
+0091 inds = inds(b);
+0092 intersects = intersects(inds, :);
+0093 
+0094 <span class="comment">% remove multiple vertices (can occur for intersections located at polygon</span>
+0095 <span class="comment">% vertices)</span>
+0096 [intersects I J] = unique(intersects, <span class="string">'rows'</span>); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0097 
+0098 <span class="keyword">if</span> nargout &gt; 1
+0099     <span class="comment">% return indices of edges involved in intersection</span>
+0100     <span class="comment">% (in case of intersection located at a vertex, only one of the</span>
+0101     <span class="comment">% neighbor edges is returned)</span>
+0102     edgeIndices = inds(I);
+0103 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

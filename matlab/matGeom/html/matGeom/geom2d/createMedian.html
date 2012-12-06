@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of createMedian</title>
+  <meta name="keywords" content="createMedian">
+  <meta name="description" content="CREATEMEDIAN create a median line">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; createMedian.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>createMedian
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CREATEMEDIAN create a median line</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function line = createMedian(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CREATEMEDIAN create a median line
+
+   DEPRECATED: use medianLine instead
+
+   l = CREATEMEDIAN(P1, P2) create the median line of points P1 and P2, 
+   that is the line containing all points located at equal distance of 
+   P1 and P2.
+
+   l = CREATEMEDIAN(points) create the median line of 2 points, given as
+   a 2*2 array. array has the form :
+   [ [ x1 y1 ] ; [ x2 y2 ] ]
+
+   l = CREATEMEDIAN(edge) create the median of the edge. Edge is a 1*4
+   array, containing [x0 y0] coordiantes of first point, and [dx dy],
+   the vector from first point to second point.
+ 
+   
+
+   ---------
+
+   author : David Legland 
+   INRA - TPV URPOI - BIA IMASTE
+   created the 31/10/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function line = createMedian(varargin)</a>
+0002 <span class="comment">%CREATEMEDIAN create a median line</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   DEPRECATED: use medianLine instead</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%   l = CREATEMEDIAN(P1, P2) create the median line of points P1 and P2,</span>
+0007 <span class="comment">%   that is the line containing all points located at equal distance of</span>
+0008 <span class="comment">%   P1 and P2.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   l = CREATEMEDIAN(points) create the median line of 2 points, given as</span>
+0011 <span class="comment">%   a 2*2 array. array has the form :</span>
+0012 <span class="comment">%   [ [ x1 y1 ] ; [ x2 y2 ] ]</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   l = CREATEMEDIAN(edge) create the median of the edge. Edge is a 1*4</span>
+0015 <span class="comment">%   array, containing [x0 y0] coordiantes of first point, and [dx dy],</span>
+0016 <span class="comment">%   the vector from first point to second point.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   ---------</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   author : David Legland</span>
+0023 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0024 <span class="comment">%   created the 31/10/2003.</span>
+0025 <span class="comment">%</span>
+0026 
+0027 <span class="comment">% deprecation warning</span>
+0028 warning(<span class="string">'geom2d:deprecated'</span>, <span class="keyword">...</span>
+0029     <span class="string">'''createMedian'' is deprecated, use ''medianLine'' instead'</span>);
+0030 
+0031 
+0032 nargs = length(varargin);
+0033 x0=0;
+0034 y0=0;
+0035 dx=0;
+0036 dy=0;
+0037 
+0038 <span class="keyword">if</span> nargs == 1
+0039     tab = varargin{1};
+0040     <span class="keyword">if</span> size(tab, 2)==2
+0041         <span class="comment">% array of two points</span>
+0042         x0 = tab(1,1); y0 = tab(1,2);
+0043         dx = tab(2,1)-x0; dy = tab(2,2)-y0;
+0044     <span class="keyword">else</span>
+0045         <span class="comment">% edge equation</span>
+0046         x0 = tab(1); y0 = tab(2);
+0047         dx = tab(3); dy = tab(4);
+0048     <span class="keyword">end</span>
+0049 <span class="keyword">elseif</span> nargs==2
+0050     <span class="comment">% two points</span>
+0051     p1 = varargin{1};
+0052     p2 = varargin{2};
+0053     x0 = p1(1); y0 = p1(2);
+0054     dx = p2(1)-x0; dy = p2(2)-y0;
+0055 <span class="keyword">end</span>
+0056     
+0057         
+0058 line = [x0+dx/2, y0+dy/2, -dy, dx];</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

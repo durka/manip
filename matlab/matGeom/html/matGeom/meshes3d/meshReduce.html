@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of meshReduce</title>
+  <meta name="keywords" content="meshReduce">
+  <meta name="description" content="MESHREDUCE Merge coplanar faces of a polyhedral mesh">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; meshReduce.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>meshReduce
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>MESHREDUCE Merge coplanar faces of a polyhedral mesh</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = meshReduce(nodes, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">MESHREDUCE Merge coplanar faces of a polyhedral mesh
+
+   [NODES FACES] = meshReduce(NODES, FACES)
+   [NODES EDGES FACES] = meshReduce(NODES, EDGES, FACES)
+   NODES is a set of 3D points (as a Nn-by-3 array), 
+   and FACES is one of:
+   - a Nf-by-X array containing vertex indices of each face, with each
+   face having the same number of vertices,
+   - a Nf-by 1 cell array, each cell containing indices of a face.
+   The function groups faces which are coplanar and contiguous, resulting
+   in a &quot;lighter&quot; mesh. This can be useful to visualize binary 3D images
+   for example.
+
+   FACES = meshReduce(..., PRECISION)
+   Adjust the threshold for deciding if two faces are coplanar or
+   parallel. Default value is 1e-14.
+
+   Example
+   [n e f] = createCube;
+   f2 = meshReduce(n);
+   drawMesh(n, f);
+
+   See also
+   meshes3d, <a href="drawMesh.html" class="code" title="function varargout = drawMesh(vertices, faces, varargin)">drawMesh</a>, convhull, convhulln, <a href="minConvexHull.html" class="code" title="function faces = minConvexHull(nodes, varargin)">minConvexHull</a>
+
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2006-07-05
+ Copyright 2006 INRA - CEPIA Nantes - MIAJ (Jouy-en-Josas).</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom3d/isCoplanar.html" class="code" title="function copl = isCoplanar(x,y,z,tolerance)">isCoplanar</a>	ISCOPLANAR Tests input points for coplanarity in 3-space.</li><li><a href="../.././matGeom/geom3d/vectorNorm3d.html" class="code" title="function n = vectorNorm3d(v)">vectorNorm3d</a>	VECTORNORM3D Norm of a 3D vector or of set of 3D vectors</li><li><a href="../.././matGeom/graphs/grLabel.html" class="code" title="function labels = grLabel(nodes, edges)">grLabel</a>	GRLABEL Associate a label to each connected component of the graph</li><li><a href="../.././matGeom/graphs/graph2Contours.html" class="code" title="function varargout = graph2Contours(nodes, edges) %#ok<INUSL>">graph2Contours</a>	GRAPH2CONTOURS Convert a graph to a set of contour curves</li><li><a href="faceNormal.html" class="code" title="function normals = faceNormal(nodes, faces)">faceNormal</a>	FACENORMAL Compute normal vector of faces in a 3D mesh</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function labels = grLabel(nodes, edges)</a></li><li><a href="#_sub2" class="code">function nodes2 = getNeighbourNodes(node, edges)</a></li><li><a href="#_sub3" class="code">function curves = graph2Contours(nodes, edges)</a></li></ul>
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = meshReduce(nodes, varargin)</a>
+0002 <span class="comment">%MESHREDUCE Merge coplanar faces of a polyhedral mesh</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [NODES FACES] = meshReduce(NODES, FACES)</span>
+0005 <span class="comment">%   [NODES EDGES FACES] = meshReduce(NODES, EDGES, FACES)</span>
+0006 <span class="comment">%   NODES is a set of 3D points (as a Nn-by-3 array),</span>
+0007 <span class="comment">%   and FACES is one of:</span>
+0008 <span class="comment">%   - a Nf-by-X array containing vertex indices of each face, with each</span>
+0009 <span class="comment">%   face having the same number of vertices,</span>
+0010 <span class="comment">%   - a Nf-by 1 cell array, each cell containing indices of a face.</span>
+0011 <span class="comment">%   The function groups faces which are coplanar and contiguous, resulting</span>
+0012 <span class="comment">%   in a &quot;lighter&quot; mesh. This can be useful to visualize binary 3D images</span>
+0013 <span class="comment">%   for example.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   FACES = meshReduce(..., PRECISION)</span>
+0016 <span class="comment">%   Adjust the threshold for deciding if two faces are coplanar or</span>
+0017 <span class="comment">%   parallel. Default value is 1e-14.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   Example</span>
+0020 <span class="comment">%   [n e f] = createCube;</span>
+0021 <span class="comment">%   f2 = meshReduce(n);</span>
+0022 <span class="comment">%   drawMesh(n, f);</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%   See also</span>
+0025 <span class="comment">%   meshes3d, drawMesh, convhull, convhulln, minConvexHull</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% ------</span>
+0029 <span class="comment">% Author: David Legland</span>
+0030 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0031 <span class="comment">% Created: 2006-07-05</span>
+0032 <span class="comment">% Copyright 2006 INRA - CEPIA Nantes - MIAJ (Jouy-en-Josas).</span>
+0033 
+0034 <span class="comment">% 20/07/2006 add tolerance for coplanarity test</span>
+0035 <span class="comment">% 21/08/2006 fix small bug due to difference of methods to test</span>
+0036 <span class="comment">%   coplanaritity, sometimes resulting in 3 points of a face not coplanar !</span>
+0037 <span class="comment">%   Also add control on precision</span>
+0038 <span class="comment">% 14/08/2007 rename minConvexHull-&gt;meshReduce, and extend to non convex</span>
+0039 <span class="comment">%   shapes</span>
+0040 <span class="comment">% 2011-01-14 code clean up</span>
+0041 
+0042 
+0043 <span class="comment">%% Process input arguments</span>
+0044 
+0045 <span class="comment">% set up precision</span>
+0046 acc = 1e-14;
+0047 <span class="keyword">if</span> ~isempty(varargin)
+0048     var = varargin{end};
+0049     <span class="keyword">if</span> length(var)==1
+0050         acc = var;
+0051         varargin(end) = [];
+0052     <span class="keyword">end</span>
+0053 <span class="keyword">end</span>
+0054 
+0055 <span class="comment">% extract faces and edges</span>
+0056 <span class="keyword">if</span> length(varargin)==1
+0057     faces = varargin{1};
+0058 <span class="keyword">else</span>
+0059     faces = varargin{2};
+0060 <span class="keyword">end</span>
+0061 
+0062 
+0063 <span class="comment">%% Initialisations</span>
+0064 
+0065 <span class="comment">% number of faces</span>
+0066 Nn = size(nodes, 1);
+0067 Nf = size(faces, 1);
+0068 
+0069 <span class="comment">% compute number of vertices of each face</span>
+0070 Fn = ones(Nf, 1)*size(faces, 2);
+0071 
+0072 <span class="comment">% compute normal of each faces</span>
+0073 normals = <a href="faceNormal.html" class="code" title="function normals = faceNormal(nodes, faces)">faceNormal</a>(nodes, faces);
+0074 
+0075 <span class="comment">% initialize empty faces and edges</span>
+0076 faces2  = cell(0, 1);
+0077 edges2  = zeros(0, 2);
+0078 
+0079 <span class="comment">% Processing flag for each face</span>
+0080 <span class="comment">% 1: face to process, 0: already processed</span>
+0081 <span class="comment">% in the beginning, every triangle face need to be processed</span>
+0082 flag = ones(Nf, 1);
+0083 
+0084 
+0085 <span class="comment">%% Main iteration</span>
+0086 
+0087 <span class="comment">% iterate on each  face</span>
+0088 <span class="keyword">for</span> f=1:Nf
+0089     
+0090     <span class="comment">% check if face was already performed</span>
+0091     <span class="keyword">if</span> ~flag(f)
+0092         <span class="keyword">continue</span>;
+0093     <span class="keyword">end</span>
+0094 
+0095     <span class="comment">% indices of faces with same normal</span>
+0096     ind = find(abs(<a href="../.././matGeom/geom3d/vectorNorm3d.html" class="code" title="function n = vectorNorm3d(v)">vectorNorm3d</a>(cross(repmat(normals(f, :), [Nf 1]), normals)))&lt;acc);
+0097     <span class="comment">%ind = ind(ind~=i);</span>
+0098     
+0099     <span class="comment">% keep only coplanar faces (test coplanarity of points in both face)</span>
+0100     ind2 = false(size(ind));
+0101     <span class="keyword">for</span> j=1:length(ind)
+0102         ind2(j) = <a href="../.././matGeom/geom3d/isCoplanar.html" class="code" title="function copl = isCoplanar(x,y,z,tolerance)">isCoplanar</a>(nodes([faces(f,:) faces(ind(j),:)], :), acc);
+0103     <span class="keyword">end</span>
+0104     ind2 = ind(ind2);
+0105     
+0106     <span class="comment">% compute edges of all faces in the plane</span>
+0107     planeEdges  = zeros(sum(Fn(ind2)), 2);
+0108     pos  = 1;
+0109     <span class="keyword">for</span> i=1:length(ind2)
+0110         face = faces(ind2(i), :);
+0111         faceEdges = sort([face' face([2:end 1])'], 2);
+0112         planeEdges(pos:sum(Fn(ind2(1:i))), :) = faceEdges;
+0113         pos = sum(Fn(ind2(1:i)))+1;
+0114     <span class="keyword">end</span>
+0115     planeEdges = unique(planeEdges, <span class="string">'rows'</span>);
+0116     
+0117     <span class="comment">% relabel plane edges, and find connected components</span>
+0118     [planeNodes I J] = unique(planeEdges(:)); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0119     planeEdges2 = reshape(J, size(planeEdges));
+0120     component   = <a href="../.././matGeom/graphs/grLabel.html" class="code" title="function labels = grLabel(nodes, edges)">grLabel</a>(nodes(planeNodes, :), planeEdges2);
+0121     
+0122     <span class="comment">% compute degree (number of adjacent faces) of each edge.</span>
+0123     Npe = size(planeEdges, 1);
+0124     edgesDegree = zeros(Npe, 1);
+0125     <span class="keyword">for</span> i=1:length(ind2)
+0126         face = faces(ind2(i), :);
+0127         faceEdges = sort([face' face([2:end 1])'], 2);
+0128         <span class="keyword">for</span> j=1:size(faceEdges, 1)
+0129             indEdge = find(sum(ismember(planeEdges, faceEdges(j,:)),2)==2);
+0130             edgesDegree(indEdge) = edgesDegree(indEdge)+1;
+0131         <span class="keyword">end</span>
+0132     <span class="keyword">end</span>
+0133     
+0134     <span class="comment">% extract unique edges and nodes of the plane</span>
+0135     planeEdges  = planeEdges(edgesDegree==1, :);
+0136     planeEdges2 = planeEdges2(edgesDegree==1, :);
+0137     
+0138     <span class="comment">% find connected component of each edge</span>
+0139     planeEdgesComp = zeros(size(planeEdges, 1), 1);
+0140     <span class="keyword">for</span> e=1:size(planeEdges, 1)
+0141         planeEdgesComp(e) = component(planeEdges2(e, 1));
+0142     <span class="keyword">end</span>
+0143     
+0144     <span class="comment">% iterate on connected faces</span>
+0145     <span class="keyword">for</span> c=1:max(component)
+0146         
+0147         <span class="comment">% convert to chains of nodes</span>
+0148         loops = <a href="../.././matGeom/graphs/graph2Contours.html" class="code" title="function varargout = graph2Contours(nodes, edges) %#ok<INUSL>">graph2Contours</a>(nodes, planeEdges(planeEdgesComp==c, :));
+0149     
+0150         <span class="comment">% add a simple Polygon for each loop</span>
+0151         facePolygon = loops{1};
+0152         <span class="keyword">for</span> l=2:length(loops)
+0153             facePolygon = [facePolygon, NaN, loops{l}];
+0154         <span class="keyword">end</span>
+0155         faces2{length(faces2)+1, 1}  = facePolygon;
+0156     
+0157         <span class="comment">% also add news edges</span>
+0158         edges2 = unique([edges2; planeEdges], <span class="string">'rows'</span>);
+0159     <span class="keyword">end</span>
+0160     
+0161     <span class="comment">% mark processed faces</span>
+0162     flag(ind2) = 0;
+0163 <span class="keyword">end</span>
+0164 
+0165 
+0166 <span class="comment">%% Additional processing on nodes</span>
+0167 
+0168 <span class="comment">% select only nodes which appear in at least one edge</span>
+0169 indNodes = unique(edges2(:));
+0170 
+0171 <span class="comment">% for each node, compute index of corresponding new node (or 0 if dropped)</span>
+0172 refNodes = zeros(Nn, 1);
+0173 <span class="keyword">for</span> i=1:length(indNodes)
+0174     refNodes(indNodes(i)) = i;
+0175 <span class="keyword">end</span>
+0176 
+0177 <span class="comment">% changes indices of nodes in edges2 array</span>
+0178 <span class="keyword">for</span> i=1:length(edges2(:))
+0179     edges2(i) = refNodes(edges2(i));
+0180 <span class="keyword">end</span>
+0181 
+0182 <span class="comment">% changes indices of nodes in faces2 array</span>
+0183 <span class="keyword">for</span> f=1:length(faces2)
+0184     face = faces2{f};
+0185     <span class="keyword">for</span> i=1:length(face)
+0186         <span class="keyword">if</span> ~isnan(face(i))
+0187             face(i) = refNodes(face(i));
+0188         <span class="keyword">end</span>
+0189     <span class="keyword">end</span>
+0190     faces2{f} = face;
+0191 <span class="keyword">end</span>
+0192 
+0193 <span class="comment">% keep only boundary nodes</span>
+0194 nodes2 = nodes(indNodes, :);
+0195 
+0196 
+0197 <span class="comment">%% Process output arguments</span>
+0198 
+0199 <span class="keyword">if</span> nargout == 1
+0200     varargout{1} = faces2;
+0201 <span class="keyword">elseif</span> nargout == 2
+0202     varargout{1} = nodes2;
+0203     varargout{2} = faces2;
+0204 <span class="keyword">elseif</span> nargout==3
+0205     varargout{1} = nodes2;
+0206     varargout{2} = edges2;
+0207     varargout{3} = faces2;
+0208 <span class="keyword">end</span>
+0209 
+0210 
+0211 <a name="_sub1" href="#_subfunctions" class="code">function labels = grLabel(nodes, edges)</a>
+0212 <span class="comment">%GRLABEL associate a label to each connected component of the graph</span>
+0213 <span class="comment">%   LABELS = grLabel(NODES, EDGES)</span>
+0214 <span class="comment">%   Returns an array with as many rows as the array NODES, containing index</span>
+0215 <span class="comment">%   number of each connected component of the graph. If the graph is</span>
+0216 <span class="comment">%   totally connected, returns an array of 1.</span>
+0217 <span class="comment">%</span>
+0218 <span class="comment">%   Example</span>
+0219 <span class="comment">%       nodes = rand(6, 2);</span>
+0220 <span class="comment">%       edges = [1 2;1 3;4 6];</span>
+0221 <span class="comment">%       labels = grLabel(nodes, edges);</span>
+0222 <span class="comment">%   labels =</span>
+0223 <span class="comment">%       1</span>
+0224 <span class="comment">%       1</span>
+0225 <span class="comment">%       1</span>
+0226 <span class="comment">%       2</span>
+0227 <span class="comment">%       3</span>
+0228 <span class="comment">%       2</span>
+0229 <span class="comment">%</span>
+0230 <span class="comment">%   See also</span>
+0231 <span class="comment">%   getNeighbourNodes</span>
+0232 <span class="comment">%</span>
+0233 <span class="comment">%</span>
+0234 <span class="comment">% ------</span>
+0235 <span class="comment">% Author: David Legland</span>
+0236 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0237 <span class="comment">% Created: 2007-08-14,    using Matlab 7.4.0.287 (R2007a)</span>
+0238 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0239 
+0240 <span class="comment">% init</span>
+0241 Nn = size(nodes, 1);
+0242 labels = (1:Nn)';
+0243 
+0244 <span class="comment">% iteration</span>
+0245 modif = true;
+0246 <span class="keyword">while</span> modif
+0247     modif = false;
+0248     
+0249     <span class="keyword">for</span> i=1:Nn
+0250         neigh = <a href="#_sub2" class="code" title="subfunction nodes2 = getNeighbourNodes(node, edges)">getNeighbourNodes</a>(i, edges);
+0251         neighLabels = labels([i;neigh]);
+0252         
+0253         <span class="comment">% check for a modification</span>
+0254         <span class="keyword">if</span> length(unique(neighLabels))&gt;1
+0255             modif = true;
+0256         <span class="keyword">end</span>
+0257         
+0258         <span class="comment">% put new labels</span>
+0259         labels(ismember(labels, neighLabels)) = min(neighLabels);
+0260     <span class="keyword">end</span>
+0261 <span class="keyword">end</span>
+0262 
+0263 <span class="comment">% change to have fewer labels</span>
+0264 labels2 = unique(labels);
+0265 <span class="keyword">for</span> i=1:length(labels2)
+0266     labels(labels==labels2(i)) = i;
+0267 <span class="keyword">end</span>
+0268 
+0269 <a name="_sub2" href="#_subfunctions" class="code">function nodes2 = getNeighbourNodes(node, edges)</a>
+0270 <span class="comment">%GETNEIGHBOURNODES find nodes adjacent to a given node</span>
+0271 <span class="comment">%</span>
+0272 <span class="comment">%   NEIGHS = getNeighbourNodes(NODE, EDGES)</span>
+0273 <span class="comment">%   NODE: index of the node</span>
+0274 <span class="comment">%   EDGES: the complete edges list</span>
+0275 <span class="comment">%   NEIGHS: the nodes adjacent to the given node.</span>
+0276 <span class="comment">%</span>
+0277 <span class="comment">%   NODE can also be a vector of node indices, in this case the result is</span>
+0278 <span class="comment">%   the set of neighbors of any input node.</span>
+0279 <span class="comment">%</span>
+0280 <span class="comment">%</span>
+0281 <span class="comment">%   -----</span>
+0282 <span class="comment">%</span>
+0283 <span class="comment">%   author : David Legland</span>
+0284 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0285 <span class="comment">%   created the 16/08/2004.</span>
+0286 <span class="comment">%</span>
+0287 
+0288 <span class="comment">%   HISTORY</span>
+0289 <span class="comment">%   10/02/2004 documentation</span>
+0290 <span class="comment">%   13/07/2004 faster algorithm</span>
+0291 <span class="comment">%   03/10/2007 can specify several input nodes</span>
+0292 
+0293 [i, j] = find(ismember(edges, node));
+0294 nodes2 = edges(i,1:2);
+0295 nodes2 = unique(nodes2(:));
+0296 nodes2 = sort(nodes2(~ismember(nodes2, node)));
+0297 
+0298 <a name="_sub3" href="#_subfunctions" class="code">function curves = graph2Contours(nodes, edges)</a>
+0299 <span class="comment">%GRAPH2CONTOURS convert a graph to a set of contour curves</span>
+0300 <span class="comment">%</span>
+0301 <span class="comment">%   CONTOURS = GRAPH2CONTOURS(NODES, EDGES)</span>
+0302 <span class="comment">%   NODES, EDGES is a graph representation (type &quot;help graph&quot; for details)</span>
+0303 <span class="comment">%   The algorithm assume every node has degree 2, and the set of edges</span>
+0304 <span class="comment">%   forms only closed loops. The result is a list of indices arrays, each</span>
+0305 <span class="comment">%   array containing consecutive point indices of a contour.</span>
+0306 <span class="comment">%</span>
+0307 <span class="comment">%   To transform contours into drawable curves, please use :</span>
+0308 <span class="comment">%   CURVES{i} = NODES(CONTOURS{i}, :);</span>
+0309 <span class="comment">%</span>
+0310 <span class="comment">%</span>
+0311 <span class="comment">%   NOTE : contours are not oriented. To manage contour orientation, edges</span>
+0312 <span class="comment">%   also need to be oriented. So we must precise generation of edges.</span>
+0313 <span class="comment">%</span>
+0314 <span class="comment">%   -----</span>
+0315 <span class="comment">%</span>
+0316 <span class="comment">%   author : David Legland</span>
+0317 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0318 <span class="comment">%   created the 05/08/2004.</span>
+0319 <span class="comment">%</span>
+0320 
+0321 
+0322 curves = {};
+0323 c = 0;
+0324 
+0325 <span class="keyword">while</span> size(edges,1)&gt;0
+0326     <span class="comment">% find first point of the curve</span>
+0327     n0 = edges(1,1);   
+0328     curve = n0;
+0329     
+0330     <span class="comment">% second point of the curve</span>
+0331     n = edges(1,2);    
+0332     e = 1;
+0333     
+0334     <span class="keyword">while</span> true
+0335         <span class="comment">% add current point to the curve</span>
+0336         curve = [curve n];        
+0337         
+0338         <span class="comment">% remove current edge from the list</span>
+0339         edges = edges((1:size(edges,1))~=e,:);
+0340         
+0341         <span class="comment">% find index of edge containing reference to current node</span>
+0342         e = find(edges(:,1)==n | edges(:,2)==n);            
+0343         e = e(1);
+0344         
+0345         <span class="comment">% get index of next current node</span>
+0346         <span class="comment">% (this is the other node of the current edge)</span>
+0347         <span class="keyword">if</span> edges(e,1)==n
+0348             n = edges(e,2);
+0349         <span class="keyword">else</span>
+0350             n = edges(e,1);
+0351         <span class="keyword">end</span>
+0352         
+0353         <span class="comment">% if node is same as start node, loop is closed, and we stop</span>
+0354         <span class="comment">% node iteration.</span>
+0355         <span class="keyword">if</span> n==n0
+0356             <span class="keyword">break</span>;
+0357         <span class="keyword">end</span>
+0358     <span class="keyword">end</span>
+0359     
+0360     <span class="comment">% remove the last edge of the curve from edge list.</span>
+0361     edges = edges((1:size(edges,1))~=e,:);
+0362     
+0363     <span class="comment">% add the current curve to the list, and start a new curve</span>
+0364     c = c+1;
+0365     curves{c} = curve;
+0366 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

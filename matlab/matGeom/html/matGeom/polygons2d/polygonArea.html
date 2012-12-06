@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polygonArea</title>
+  <meta name="keywords" content="polygonArea">
+  <meta name="description" content="POLYGONAREA Compute the signed area of a polygon">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; polygonArea.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polygonArea
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYGONAREA Compute the signed area of a polygon</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function area = polygonArea(poly, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYGONAREA Compute the signed area of a polygon
+
+   A = polygonArea(POINTS);
+   Compute area of a polygon defined by POINTS. POINTS is a N-by-2 array
+   of double containing coordinates of vertices.
+   
+   Vertices of the polygon are supposed to be oriented Counter-Clockwise
+   (CCW). In this case, the signed area is positive.
+   If vertices are oriented Clockwise (CW), the signed area is negative.
+
+   If polygon is self-crossing, the result is undefined.
+
+   Examples
+     % compute area of a simple shape
+     poly = [10 10;30 10;30 20;10 20];
+     area = polygonArea(poly)
+     area = 
+         200
+
+     % compute area of CW polygon
+     area2 = polygonArea(poly(end:-1:1, :))
+     area2 = 
+         -200
+
+     % Computes area of a paper hen
+     x = [0 10 20  0 -10 -20 -10 -10  0];
+     y = [0  0 10 10  20  10  10  0 -10];
+     poly = [x' y'];
+     area = polygonArea(poly)
+     area =
+        400
+
+   References
+   algo adapted from P. Bourke web page
+   http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
+
+   See also:
+   polygons2d, <a href="polygonCentroid.html" class="code" title="function [centroid area] = polygonCentroid(varargin)">polygonCentroid</a>, <a href="drawPolygon.html" class="code" title="function varargout = drawPolygon(varargin)">drawPolygon</a>, triangleArea
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 05/05/2004.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polygonArea.html" class="code" title="function area = polygonArea(poly, varargin)">polygonArea</a>	POLYGONAREA Compute the signed area of a polygon</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom3d/intersectLinePolygon3d.html" class="code" title="function [inter inside]= intersectLinePolygon3d(line, poly)">intersectLinePolygon3d</a>	INTERSECTLINEPOLYGON3D Intersection point of a 3D line and a 3D polygon</li><li><a href="../.././matGeom/geom3d/intersectRayPolygon3d.html" class="code" title="function [inter inside]= intersectRayPolygon3d(ray, poly)">intersectRayPolygon3d</a>	INTERSECTRAYPOLYGON3D Intersection point of a 3D ray and a 3D polygon</li><li><a href="polygonArea.html" class="code" title="function area = polygonArea(poly, varargin)">polygonArea</a>	POLYGONAREA Compute the signed area of a polygon</li><li><a href="polygonContains.html" class="code" title="function varargout = polygonContains(poly, point)">polygonContains</a>	POLYGONCONTAINS Test if a point is contained in a multiply connected polygon</li><li><a href="steinerPoint.html" class="code" title="function pt = steinerPoint(varargin)">steinerPoint</a>	STEINERPOINT Compute steiner point (weighted centroid) of a polygon</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function area = polygonArea(poly, varargin)</a>
+0002 <span class="comment">%POLYGONAREA Compute the signed area of a polygon</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   A = polygonArea(POINTS);</span>
+0005 <span class="comment">%   Compute area of a polygon defined by POINTS. POINTS is a N-by-2 array</span>
+0006 <span class="comment">%   of double containing coordinates of vertices.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   Vertices of the polygon are supposed to be oriented Counter-Clockwise</span>
+0009 <span class="comment">%   (CCW). In this case, the signed area is positive.</span>
+0010 <span class="comment">%   If vertices are oriented Clockwise (CW), the signed area is negative.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   If polygon is self-crossing, the result is undefined.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   Examples</span>
+0015 <span class="comment">%     % compute area of a simple shape</span>
+0016 <span class="comment">%     poly = [10 10;30 10;30 20;10 20];</span>
+0017 <span class="comment">%     area = polygonArea(poly)</span>
+0018 <span class="comment">%     area =</span>
+0019 <span class="comment">%         200</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%     % compute area of CW polygon</span>
+0022 <span class="comment">%     area2 = polygonArea(poly(end:-1:1, :))</span>
+0023 <span class="comment">%     area2 =</span>
+0024 <span class="comment">%         -200</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%     % Computes area of a paper hen</span>
+0027 <span class="comment">%     x = [0 10 20  0 -10 -20 -10 -10  0];</span>
+0028 <span class="comment">%     y = [0  0 10 10  20  10  10  0 -10];</span>
+0029 <span class="comment">%     poly = [x' y'];</span>
+0030 <span class="comment">%     area = polygonArea(poly)</span>
+0031 <span class="comment">%     area =</span>
+0032 <span class="comment">%        400</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">%   References</span>
+0035 <span class="comment">%   algo adapted from P. Bourke web page</span>
+0036 <span class="comment">%   http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">%   See also:</span>
+0039 <span class="comment">%   polygons2d, polygonCentroid, drawPolygon, triangleArea</span>
+0040 <span class="comment">%</span>
+0041 <span class="comment">%   ---------</span>
+0042 <span class="comment">%   author : David Legland</span>
+0043 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0044 <span class="comment">%   created the 05/05/2004.</span>
+0045 <span class="comment">%</span>
+0046 
+0047 <span class="comment">%   HISTORY</span>
+0048 <span class="comment">%   25/04/2005: add support for multiple polygons</span>
+0049 <span class="comment">%   12/10/2007: update doc</span>
+0050 
+0051 <span class="comment">% in case of polygon sets, computes the sum of polygon areas</span>
+0052 <span class="keyword">if</span> iscell(poly)
+0053     area = 0;
+0054     <span class="keyword">for</span> i = 1:length(poly)
+0055         area = area + <a href="polygonArea.html" class="code" title="function area = polygonArea(poly, varargin)">polygonArea</a>(poly{i});
+0056     <span class="keyword">end</span>
+0057     <span class="keyword">return</span>;
+0058 <span class="keyword">end</span>
+0059 
+0060 <span class="comment">% check there are enough points</span>
+0061 <span class="keyword">if</span> size(poly, 1) &lt; 2
+0062     area = 0;
+0063     <span class="keyword">return</span>;
+0064 <span class="keyword">end</span>
+0065 
+0066 <span class="comment">% extract coordinates</span>
+0067 <span class="keyword">if</span> nargin == 1
+0068     <span class="comment">% polygon given as N-by-2 array</span>
+0069     px = poly(:, 1);
+0070     py = poly(:, 2);
+0071     
+0072 <span class="keyword">elseif</span> nargin == 2
+0073     <span class="comment">% poylgon given as two N-by-1 arrays</span>
+0074     px = poly;
+0075     py = varargin{1};
+0076 <span class="keyword">end</span>
+0077 
+0078 <span class="comment">% indices of next vertices</span>
+0079 N = length(px);
+0080 iNext = [2:N 1];
+0081 
+0082 <span class="comment">% compute area (vectorized version)</span>
+0083 area = sum(px .* py(iNext) - px(iNext) .* py) / 2;</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

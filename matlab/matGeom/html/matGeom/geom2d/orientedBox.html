@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of orientedBox</title>
+  <meta name="keywords" content="orientedBox">
+  <meta name="description" content="ORIENTEDBOX Minimum-width oriented bounding box of a set of points">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; orientedBox.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>orientedBox
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>ORIENTEDBOX Minimum-width oriented bounding box of a set of points</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function obox = orientedBox(points) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ORIENTEDBOX Minimum-width oriented bounding box of a set of points
+
+   OBOX = orientedBox(PTS)
+   Computes the oriented bounding box of a set of points. Oriented box is
+   defined by a center, two dimensions (the length and the width), and the
+   orientation of the length axis. Orientation is counted in degrees, 
+   counter-clockwise.
+
+   Example
+     % Draw oriented bounding box of an ellipse
+     elli = [30 40 40 20 30];
+     pts = ellipseToPolygon(elli, 120);
+     obox = orientedBox(pts);
+     figure; hold on;
+     drawEllipse(elli);
+     drawOrientedBox(obox, 'm');
+
+   See also
+   <a href="drawOrientedBox.html" class="code" title="function varargout = drawOrientedBox(box, varargin)">drawOrientedBox</a>, <a href="orientedBoxToPolygon.html" class="code" title="function varargout = orientedBoxToPolygon(obox)">orientedBoxToPolygon</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2012-03-29,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2012 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="createLine.html" class="code" title="function line = createLine(varargin)">createLine</a>	CREATELINE Create a straight line from 2 points, or from other inputs</li><li><a href="distancePointLine.html" class="code" title="function [dist pos] = distancePointLine(point, line)">distancePointLine</a>	DISTANCEPOINTLINE Minimum distance between a point and a line</li><li><a href="rad2deg.html" class="code" title="function deg = rad2deg(rad)">rad2deg</a>	RAD2DEG Convert angle from radians to degrees</li><li><a href="rotateVector.html" class="code" title="function vr = rotateVector(v, angle)">rotateVector</a>	ROTATEVECTOR Rotate a vector by a given angle</li><li><a href="vectorAngle.html" class="code" title="function alpha = vectorAngle(v1, varargin)">vectorAngle</a>	VECTORANGLE Angle of a vector, or between 2 vectors</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function obox = orientedBox(points)</a>
+0002 <span class="comment">%ORIENTEDBOX Minimum-width oriented bounding box of a set of points</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   OBOX = orientedBox(PTS)</span>
+0005 <span class="comment">%   Computes the oriented bounding box of a set of points. Oriented box is</span>
+0006 <span class="comment">%   defined by a center, two dimensions (the length and the width), and the</span>
+0007 <span class="comment">%   orientation of the length axis. Orientation is counted in degrees,</span>
+0008 <span class="comment">%   counter-clockwise.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   Example</span>
+0011 <span class="comment">%     % Draw oriented bounding box of an ellipse</span>
+0012 <span class="comment">%     elli = [30 40 40 20 30];</span>
+0013 <span class="comment">%     pts = ellipseToPolygon(elli, 120);</span>
+0014 <span class="comment">%     obox = orientedBox(pts);</span>
+0015 <span class="comment">%     figure; hold on;</span>
+0016 <span class="comment">%     drawEllipse(elli);</span>
+0017 <span class="comment">%     drawOrientedBox(obox, 'm');</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   See also</span>
+0020 <span class="comment">%   drawOrientedBox, orientedBoxToPolygon</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% ------</span>
+0023 <span class="comment">% Author: David Legland</span>
+0024 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0025 <span class="comment">% Created: 2012-03-29,    using Matlab 7.9.0.529 (R2009b)</span>
+0026 <span class="comment">% Copyright 2012 INRA - Cepia Software Platform.</span>
+0027 
+0028 
+0029 <span class="comment">%% initialisations</span>
+0030 
+0031 <span class="comment">% first, compute convex hull of the polygon</span>
+0032 inds = convhull(points(:,1), points(:,2));
+0033 hull = points(inds, :);
+0034 
+0035 <span class="comment">% if first and last points are the same, remove the last one</span>
+0036 <span class="keyword">if</span> inds(1) == inds(end)
+0037     hull = hull(1:end-1, :);
+0038 <span class="keyword">end</span>
+0039 
+0040 <span class="comment">% compute convex hull centroid, that corresponds to approximate</span>
+0041 <span class="comment">% location of rectangle center</span>
+0042 center = mean(hull, 1);
+0043 hull = bsxfun(@minus, hull, center);
+0044 
+0045 <span class="comment">% number of hull vertices</span>
+0046 nV = size(hull, 1);
+0047 
+0048 <span class="comment">% default values</span>
+0049 rotatedAngle = 0;
+0050 minWidth = inf;
+0051 minAngle = 0;
+0052 
+0053 <span class="comment">% avoid degenerated cases</span>
+0054 <span class="keyword">if</span> nV &lt; 3
+0055     <span class="keyword">return</span>;
+0056 <span class="keyword">end</span>
+0057 
+0058 <span class="comment">% indices of vertices in extreme y directions</span>
+0059 [tmp indA] = min(hull(:, 2)); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0060 [tmp indB] = max(hull(:, 2)); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0061 
+0062 caliperA = [ 1 0];    <span class="comment">% Caliper A points along the positive x-axis</span>
+0063 caliperB = [-1 0];    <span class="comment">% Caliper B points along the negative x-axis</span>
+0064 
+0065 
+0066 <span class="comment">%% Find the direction with minimum width (rotating caliper algorithm)</span>
+0067 
+0068 <span class="keyword">while</span> rotatedAngle &lt; pi
+0069     <span class="comment">% compute the direction vectors corresponding to each edge</span>
+0070     indA2 = mod(indA, nV) + 1;
+0071     vectorA = hull(indA2, :) - hull(indA, :);
+0072     
+0073     indB2 = mod(indB, nV) + 1;
+0074     vectorB = hull(indB2, :) - hull(indB, :);
+0075     
+0076     <span class="comment">% Determine the angle between each caliper and the next adjacent edge</span>
+0077     <span class="comment">% in the polygon</span>
+0078     angleA = <a href="vectorAngle.html" class="code" title="function alpha = vectorAngle(v1, varargin)">vectorAngle</a>(caliperA, vectorA);
+0079     angleB = <a href="vectorAngle.html" class="code" title="function alpha = vectorAngle(v1, varargin)">vectorAngle</a>(caliperB, vectorB);
+0080     
+0081     <span class="comment">% Determine the smallest of these angles</span>
+0082     angleIncrement = min(angleA, angleB);
+0083     
+0084     <span class="comment">% Rotate the calipers by the smallest angle</span>
+0085     caliperA = <a href="rotateVector.html" class="code" title="function vr = rotateVector(v, angle)">rotateVector</a>(caliperA, angleIncrement);
+0086     caliperB = <a href="rotateVector.html" class="code" title="function vr = rotateVector(v, angle)">rotateVector</a>(caliperB, angleIncrement);
+0087     
+0088     rotatedAngle = rotatedAngle + angleIncrement;
+0089     
+0090     <span class="comment">% compute current width, and update opposite vertex</span>
+0091     <span class="keyword">if</span> angleA &lt; angleB
+0092         line = <a href="createLine.html" class="code" title="function line = createLine(varargin)">createLine</a>(hull(indA, :), hull(indA2, :));
+0093         width = <a href="distancePointLine.html" class="code" title="function [dist pos] = distancePointLine(point, line)">distancePointLine</a>(hull(indB, :), line);
+0094         indA = mod(indA, nV) + 1;
+0095     
+0096     <span class="keyword">else</span>
+0097         line = <a href="createLine.html" class="code" title="function line = createLine(varargin)">createLine</a>(hull(indB, :), hull(indB2, :));
+0098         width = <a href="distancePointLine.html" class="code" title="function [dist pos] = distancePointLine(point, line)">distancePointLine</a>(hull(indA, :), line);
+0099         indB = mod(indB, nV) + 1;
+0100 
+0101     <span class="keyword">end</span>
+0102     
+0103     <span class="comment">% update minimum width and corresponding angle if needed</span>
+0104     <span class="keyword">if</span> width &lt; minWidth
+0105         minWidth = width;
+0106         minAngle = rotatedAngle;
+0107     <span class="keyword">end</span>
+0108 <span class="keyword">end</span>
+0109 
+0110 
+0111 <span class="comment">%% Compute box dimensions</span>
+0112 
+0113 <span class="comment">% orientation of the main axis</span>
+0114 theta = <a href="rad2deg.html" class="code" title="function deg = rad2deg(rad)">rad2deg</a>(minAngle);
+0115 
+0116 <span class="comment">% pre-compute trigonometric functions</span>
+0117 cot = cos(minAngle);
+0118 sit = sin(minAngle);
+0119 
+0120 <span class="comment">% elongation in direction of rectangle length</span>
+0121 x = hull(:,1);
+0122 y = hull(:,2);
+0123 x2  =   x * cot + y * sit;
+0124 y2  = - x * sit + y * cot;
+0125 
+0126 <span class="comment">% compute extension along main directions</span>
+0127 xmin = min(x2);    xmax = max(x2);
+0128 ymin = min(y2);    ymax = max(y2);
+0129 
+0130 <span class="comment">% position of the center with respect to the centroid compute before</span>
+0131 dl = (xmax + xmin)/2;
+0132 dw = (ymax + ymin)/2;
+0133 
+0134 <span class="comment">% change  coordinate from rectangle to user-space</span>
+0135 dx  = dl * cot - dw * sit;
+0136 dy  = dl * sit + dw * cot;
+0137 
+0138 <span class="comment">% coordinates of oriented box center</span>
+0139 center = center + [dx dy];
+0140 
+0141 <span class="comment">% size of the rectangle</span>
+0142 rectLength  = xmax - xmin;
+0143 rectWidth   = ymax - ymin;
+0144 
+0145 <span class="comment">% concatenate rectangle data</span>
+0146 obox = [center rectLength rectWidth theta];
+0147</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

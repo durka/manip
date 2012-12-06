@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of grMergeMultipleNodes</title>
+  <meta name="keywords" content="grMergeMultipleNodes">
+  <meta name="description" content="GRMERGEMULTIPLENODES Simplify a graph by merging multiple nodes">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; grMergeMultipleNodes.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>grMergeMultipleNodes
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GRMERGEMULTIPLENODES Simplify a graph by merging multiple nodes</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = grMergeMultipleNodes(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GRMERGEMULTIPLENODES Simplify a graph by merging multiple nodes
+
+   OUTPUT = grMergeMultipleNodes(INPUT);
+   simplify the graph INPUT, and return the result in the graph OUTPUT.
+   format for input can be one of
+   nodes, edges
+
+   Two steps in the procedure :
+   * first remove multiple nodes. find all nodes with same coords, and
+       keep only one
+   * remove edges that link same nodes
+
+   -----
+   author : David Legland 
+   INRA - TPV URPOI - BIA IMASTE
+   created the 09/08/2004.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = grMergeMultipleNodes(varargin)</a>
+0002 <span class="comment">%GRMERGEMULTIPLENODES Simplify a graph by merging multiple nodes</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   OUTPUT = grMergeMultipleNodes(INPUT);</span>
+0005 <span class="comment">%   simplify the graph INPUT, and return the result in the graph OUTPUT.</span>
+0006 <span class="comment">%   format for input can be one of</span>
+0007 <span class="comment">%   nodes, edges</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   Two steps in the procedure :</span>
+0010 <span class="comment">%   * first remove multiple nodes. find all nodes with same coords, and</span>
+0011 <span class="comment">%       keep only one</span>
+0012 <span class="comment">%   * remove edges that link same nodes</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   -----</span>
+0015 <span class="comment">%   author : David Legland</span>
+0016 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0017 <span class="comment">%   created the 09/08/2004.</span>
+0018 <span class="comment">%</span>
+0019 
+0020 
+0021 
+0022 <span class="comment">%% process input arguments</span>
+0023 
+0024 n = [];
+0025 e = [];
+0026 f = [];
+0027 
+0028 <span class="comment">% extract data of the graph</span>
+0029 var = varargin{1};
+0030 <span class="keyword">if</span> iscell(var)
+0031     <span class="comment">% graph is stored as a cell array : first cell is nodes, second one is</span>
+0032     <span class="comment">% edges, and third is faces</span>
+0033     n = var{1};
+0034     <span class="keyword">if</span> length(var)&gt;1
+0035         e = var{2};
+0036     <span class="keyword">end</span>
+0037     <span class="keyword">if</span> length(var)&gt;2
+0038         f = var{3};
+0039     <span class="keyword">end</span>
+0040 <span class="keyword">elseif</span> isstruct(var)
+0041     <span class="comment">% graph is stored as a structure, with fields 'nodes', 'edges', and</span>
+0042     <span class="comment">% eventually 'faces'.</span>
+0043     n = var.nodes;
+0044     e = var.edges;
+0045     <span class="keyword">if</span> isfield(var, <span class="string">'faces'</span>)
+0046         f = var.faces;
+0047     <span class="keyword">end</span>
+0048 <span class="keyword">elseif</span> length(varargin)&gt;1
+0049     <span class="comment">% graph is stored as set of variables : nodes, edges, and eventually</span>
+0050     <span class="comment">% faces</span>
+0051     n = varargin{1};
+0052     e = varargin{2};
+0053     
+0054     <span class="keyword">if</span> length(varargin)==3
+0055         f = varargin{3};
+0056     <span class="keyword">end</span>
+0057 <span class="keyword">end</span>
+0058 
+0059   
+0060 <span class="comment">%% Main processing</span>
+0061 
+0062 <span class="comment">% simplify graph to remove multiple nodes, and adapt edges and faces</span>
+0063 <span class="comment">% indices</span>
+0064 
+0065 <span class="comment">% simplify nodes</span>
+0066 [n, i, j] = unique(n, <span class="string">'rows'</span>); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0067 
+0068 <span class="comment">% change edges indices and remove double edges (undirected graph)</span>
+0069 <span class="keyword">for</span> i = 1:length(e(:))
+0070     e(i) = j(e(i)); <span class="comment">%#ok&lt;AGROW&gt;</span>
+0071 <span class="keyword">end</span>
+0072 e = unique(sort(e, 2), <span class="string">'rows'</span>);
+0073 
+0074 <span class="comment">% change faces indices</span>
+0075 <span class="keyword">if</span> iscell(f)
+0076     <span class="comment">% faces stored as cell array (irregular mesh)</span>
+0077     <span class="keyword">for</span> k = 1:length(f)
+0078         face = f{k};
+0079         <span class="keyword">for</span> i = 1:length(face(:))
+0080             face(i) = j(face(i));
+0081         <span class="keyword">end</span>
+0082         f{k} = face; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0083     <span class="keyword">end</span> 
+0084 <span class="keyword">else</span>
+0085     <span class="comment">% faces indices stored as regular array (square or triangle mesh).</span>
+0086     <span class="keyword">for</span> i = 1:length(f(:))
+0087         f(i) = j(f(i)); <span class="comment">%#ok&lt;AGROW&gt;</span>
+0088     <span class="keyword">end</span>
+0089 <span class="keyword">end</span>
+0090 
+0091 
+0092 <span class="comment">%% process output depending on how many arguments are needed</span>
+0093 
+0094 <span class="keyword">if</span> nargout == 1
+0095     out{1} = n;
+0096     out{2} = e;
+0097     varargout{1} = out;
+0098 <span class="keyword">end</span>
+0099 
+0100 <span class="keyword">if</span> nargout == 2
+0101     varargout{1} = n;
+0102     varargout{2} = e;
+0103 <span class="keyword">end</span>
+0104 
+0105 <span class="keyword">if</span> nargout == 3
+0106     varargout{1} = n;
+0107     varargout{2} = e;
+0108     varargout{3} = f;
+0109 <span class="keyword">end</span>
+0110</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

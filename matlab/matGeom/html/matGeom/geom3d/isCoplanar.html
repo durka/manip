@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of isCoplanar</title>
+  <meta name="keywords" content="isCoplanar">
+  <meta name="description" content="ISCOPLANAR Tests input points for coplanarity in 3-space.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; isCoplanar.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>isCoplanar
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>ISCOPLANAR Tests input points for coplanarity in 3-space.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function copl = isCoplanar(x,y,z,tolerance) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ISCOPLANAR Tests input points for coplanarity in 3-space.
+
+ COPL = isCoplanar(X,Y,Z,TOLERANCE) takes input arguments x,y, and z as column vectors;
+        TOLERANCE is optional.
+ COPL = isCoplanar(x) takes an n x 3 input argument in the form [x1 y1 z1;x2 y2 z2;...;xn yn zn]
+ 
+ The optional argument TOLERANCE allows for roundoff error; if each combination of four points is
+ truly coplanar, the volume of the tetrahedron they define is zero. When computational round-off
+ error is introduced, this volume can be close to, but not equal to zero. Setting the tolerance
+ to a value greater than zero enables the algorithm to return a &quot;correct&quot; finding of coplanarity
+ within the tolerance specified.
+ 
+ EXAMPLES: iscoplanar([1 2 -2;-3 1 -14;-1 2 -6;1 -2 -8],eps)
+           copl = iscoplanar([1 -3 -1 1]',[2 1 2 -2]',[-2 -14 -6 -8]')</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/meshes3d/meshReduce.html" class="code" title="function varargout = meshReduce(nodes, varargin)">meshReduce</a>	MESHREDUCE Merge coplanar faces of a polyhedral mesh</li><li><a href="../.././matGeom/meshes3d/minConvexHull.html" class="code" title="function faces = minConvexHull(nodes, varargin)">minConvexHull</a>	MINCONVEXHULL Return the unique minimal convex hull of a set of 3D points</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function copl = isCoplanar(x,y,z,tolerance)</a>
+0002 <span class="comment">%ISCOPLANAR Tests input points for coplanarity in 3-space.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% COPL = isCoplanar(X,Y,Z,TOLERANCE) takes input arguments x,y, and z as column vectors;</span>
+0005 <span class="comment">%        TOLERANCE is optional.</span>
+0006 <span class="comment">% COPL = isCoplanar(x) takes an n x 3 input argument in the form [x1 y1 z1;x2 y2 z2;...;xn yn zn]</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% The optional argument TOLERANCE allows for roundoff error; if each combination of four points is</span>
+0009 <span class="comment">% truly coplanar, the volume of the tetrahedron they define is zero. When computational round-off</span>
+0010 <span class="comment">% error is introduced, this volume can be close to, but not equal to zero. Setting the tolerance</span>
+0011 <span class="comment">% to a value greater than zero enables the algorithm to return a &quot;correct&quot; finding of coplanarity</span>
+0012 <span class="comment">% within the tolerance specified.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% EXAMPLES: iscoplanar([1 2 -2;-3 1 -14;-1 2 -6;1 -2 -8],eps)</span>
+0015 <span class="comment">%           copl = iscoplanar([1 -3 -1 1]',[2 1 2 -2]',[-2 -14 -6 -8]')</span>
+0016 
+0017 <span class="comment">%</span>
+0018 <span class="comment">% Written by Brett Shoelson, Ph.D.</span>
+0019 <span class="comment">% brett.shoelson@joslin.harvard.edu</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% Thanks to Roger Stafford, roger.ellie@mindspring.com for his dilligence</span>
+0022 <span class="comment">% in uncovering problems with my original code.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% Completed 6/10/01.</span>
+0025 <span class="comment">% Written and tested under MATLAB V6 (R12).</span>
+0026 <span class="comment">% Modified 2/10/04; now uses determinant discrimination, which is much</span>
+0027 <span class="comment">% faster (on the order of ten times) than previous way. Also, old version</span>
+0028 <span class="comment">% had a typo; should have (but didn't) compared ABSOLUTE VALUE of error</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%   04/01/2007: clean up input processing (DL)</span>
+0031 
+0032 <span class="keyword">if</span> nargin == 0
+0033     error(<span class="string">'Requires at least one input argument.'</span>); 
+0034 <span class="keyword">elseif</span> nargin == 1
+0035     <span class="keyword">if</span> size(x,2) == 3
+0036         <span class="comment">% Matrix of all x,y,z is input</span>
+0037         allpoints = x;
+0038         tolerance = 0;
+0039     <span class="keyword">else</span>
+0040         error(<span class="string">'Invalid input.'</span>)
+0041     <span class="keyword">end</span>
+0042 <span class="keyword">elseif</span> nargin == 2
+0043     <span class="keyword">if</span> size(x,2) == 3
+0044         <span class="comment">% Matrix of all x,y,z is input</span>
+0045         allpoints = x;
+0046         tolerance = y;
+0047     <span class="keyword">else</span>
+0048         error(<span class="string">'Invalid input.'</span>)
+0049     <span class="keyword">end</span>
+0050 <span class="keyword">elseif</span> nargin == 3
+0051     <span class="comment">% Compile a matrix of all x,y,z</span>
+0052     allpoints = [x y z];
+0053     tolerance = 0;
+0054 <span class="keyword">else</span>
+0055     allpoints = [x y z];
+0056 <span class="keyword">end</span>
+0057 
+0058 <span class="keyword">if</span> length(x)&lt;=3
+0059 <span class="comment">%  disp('Three or fewer points are necessarily coplanar.');</span>
+0060     copl=1;
+0061     <span class="keyword">return</span>;
+0062 <span class="keyword">end</span>
+0063 
+0064 <span class="comment">%Compare all 4-tuples of point combinations; {P1:P4} are coplanar iff</span>
+0065 <span class="comment">%det([x1 y1 z1 1;x2 y2 z2 1;x3 y3 z3 1;x4 y4 z4 1])==0</span>
+0066 tmp = nchoosek(1:size(allpoints,1),4);
+0067 <span class="keyword">for</span> ii = 1:size(tmp,1)
+0068     copl = abs(det([allpoints(tmp(ii, :), :) ones(4,1)])) &lt;= tolerance;
+0069     <span class="keyword">if</span> ~copl
+0070         <span class="keyword">break</span>
+0071     <span class="keyword">end</span>
+0072 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

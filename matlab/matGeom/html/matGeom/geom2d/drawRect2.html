@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawRect2</title>
+  <meta name="keywords" content="drawRect2">
+  <meta name="description" content="DRAWRECT2 Draw centered rectangle on the current axis">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; drawRect2.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawRect2
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWRECT2 Draw centered rectangle on the current axis</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = drawRect2(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWRECT2 Draw centered rectangle on the current axis
+   
+   r = drawRect2(x, y, w, h) draw rectangle with width W and height H,
+   whose center is located at (x, y);
+
+   The four corners of rectangle are then :
+   (X-W/2, Y-H/2), (X+W/2, Y-H/2), (X+W/2, Y+H/2), (X-W/2, Y+H/2).
+
+   r = drawRect2(x, y, w, h, theta) also specifies orientation for
+   rectangle. Theta is given in radians.
+
+   r = drawRect2(coord) is the same as DRAWRECT2(X,Y,W,H), but all
+   parameters are packed into one array, whose dimensions is 4*1 or 5*1.
+
+   deprecated: use 'drawOrientedBox' instead
+
+   See Also :
+   <a href="drawRect.html" class="code" title="function varargout = drawRect(rect, varargin)">drawRect</a>
+
+   ---------
+
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 04/05/2004.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = drawRect2(varargin)</a>
+0002 <span class="comment">%DRAWRECT2 Draw centered rectangle on the current axis</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   r = drawRect2(x, y, w, h) draw rectangle with width W and height H,</span>
+0005 <span class="comment">%   whose center is located at (x, y);</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   The four corners of rectangle are then :</span>
+0008 <span class="comment">%   (X-W/2, Y-H/2), (X+W/2, Y-H/2), (X+W/2, Y+H/2), (X-W/2, Y+H/2).</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   r = drawRect2(x, y, w, h, theta) also specifies orientation for</span>
+0011 <span class="comment">%   rectangle. Theta is given in radians.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   r = drawRect2(coord) is the same as DRAWRECT2(X,Y,W,H), but all</span>
+0014 <span class="comment">%   parameters are packed into one array, whose dimensions is 4*1 or 5*1.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   deprecated: use 'drawOrientedBox' instead</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%   See Also :</span>
+0019 <span class="comment">%   drawRect</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%   ---------</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   author : David Legland</span>
+0024 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0025 <span class="comment">%   created the 04/05/2004.</span>
+0026 <span class="comment">%</span>
+0027 
+0028 warning(<span class="string">'polygons2d:deprecated'</span>, <span class="keyword">...</span>
+0029     <span class="string">'This function is deprecated, use &quot;drawOrientedBox&quot; instead'</span>);
+0030 
+0031 <span class="comment">% default values</span>
+0032 theta = 0;
+0033 
+0034 <span class="comment">% get entered values</span>
+0035 <span class="keyword">if</span> length(varargin)&gt;3
+0036     x = varargin{1};
+0037     y = varargin{2};
+0038     w = varargin{3};
+0039     h = varargin{4};
+0040     <span class="keyword">if</span> length(varargin)&gt;4
+0041         theta = varargin{5};
+0042     <span class="keyword">end</span>
+0043 <span class="keyword">else</span>
+0044     coord = varargin{1};
+0045     x = coord(:, 1);
+0046     y = coord(:, 2);
+0047     w = coord(:, 3);
+0048     h = coord(:, 4);
+0049     
+0050     <span class="keyword">if</span> length(coord)&gt;4
+0051         theta = coord(:, 5);
+0052     <span class="keyword">else</span>
+0053         theta = zeros(size(x));
+0054     <span class="keyword">end</span>
+0055 <span class="keyword">end</span>
+0056 
+0057 <span class="comment">% use only the half length of each rectanhle</span>
+0058 w = w/2;
+0059 h = h/2;
+0060 
+0061 hr = zeros(length(x), 1);
+0062 <span class="keyword">for</span> i=1:length(x)
+0063     tx = zeros(5, 1);
+0064     ty = zeros(5, 1);
+0065     
+0066     tx(1) = x(i) - w(i)*cos(theta(i)) + h(i)*sin(theta(i));
+0067     ty(1) = y(i) - w(i)*sin(theta(i)) - h(i)*cos(theta(i));
+0068     
+0069     tx(2) = x(i) + w(i)*cos(theta(i)) + h(i)*sin(theta(i));
+0070     ty(2) = y(i) + w(i)*sin(theta(i)) - h(i)*cos(theta(i));
+0071     
+0072     tx(3) = x(i) + w(i)*cos(theta(i)) - h(i)*sin(theta(i));
+0073     ty(3) = y(i) + w(i)*sin(theta(i)) + h(i)*cos(theta(i));
+0074     
+0075     tx(4) = x(i) - w(i)*cos(theta(i)) - h(i)*sin(theta(i));
+0076     ty(4) = y(i) - w(i)*sin(theta(i)) + h(i)*cos(theta(i));
+0077     
+0078     tx(5) = x(i) - w(i)*cos(theta(i)) + h(i)*sin(theta(i));
+0079     ty(5) = y(i) - w(i)*sin(theta(i)) - h(i)*cos(theta(i));
+0080     
+0081     hr(i) = line(tx, ty);
+0082 <span class="keyword">end</span>
+0083 
+0084 <span class="keyword">if</span> nargout &gt; 0
+0085     varargout{1} = hr;
+0086 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

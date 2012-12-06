@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of circle3dPoint</title>
+  <meta name="keywords" content="circle3dPoint">
+  <meta name="description" content="CIRCLE3DPOINT Coordinates of a point on a 3D circle from its position">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; circle3dPoint.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>circle3dPoint
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CIRCLE3DPOINT Coordinates of a point on a 3D circle from its position</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function point = circle3dPoint(circle, pos) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CIRCLE3DPOINT Coordinates of a point on a 3D circle from its position
+
+   output = circle3dPoint(input)
+
+   Example
+   % Draw some points on a 3D circle
+     figure; hold on;
+     % origin point
+     pos1 = 0;
+     drawPoint3d(circle3dPoint(circle, pos1), 'ro')
+     % few points regularly spaced
+     for i = 10:10:40
+         drawPoint3d(circle3dPoint(circle, i))
+     end
+     % Draw point opposite to origin
+     drawPoint3d(circle3dPoint(circle, 180), 'k*')</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>	LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system</li><li><a href="transformPoint3d.html" class="code" title="function varargout = transformPoint3d(varargin)">transformPoint3d</a>	TRANSFORMPOINT3D Transform a point with a 3D affine transform</li><li><a href="../.././matGeom/meshes3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>	LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function point = circle3dPoint(circle, pos)</a>
+0002 <span class="comment">%CIRCLE3DPOINT Coordinates of a point on a 3D circle from its position</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   output = circle3dPoint(input)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%   Example</span>
+0007 <span class="comment">%   % Draw some points on a 3D circle</span>
+0008 <span class="comment">%     figure; hold on;</span>
+0009 <span class="comment">%     % origin point</span>
+0010 <span class="comment">%     pos1 = 0;</span>
+0011 <span class="comment">%     drawPoint3d(circle3dPoint(circle, pos1), 'ro')</span>
+0012 <span class="comment">%     % few points regularly spaced</span>
+0013 <span class="comment">%     for i = 10:10:40</span>
+0014 <span class="comment">%         drawPoint3d(circle3dPoint(circle, i))</span>
+0015 <span class="comment">%     end</span>
+0016 <span class="comment">%     % Draw point opposite to origin</span>
+0017 <span class="comment">%     drawPoint3d(circle3dPoint(circle, 180), 'k*')</span>
+0018 
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   See also</span>
+0021 <span class="comment">%   circles3d, circle3dPosition</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% ------</span>
+0024 <span class="comment">% Author: David Legland</span>
+0025 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0026 <span class="comment">% Created: 2011-06-21,    using Matlab 7.9.0.529 (R2009b)</span>
+0027 <span class="comment">% Copyright 2011 INRA - Cepia Software Platform.</span>
+0028 
+0029 <span class="comment">% extract circle coordinates</span>
+0030 xc  = circle(1);
+0031 yc  = circle(2);
+0032 zc  = circle(3);
+0033 r   = circle(4);
+0034 
+0035 theta   = circle(5);
+0036 phi     = circle(6);
+0037 psi     = circle(7);
+0038 
+0039 <span class="comment">% convert position to angle</span>
+0040 t = pos * pi / 180;
+0041 
+0042 <span class="comment">% compute position on base circle</span>
+0043 x   = r * cos(t);
+0044 y   = r * sin(t);
+0045 z   = 0;
+0046 pt0 = [x y z];
+0047 
+0048 <span class="comment">% compute transformation from local basis to world basis</span>
+0049 trans   = <a href="../.././matGeom/geom3d/private/localToGlobal3d.html" class="code" title="function trans = localToGlobal3d(varargin)">localToGlobal3d</a>(xc, yc, zc, theta, phi, psi);
+0050 
+0051 <span class="comment">% compute points of transformed circle</span>
+0052 point   = <a href="transformPoint3d.html" class="code" title="function varargout = transformPoint3d(varargin)">transformPoint3d</a>(pt0, trans);
+0053</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

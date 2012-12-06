@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of parseMeshData</title>
+  <meta name="keywords" content="parseMeshData">
+  <meta name="description" content="PARSEMESHDATA Conversion of data representation for meshes">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; <a href="#">private</a> &gt; parseMeshData.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d\private&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>parseMeshData
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>PARSEMESHDATA Conversion of data representation for meshes</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function varargout = parseMeshData(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">PARSEMESHDATA Conversion of data representation for meshes
+
+   MESH = parseMeshData(VERTICES, EDGES, FACES)
+   MESH = parseMeshData(VERTICES, FACES)
+   [VERTICES EDGES FACES] = parseMeshData(MESH)
+   [VERTICES FACES] = parseMeshData(MESH)
+
+
+   See also
+   meshes3d, <a href="formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2010-12-06,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2010 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>	FORMATMESHOUTPUT Format mesh output depending on nargout</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../.././matGeom/meshes3d/drawFaceNormals.html" class="code" title="function varargout = drawFaceNormals(varargin)">drawFaceNormals</a>	DRAWFACENORMALS Draw normal vector of each face in a mesh</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = parseMeshData(varargin)</a>
+0002 <span class="comment">%PARSEMESHDATA Conversion of data representation for meshes</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   MESH = parseMeshData(VERTICES, EDGES, FACES)</span>
+0005 <span class="comment">%   MESH = parseMeshData(VERTICES, FACES)</span>
+0006 <span class="comment">%   [VERTICES EDGES FACES] = parseMeshData(MESH)</span>
+0007 <span class="comment">%   [VERTICES FACES] = parseMeshData(MESH)</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   See also</span>
+0011 <span class="comment">%   meshes3d, formatMeshOutput</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% ------</span>
+0014 <span class="comment">% Author: David Legland</span>
+0015 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0016 <span class="comment">% Created: 2010-12-06,    using Matlab 7.9.0.529 (R2009b)</span>
+0017 <span class="comment">% Copyright 2010 INRA - Cepia Software Platform.</span>
+0018 
+0019 <span class="comment">% initialize edges</span>
+0020 edges = [];
+0021 
+0022 <span class="comment">% Process input arguments</span>
+0023 <span class="keyword">if</span> nargin == 1
+0024     <span class="comment">% input is a data structure</span>
+0025     mesh = varargin{1};
+0026     vertices = mesh.vertices;
+0027     faces = mesh.faces;
+0028     <span class="keyword">if</span> isfield(mesh, <span class="string">'edges'</span>)
+0029         edges = mesh.edges;
+0030     <span class="keyword">end</span>
+0031     
+0032 <span class="keyword">elseif</span> nargin == 2
+0033     <span class="comment">% input are vertices and faces</span>
+0034     vertices = varargin{1};
+0035     faces = varargin{2};
+0036     
+0037 <span class="keyword">elseif</span> nargin == 3
+0038     <span class="comment">% input are vertices, edges and faces</span>
+0039     vertices = varargin{1};
+0040     edges = varargin{2};
+0041     faces = varargin{3};
+0042     
+0043 <span class="keyword">else</span>
+0044     error(<span class="string">'Wrong number of arguments'</span>);
+0045 <span class="keyword">end</span>
+0046 
+0047 varargout = <a href="formatMeshOutput.html" class="code" title="function res = formatMeshOutput(nbArgs, vertices, edges, faces)">formatMeshOutput</a>(nargout, vertices, edges, faces);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

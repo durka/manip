@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polyfit2</title>
+  <meta name="keywords" content="polyfit2">
+  <meta name="description" content="POLYFIT2 Polynomial approximation of a curve">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polynomialCurves2d</a> &gt; polyfit2.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polynomialCurves2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polyfit2
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYFIT2 Polynomial approximation of a curve</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function coef = polyfit2(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYFIT2 Polynomial approximation of a curve
+
+
+   usage :
+   P = POLYFIT2(X, Y, N) finds the coefficients of a polynomial P(X) of
+   degree N that fits the data, P(X(I))~=Y(I), in a least-squares sense.
+
+   P = POLYFIT2(Y, N) use default equal spacing between all values of Y
+   array.
+
+   P = POLYFIT2(..., COND) specify end conditions for interpolated
+   polynom. COND is [M*1] array of values, M(0) is value of interpolated
+   polynom for X(1), M(2) is value of first derivative at first point, and
+   so on for each derivative degree of X.
+   If COND is [M*2] array, first column gives conditions for first point,
+   and second column gives conditions for second point.
+   
+   P = POLYFIT2(..., COND1, COND2) 
+   where COND1 and COND2 are column arrays, specify different end
+   condition for each limit of the polynom domain.
+   
+   Example
+   % defines a basis and a function to interpolate
+   N = 50;                         % 50 points
+   x = linspace(0, pi, N);         % basis range from 0 to PI
+   y = cos(x)+randn(1,N)*.2;       % cosine plus gaussian noise
+   figure; plot(x, y, '+');        % display result
+   % Fit a degree 3 polynom, imposing to pass through end points [0 1] and
+   % [PI -1]:
+   p1 = polyfit2(x, y, 3, [1], [-1]);
+   % Fit a degree 3 polynom, imposing to pass through end points [0 1] and
+   % [PI -1], and imposing first derivative equals to zero at end points:
+   p2 = polyfit2(x, y, 3, [1;0], [-1;0]);
+   % display the different approximations
+   hold on;
+   plot(x, polyval(p1, x), 'g');
+   plot(x, polyval(p2, x), 'r');
+
+
+   See also  :
+   polyfit (matlab)
+
+   -----
+
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 30/04/2004.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function coef = polyfit2(varargin)</a>
+0002 <span class="comment">%POLYFIT2 Polynomial approximation of a curve</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">%   usage :</span>
+0006 <span class="comment">%   P = POLYFIT2(X, Y, N) finds the coefficients of a polynomial P(X) of</span>
+0007 <span class="comment">%   degree N that fits the data, P(X(I))~=Y(I), in a least-squares sense.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   P = POLYFIT2(Y, N) use default equal spacing between all values of Y</span>
+0010 <span class="comment">%   array.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   P = POLYFIT2(..., COND) specify end conditions for interpolated</span>
+0013 <span class="comment">%   polynom. COND is [M*1] array of values, M(0) is value of interpolated</span>
+0014 <span class="comment">%   polynom for X(1), M(2) is value of first derivative at first point, and</span>
+0015 <span class="comment">%   so on for each derivative degree of X.</span>
+0016 <span class="comment">%   If COND is [M*2] array, first column gives conditions for first point,</span>
+0017 <span class="comment">%   and second column gives conditions for second point.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   P = POLYFIT2(..., COND1, COND2)</span>
+0020 <span class="comment">%   where COND1 and COND2 are column arrays, specify different end</span>
+0021 <span class="comment">%   condition for each limit of the polynom domain.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   Example</span>
+0024 <span class="comment">%   % defines a basis and a function to interpolate</span>
+0025 <span class="comment">%   N = 50;                         % 50 points</span>
+0026 <span class="comment">%   x = linspace(0, pi, N);         % basis range from 0 to PI</span>
+0027 <span class="comment">%   y = cos(x)+randn(1,N)*.2;       % cosine plus gaussian noise</span>
+0028 <span class="comment">%   figure; plot(x, y, '+');        % display result</span>
+0029 <span class="comment">%   % Fit a degree 3 polynom, imposing to pass through end points [0 1] and</span>
+0030 <span class="comment">%   % [PI -1]:</span>
+0031 <span class="comment">%   p1 = polyfit2(x, y, 3, [1], [-1]);</span>
+0032 <span class="comment">%   % Fit a degree 3 polynom, imposing to pass through end points [0 1] and</span>
+0033 <span class="comment">%   % [PI -1], and imposing first derivative equals to zero at end points:</span>
+0034 <span class="comment">%   p2 = polyfit2(x, y, 3, [1;0], [-1;0]);</span>
+0035 <span class="comment">%   % display the different approximations</span>
+0036 <span class="comment">%   hold on;</span>
+0037 <span class="comment">%   plot(x, polyval(p1, x), 'g');</span>
+0038 <span class="comment">%   plot(x, polyval(p2, x), 'r');</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">%</span>
+0041 <span class="comment">%   See also  :</span>
+0042 <span class="comment">%   polyfit (matlab)</span>
+0043 <span class="comment">%</span>
+0044 <span class="comment">%   -----</span>
+0045 <span class="comment">%</span>
+0046 <span class="comment">%   author : David Legland</span>
+0047 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0048 <span class="comment">%   created the 30/04/2004.</span>
+0049 <span class="comment">%</span>
+0050 
+0051 <span class="comment">%   HISTORY</span>
+0052 <span class="comment">%   05/01/2007 adapt to polynom bases others than [0...1]</span>
+0053 <span class="comment">%   08/01/2007 update doc accordingly</span>
+0054 <span class="comment">%   27/02/2007 code clean up</span>
+0055 
+0056 <span class="comment">%% Default values</span>
+0057 
+0058 <span class="comment">% boundary conditions</span>
+0059 cond1 = [];
+0060 cond2 = [];
+0061 
+0062 
+0063 <span class="comment">%% extract input arguments</span>
+0064 
+0065 <span class="keyword">if</span> length(varargin)&gt;2
+0066     t = varargin{1};
+0067     x = varargin{2};
+0068     N = varargin{3};
+0069     
+0070     <span class="comment">% extract end conditions</span>
+0071     <span class="keyword">if</span> length(varargin)==4
+0072         <span class="comment">% one input for both end conditions</span>
+0073         var = varargin{4};
+0074         <span class="keyword">if</span> size(var, 2)==1
+0075             <span class="comment">% only first condition is specified</span>
+0076             cond1 = var;
+0077             cond2 = [];
+0078         <span class="keyword">else</span>
+0079             <span class="comment">% two end conditions in a single array</span>
+0080             cond1 = var(:,1);
+0081             cond2 = var(:,2);
+0082         <span class="keyword">end</span>       
+0083     <span class="keyword">elseif</span> length(varargin)==5
+0084         <span class="comment">% both end conditions are given is separates inputs</span>
+0085         cond1 = varargin{4};
+0086         cond2 = varargin{5};
+0087     <span class="keyword">end</span>
+0088 <span class="keyword">elseif</span> length(varargin)==2
+0089     <span class="comment">% extract curve values and interpolation order, and compute default</span>
+0090     <span class="comment">% parametrization.</span>
+0091     x = varargin{1};
+0092     t = 0:1/(length(x)-1):1;
+0093     N = varargin{2};
+0094 <span class="keyword">else</span>
+0095     error (<span class="string">'POLYFIT2 : needs at least 2 input arguments'</span>);
+0096 <span class="keyword">end</span>
+0097     
+0098 
+0099 <span class="comment">%% Initializations</span>
+0100 
+0101 <span class="comment">% transform to column vectors</span>
+0102 x= x(:);
+0103 t = t(:);
+0104 
+0105 <span class="comment">% number of points</span>
+0106 L = length(x);
+0107 
+0108 <span class="comment">% start and end values of parametrisation</span>
+0109 t0 = t(1);
+0110 t1 = t(end);
+0111 
+0112 
+0113 <span class="comment">%% Initialize matrices for end conditions</span>
+0114 
+0115 <span class="comment">% For a solution vector 'x', the following relation must hold:</span>
+0116 <span class="comment">%   Aeq * x == beq,</span>
+0117 <span class="comment">% with:</span>
+0118 <span class="comment">%   Aeq   Matrix M*N</span>
+0119 <span class="comment">%   beq   column vector with length M</span>
+0120 <span class="comment">% The coefficients of the Aeq matrix are initialized as follow:</span>
+0121 <span class="comment">% First point and last point are considered successively. For each point,</span>
+0122 <span class="comment">% k-th condition is the value of the (k-1)th derivative. This value is</span>
+0123 <span class="comment">% computed using relation of the form:</span>
+0124 <span class="comment">%   value = sum_i ( fact(i) * t_j^pow(i) )</span>
+0125 <span class="comment">% with:</span>
+0126 <span class="comment">%   i     indice of the (i-1) derivative.</span>
+0127 <span class="comment">%   fact  row vector containing coefficient of each power of t, initialized</span>
+0128 <span class="comment">%       with a row vector equals to [1 1 ... 1], and updated for each</span>
+0129 <span class="comment">%       derivative by multiplying by corresponding power minus 1.</span>
+0130 <span class="comment">%   pow   row vector of the powers of each monome. It is represented by a</span>
+0131 <span class="comment">%       row vector containing an increasing series of power, eventually</span>
+0132 <span class="comment">%       completed with zeros for lower degrees (for the k-th derivative,</span>
+0133 <span class="comment">%       the coefficients with power lower than k are not relevant).</span>
+0134 
+0135 <span class="comment">% Example for degree 5 polynom:</span>
+0136 <span class="comment">%   iter deriv  pow                 fact</span>
+0137 <span class="comment">%   1    0      [0 1 2 3 4 5]       [1 1 1 1 1 1]</span>
+0138 <span class="comment">%   2    1      [0 0 1 2 3 4]       [0 1 2 3 4 5]</span>
+0139 <span class="comment">%   3    2      [0 0 0 1 2 3]       [0 0 1 2 3 4]</span>
+0140 <span class="comment">%   4    3      [0 0 0 0 1 2]       [0 0 0 1 2 3]</span>
+0141 <span class="comment">%   ...</span>
+0142 
+0143 <span class="comment">% Initialize empty matrices</span>
+0144 Aeq = zeros(0, N+1);
+0145 beq = zeros(0, 1);
+0146 
+0147 <span class="comment">% start condition initialisations</span>
+0148 fact = ones(1, N+1);
+0149 <span class="keyword">for</span> i=1:length(cond1)    
+0150     pow = [zeros(1, i) 1:N+1-i];
+0151     Aeq = [Aeq ; fact.*power(t0, pow)];
+0152     beq = [beq; cond1(i)];
+0153     fact = fact.*pow;
+0154 <span class="keyword">end</span>
+0155 
+0156 <span class="comment">% end condition initialisations</span>
+0157 fact = ones(1, N+1);
+0158 <span class="keyword">for</span> i=1:length(cond2)    
+0159     pow = [zeros(1, i) 1:N+1-i];
+0160     Aeq = [Aeq ; fact.*power(t1, pow)];
+0161     beq = [beq; cond2(i)];
+0162     fact = fact.*pow;
+0163 <span class="keyword">end</span>
+0164 
+0165 <span class="comment">%% Main algorithm</span>
+0166 
+0167 <span class="comment">% main matrix of the problem, size L*(deg+1)</span>
+0168 X = ones(L, N+1);
+0169 <span class="keyword">for</span> i=1:N
+0170     X(:, i+1) = power(t, i);
+0171 <span class="keyword">end</span>
+0172 
+0173 <span class="comment">% compute interpolation</span>
+0174 coef = lsqlin(X, x, zeros(1, N+1), 1, Aeq, beq);
+0175 
+0176 
+0177 <span class="comment">%% format output</span>
+0178 
+0179 <span class="comment">% format output to a format similar to polyfit</span>
+0180 coef = coef(end:-1:1)';</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

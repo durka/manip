@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of localToGlobal3d</title>
+  <meta name="keywords" content="localToGlobal3d">
+  <meta name="description" content="LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; <a href="#">private</a> &gt; localToGlobal3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../../index.html"><img alt="<" border="0" src="../../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d\private&nbsp;<img alt=">" border="0" src="../../../right.png"></a></td></tr></table>-->
+
+<h1>localToGlobal3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="box"><strong>function trans = localToGlobal3d(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system
+
+   TRANS = localToGlobal3d(CENTER, THETA, PHI, PSI)
+   Compute the transformation matrix from a local (or modelling)
+   coordinate system to the global (or world) coordinate system.
+   This is a low-level function, used by several drawing functions.
+
+   The transform is defined by:
+   - CENTER: the position of the local origin into the World coordinate
+       system
+   - THETA: colatitude, defined as the angle with the Oz axis (between 0
+       and 180 degrees), positive in the direction of the of Oy axis.
+   - PHI: azimut, defined as the angle of the normal with the Ox axis,
+       between 0 and 360 degrees
+   - PSI: intrinsic rotation, corresponding to the rotation of the object
+       around the direction vector, between 0 and 360 degrees
+
+   The resulting transform is obtained by applying (in that order):
+   - Rotation by PSI   around he Z-axis
+   - Rotation by THETA around the Y-axis
+   - Rotation by PHI   around the Z-axis
+   - Translation by vector CENTER
+   This corresponds to Euler ZYZ rotation, using angles PHI, THETA and
+   PSI.
+
+   The 'createEulerAnglesRotation' function may better suit your needs as
+   it is more 'natural'.
+
+   Example
+   localToGlobal3d
+
+   See also
+   transforms3d, createEulerAnglesRotation
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2009-06-19,    using Matlab 7.7.0.471 (R2008b)
+ Copyright 2009 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../.././matGeom/geom3d/createRotationOy.html" class="code" title="function trans = createRotationOy(varargin)">createRotationOy</a>	CREATEROTATIONOY Create the 4x4 matrix of a 3D rotation around y-axis</li><li><a href="../../.././matGeom/geom3d/createRotationOz.html" class="code" title="function trans = createRotationOz(varargin)">createRotationOz</a>	CREATEROTATIONOZ Create the 4x4 matrix of a 3D rotation around z-axis</li><li><a href="../../.././matGeom/geom3d/createTranslation3d.html" class="code" title="function trans = createTranslation3d(varargin)">createTranslation3d</a>	CREATETRANSLATION3D Create the 4x4 matrix of a 3D translation</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../../matlabicon.gif)">
+<li><a href="../../.././matGeom/geom3d/circle3dOrigin.html" class="code" title="function ori = circle3dOrigin(varargin)">circle3dOrigin</a>	CIRCLE3DORIGIN Return the first point of a 3D circle</li><li><a href="../../.././matGeom/geom3d/circle3dPoint.html" class="code" title="function point = circle3dPoint(circle, pos)">circle3dPoint</a>	CIRCLE3DPOINT Coordinates of a point on a 3D circle from its position</li><li><a href="../../.././matGeom/geom3d/drawCircle3d.html" class="code" title="function varargout = drawCircle3d(varargin)">drawCircle3d</a>	DRAWCIRCLE3D Draw a 3D circle</li><li><a href="../../.././matGeom/geom3d/drawCircleArc3d.html" class="code" title="function varargout = drawCircleArc3d(arc, varargin)">drawCircleArc3d</a>	DRAWCIRCLEARC3D Draw a 3D circle arc</li><li><a href="../../.././matGeom/geom3d/drawCylinder.html" class="code" title="function varargout = drawCylinder(cyl, varargin)">drawCylinder</a>	DRAWCYLINDER Draw a cylinder</li><li><a href="../../.././matGeom/geom3d/drawEllipse3d.html" class="code" title="function varargout = drawEllipse3d(varargin)">drawEllipse3d</a>	DRAWELLIPSE3D Draw a 3D ellipse</li><li><a href="../../.././matGeom/geom3d/drawTorus.html" class="code" title="function varargout = drawTorus(torus, varargin)">drawTorus</a>	DRAWTORUS Draw a torus (3D ring)</li><li><a href="../../.././matGeom/meshes3d/cylinderMesh.html" class="code" title="function varargout = cylinderMesh(cyl, varargin)">cylinderMesh</a>	CYLINDERMESH  Create a 3D mesh representing a cylinder</li><li><a href="../../.././matGeom/meshes3d/torusMesh.html" class="code" title="function varargout = torusMesh(torus, varargin)">torusMesh</a>	TORUSMESH  Create a 3D mesh representing a torus</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function trans = localToGlobal3d(varargin)</a>
+0002 <span class="comment">%LOCALTOGLOBAL3D Transformation matrix from local to global coordinate system</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   TRANS = localToGlobal3d(CENTER, THETA, PHI, PSI)</span>
+0005 <span class="comment">%   Compute the transformation matrix from a local (or modelling)</span>
+0006 <span class="comment">%   coordinate system to the global (or world) coordinate system.</span>
+0007 <span class="comment">%   This is a low-level function, used by several drawing functions.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   The transform is defined by:</span>
+0010 <span class="comment">%   - CENTER: the position of the local origin into the World coordinate</span>
+0011 <span class="comment">%       system</span>
+0012 <span class="comment">%   - THETA: colatitude, defined as the angle with the Oz axis (between 0</span>
+0013 <span class="comment">%       and 180 degrees), positive in the direction of the of Oy axis.</span>
+0014 <span class="comment">%   - PHI: azimut, defined as the angle of the normal with the Ox axis,</span>
+0015 <span class="comment">%       between 0 and 360 degrees</span>
+0016 <span class="comment">%   - PSI: intrinsic rotation, corresponding to the rotation of the object</span>
+0017 <span class="comment">%       around the direction vector, between 0 and 360 degrees</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   The resulting transform is obtained by applying (in that order):</span>
+0020 <span class="comment">%   - Rotation by PSI   around he Z-axis</span>
+0021 <span class="comment">%   - Rotation by THETA around the Y-axis</span>
+0022 <span class="comment">%   - Rotation by PHI   around the Z-axis</span>
+0023 <span class="comment">%   - Translation by vector CENTER</span>
+0024 <span class="comment">%   This corresponds to Euler ZYZ rotation, using angles PHI, THETA and</span>
+0025 <span class="comment">%   PSI.</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">%   The 'createEulerAnglesRotation' function may better suit your needs as</span>
+0028 <span class="comment">%   it is more 'natural'.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%   Example</span>
+0031 <span class="comment">%   localToGlobal3d</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%   See also</span>
+0034 <span class="comment">%   transforms3d, createEulerAnglesRotation</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">% ------</span>
+0037 <span class="comment">% Author: David Legland</span>
+0038 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0039 <span class="comment">% Created: 2009-06-19,    using Matlab 7.7.0.471 (R2008b)</span>
+0040 <span class="comment">% Copyright 2009 INRA - Cepia Software Platform.</span>
+0041 
+0042 <span class="comment">%   HISTORY</span>
+0043 <span class="comment">%   19/08/2009 fix bug in parsing center with 4 args</span>
+0044 <span class="comment">%   2011-06-21 use degrees</span>
+0045 
+0046 <span class="comment">% extract the components of the transform</span>
+0047 <span class="keyword">if</span> nargin == 1
+0048     <span class="comment">% all components are bundled in  the first argument</span>
+0049     var     = varargin{1};
+0050     center  = var(1:3);
+0051     theta   = var(4);
+0052     phi     = var(5);
+0053     psi     = 0;
+0054     <span class="keyword">if</span> length(var) &gt; 5
+0055         psi = var(6);
+0056     <span class="keyword">end</span>
+0057     
+0058 <span class="keyword">elseif</span> nargin == 4
+0059     <span class="comment">% arguments = center, then the 3 angles</span>
+0060     center  = varargin{1};
+0061     theta   = varargin{2};
+0062     phi     = varargin{3};
+0063     psi     = varargin{4};    
+0064     
+0065 <span class="keyword">elseif</span> nargin &gt; 4
+0066     <span class="comment">% center is given in 3 arguments, then 3 angles</span>
+0067     center  = [varargin{1} varargin{2} varargin{3}];
+0068     theta   = varargin{4};
+0069     phi     = varargin{5};
+0070     psi     = 0;
+0071     <span class="keyword">if</span> nargin &gt; 5
+0072         psi = varargin{6};    
+0073     <span class="keyword">end</span>
+0074 <span class="keyword">end</span>
+0075     
+0076 <span class="comment">% conversion from degrees to radians</span>
+0077 k = pi / 180;
+0078 
+0079 <span class="comment">% rotation around normal vector axis</span>
+0080 rot1    = <a href="../../.././matGeom/geom3d/createRotationOz.html" class="code" title="function trans = createRotationOz(varargin)">createRotationOz</a>(psi * k);
+0081 
+0082 <span class="comment">% colatitude</span>
+0083 rot2    = <a href="../../.././matGeom/geom3d/createRotationOy.html" class="code" title="function trans = createRotationOy(varargin)">createRotationOy</a>(theta * k);
+0084 
+0085 <span class="comment">% longitude</span>
+0086 rot3    = <a href="../../.././matGeom/geom3d/createRotationOz.html" class="code" title="function trans = createRotationOz(varargin)">createRotationOz</a>(phi * k);
+0087 
+0088 <span class="comment">% shift center</span>
+0089 tr      = <a href="../../.././matGeom/geom3d/createTranslation3d.html" class="code" title="function trans = createTranslation3d(varargin)">createTranslation3d</a>(center);
+0090 
+0091 <span class="comment">% create final transform by concatenating transforms</span>
+0092 trans   = tr * rot3 * rot2 * rot1;</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

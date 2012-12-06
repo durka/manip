@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawAxis3d</title>
+  <meta name="keywords" content="drawAxis3d">
+  <meta name="description" content="DRAWAXIS3D Draw a coordinate system and an origin">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; drawAxis3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawAxis3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWAXIS3D Draw a coordinate system and an origin</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function drawAxis3d(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWAXIS3D Draw a coordinate system and an origin
+
+   drawAxis3d
+    Adds 3 cylinders to the current axis, corresponding to the directions
+    of the 3 basis vectors Ox, Oy and Oz.
+    Ox vector is red, Oy vector is green, and Oz vector is blue.
+
+   drawAxis3d(L, R)
+   Specifies the length L and the radius of the cylinders representing the
+   different axes.
+
+   Example
+   drawAxis
+
+   figure;
+   drawAxis(20, 1);
+
+   See also
+   <a href="drawAxisCube.html" class="code" title="function p = drawAxisCube(varargin)">drawAxisCube</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@nantes.inra.fr
+ Created: 2007-08-14,    using Matlab 7.4.0.287 (R2007a)
+ Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="drawCylinder.html" class="code" title="function varargout = drawCylinder(cyl, varargin)">drawCylinder</a>	DRAWCYLINDER Draw a cylinder</li><li><a href="drawSphere.html" class="code" title="function varargout = drawSphere(varargin)">drawSphere</a>	DRAWSPHERE Draw a sphere as a mesh</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function drawAxis3d(varargin)</a>
+0002 <span class="comment">%DRAWAXIS3D Draw a coordinate system and an origin</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawAxis3d</span>
+0005 <span class="comment">%    Adds 3 cylinders to the current axis, corresponding to the directions</span>
+0006 <span class="comment">%    of the 3 basis vectors Ox, Oy and Oz.</span>
+0007 <span class="comment">%    Ox vector is red, Oy vector is green, and Oz vector is blue.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   drawAxis3d(L, R)</span>
+0010 <span class="comment">%   Specifies the length L and the radius of the cylinders representing the</span>
+0011 <span class="comment">%   different axes.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   Example</span>
+0014 <span class="comment">%   drawAxis</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   figure;</span>
+0017 <span class="comment">%   drawAxis(20, 1);</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   See also</span>
+0020 <span class="comment">%   drawAxisCube</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% ------</span>
+0023 <span class="comment">% Author: David Legland</span>
+0024 <span class="comment">% e-mail: david.legland@nantes.inra.fr</span>
+0025 <span class="comment">% Created: 2007-08-14,    using Matlab 7.4.0.287 (R2007a)</span>
+0026 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0027 
+0028 <span class="comment">% geometrical data</span>
+0029 origin = [0 0 0];
+0030 v1 = [1 0 0];
+0031 v2 = [0 1 0];
+0032 v3 = [0 0 1];
+0033 
+0034 <span class="comment">% default parameters</span>
+0035 L = 1;
+0036 r = L/10;
+0037 
+0038 <span class="comment">% extract parameters from input</span>
+0039 <span class="keyword">if</span> ~isempty(varargin)
+0040     L = varargin{1};
+0041 <span class="keyword">end</span>
+0042 <span class="keyword">if</span> length(varargin)&gt;1
+0043     r = varargin{2};
+0044 <span class="keyword">end</span>
+0045 
+0046 <span class="comment">% draw 3 cylinders and a ball</span>
+0047 hold on;
+0048 <a href="drawCylinder.html" class="code" title="function varargout = drawCylinder(cyl, varargin)">drawCylinder</a>([origin origin+v1*L r], 16, <span class="string">'facecolor'</span>, <span class="string">'r'</span>, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>);
+0049 <a href="drawCylinder.html" class="code" title="function varargout = drawCylinder(cyl, varargin)">drawCylinder</a>([origin origin+v2*L r], 16, <span class="string">'facecolor'</span>, <span class="string">'g'</span>, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>);
+0050 <a href="drawCylinder.html" class="code" title="function varargout = drawCylinder(cyl, varargin)">drawCylinder</a>([origin origin+v3*L r], 16, <span class="string">'facecolor'</span>, <span class="string">'b'</span>, <span class="string">'edgecolor'</span>, <span class="string">'none'</span>);
+0051 <a href="drawSphere.html" class="code" title="function varargout = drawSphere(varargin)">drawSphere</a>([origin 2*r], <span class="string">'faceColor'</span>, <span class="string">'black'</span>);
+0052</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

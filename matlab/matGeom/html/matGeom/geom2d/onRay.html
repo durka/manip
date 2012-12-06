@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of onRay</title>
+  <meta name="keywords" content="onRay">
+  <meta name="description" content="ONRAY test if a point belongs to a ray">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; onRay.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>onRay
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>ONRAY test if a point belongs to a ray</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function b = onRay(point, ray) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ONRAY test if a point belongs to a ray
+
+   B = onRay(PT, RAY);
+   Returns 1 if point PT belongs to the ray RAY.
+   PT is given by [x y] and RAY by [x0 y0 dx dy].
+
+   See also:
+   <a href="rays2d.html" class="code" title="function rays2d(varargin)">rays2d</a>, <a href="points2d.html" class="code" title="function points2d">points2d</a>, <a href="onLine.html" class="code" title="function b = onLine(point, line)">onLine</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 31/10/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom3d/intersectRayPolygon3d.html" class="code" title="function [inter inside]= intersectRayPolygon3d(ray, poly)">intersectRayPolygon3d</a>	INTERSECTRAYPOLYGON3D Intersection point of a 3D ray and a 3D polygon</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function b = onRay(point, ray)</a>
+0002 <span class="comment">%ONRAY test if a point belongs to a ray</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   B = onRay(PT, RAY);</span>
+0005 <span class="comment">%   Returns 1 if point PT belongs to the ray RAY.</span>
+0006 <span class="comment">%   PT is given by [x y] and RAY by [x0 y0 dx dy].</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   See also:</span>
+0009 <span class="comment">%   rays2d, points2d, onLine</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   ---------</span>
+0012 <span class="comment">%   author : David Legland</span>
+0013 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0014 <span class="comment">%   created the 31/10/2003.</span>
+0015 <span class="comment">%</span>
+0016 
+0017 <span class="comment">%   HISTORY</span>
+0018 <span class="comment">%   07/07/2005 : normalize condition to test if on the line</span>
+0019 <span class="comment">%       and add support of multiple rays or points</span>
+0020 <span class="comment">%   22/05/2009 deprecate</span>
+0021 
+0022 <span class="comment">% deprecation warning</span>
+0023 warning(<span class="string">'geom2d:deprecated'</span>, <span class="keyword">...</span>
+0024     <span class="string">'''onRay'' is deprecated, use ''isPointOnRay'' instead'</span>);
+0025 
+0026 <span class="comment">% number of rays and points</span>
+0027 Nr = size(line, 1);
+0028 Np = size(point, 1);
+0029 
+0030 <span class="comment">% if several rays or several points, adapt sizes of arrays</span>
+0031 x0 = repmat(ray(:,1)', Np, 1);
+0032 y0 = repmat(ray(:,2)', Np, 1);
+0033 dx = repmat(ray(:,3)', Np, 1);
+0034 dy = repmat(ray(:,4)', Np, 1);
+0035 xp = repmat(point(:,1), 1, Nr);
+0036 yp = repmat(point(:,2), 1, Nr);
+0037 
+0038 <span class="comment">% test if points belongs to the ray</span>
+0039 b1 = abs((xp-x0).*dy-(yp-y0).*dx)./sqrt(dx.*dx+dy.*dy) &lt; 1e-13;
+0040 
+0041 <span class="comment">% check if points lie the good direction on the rays</span>
+0042 ind = abs(dx)&gt;abs(dy);
+0043 t = zeros(size(b1));
+0044 t(ind) = (xp(ind)-x0(ind))./dx(ind);
+0045 t(~ind) = (yp(~ind)-y0(~ind))./dy(~ind);
+0046 
+0047 <span class="comment">% combine the two tests</span>
+0048 b = b1 &amp;&amp; (t&gt;0);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

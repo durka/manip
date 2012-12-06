@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of clipPolygon</title>
+  <meta name="keywords" content="clipPolygon">
+  <meta name="description" content="CLIPPOLYGON Clip a polygon with a rectangular box">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; clipPolygon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>clipPolygon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CLIPPOLYGON Clip a polygon with a rectangular box</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function poly2 = clipPolygon(polygon, w) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CLIPPOLYGON Clip a polygon with a rectangular box
+
+   POLY2 = clipPolygon(POLY, BOX);
+   POLY is [Nx2] array of points
+   BOX has the form: [XMIN XMAX YMIN YMAX].
+   Returns the polygon created by the itnersection of the polygon POLY and
+   the bounding box BOX.
+
+   Note: Works only for convex polygons at the moment.
+
+   See also:
+   polygons2d, boxes2d, <a href="clipPolygonHP.html" class="code" title="function poly2 = clipPolygonHP(poly, line)">clipPolygonHP</a>
+
+ ---------
+ author : David Legland
+ created the 14/05/2005.
+ Copyright 2010 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom2d/centroid.html" class="code" title="function center = centroid(varargin)">centroid</a>	CENTROID Compute centroid (center of mass) of a set of points</li><li><a href="../.././matGeom/geom2d/clipEdge.html" class="code" title="function edge2 = clipEdge(edge, box)">clipEdge</a>	CLIPEDGE Clip an edge with a rectangular box</li><li><a href="../.././matGeom/geom2d/edgeAngle.html" class="code" title="function theta = edgeAngle(edge)">edgeAngle</a>	EDGEANGLE Return angle of edge</li><li><a href="clipPolygon.html" class="code" title="function poly2 = clipPolygon(polygon, w)">clipPolygon</a>	CLIPPOLYGON Clip a polygon with a rectangular box</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="clipPolygon.html" class="code" title="function poly2 = clipPolygon(polygon, w)">clipPolygon</a>	CLIPPOLYGON Clip a polygon with a rectangular box</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function poly2 = clipPolygon(polygon, w)</a>
+0002 <span class="comment">%CLIPPOLYGON Clip a polygon with a rectangular box</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   POLY2 = clipPolygon(POLY, BOX);</span>
+0005 <span class="comment">%   POLY is [Nx2] array of points</span>
+0006 <span class="comment">%   BOX has the form: [XMIN XMAX YMIN YMAX].</span>
+0007 <span class="comment">%   Returns the polygon created by the itnersection of the polygon POLY and</span>
+0008 <span class="comment">%   the bounding box BOX.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   Note: Works only for convex polygons at the moment.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   See also:</span>
+0013 <span class="comment">%   polygons2d, boxes2d, clipPolygonHP</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% ---------</span>
+0016 <span class="comment">% author : David Legland</span>
+0017 <span class="comment">% created the 14/05/2005.</span>
+0018 <span class="comment">% Copyright 2010 INRA - Cepia Software Platform.</span>
+0019 
+0020 <span class="comment">%   HISTORY</span>
+0021 <span class="comment">%   2007/09/14 fix doc</span>
+0022 
+0023 <span class="comment">% check case of polygons stored in cell array</span>
+0024 <span class="keyword">if</span> iscell(polygon)
+0025     poly2 = cell(1, length(polygon));
+0026     <span class="keyword">for</span> i=1:length(polygon)
+0027         poly2{i} = <a href="clipPolygon.html" class="code" title="function poly2 = clipPolygon(polygon, w)">clipPolygon</a>(polygon{i}, w);
+0028     <span class="keyword">end</span>
+0029     <span class="keyword">return</span>;
+0030 <span class="keyword">end</span>
+0031 
+0032 <span class="comment">% check case of empty polygon</span>
+0033 N = size(polygon, 1);
+0034 <span class="keyword">if</span> N==0
+0035     poly2 = zeros(0, 2);
+0036     <span class="keyword">return</span>
+0037 <span class="keyword">end</span>
+0038 
+0039 <span class="comment">% create edges array of polygon</span>
+0040 edges = [polygon polygon([2:N 1], :)];
+0041 
+0042 <span class="comment">% clip edges</span>
+0043 edges = <a href="../.././matGeom/geom2d/clipEdge.html" class="code" title="function edge2 = clipEdge(edge, box)">clipEdge</a>(edges, w);
+0044 
+0045 <span class="comment">% select non empty edges, and get their vertices</span>
+0046 ind = sum(abs(edges), 2)&gt;1e-14;
+0047 pts = unique([edges(ind, 1:2); edges(ind, 3:4)], <span class="string">'rows'</span>);
+0048 
+0049 <span class="comment">% add vertices of window corner</span>
+0050 corners = [w(1) w(3); w(1) w(4);w(2) w(3);w(2) w(4)];
+0051 ind = inpolygon(corners(:,1), corners(:,2), polygon(:,1), polygon(:,2));
+0052 pts = [pts; corners(ind, :)];
+0053 
+0054 <span class="comment">% polygon totally outside the window</span>
+0055 <span class="keyword">if</span> size(pts, 1)==0
+0056     poly2 = pts;
+0057     <span class="keyword">return</span>;
+0058 <span class="keyword">end</span>
+0059 
+0060 <span class="comment">% compute centroid of visible polygon</span>
+0061 pc = <a href="../.././matGeom/geom2d/centroid.html" class="code" title="function center = centroid(varargin)">centroid</a>(pts);
+0062 
+0063 <span class="comment">% sort vertices around polygon</span>
+0064 angle = <a href="../.././matGeom/geom2d/edgeAngle.html" class="code" title="function theta = edgeAngle(edge)">edgeAngle</a>([repmat(pc, [size(pts, 1) 1]) pts]);
+0065 [dummy I] = sort(angle); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0066 
+0067 <span class="comment">% create resulting polygon</span>
+0068 poly2 = pts(I, :);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawCuboid</title>
+  <meta name="keywords" content="drawCuboid">
+  <meta name="description" content="DRAWCUBOID Draw a 3D cuboid, eventually rotated">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; drawCuboid.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawCuboid
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWCUBOID Draw a 3D cuboid, eventually rotated</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = drawCuboid(cuboid, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWCUBOID Draw a 3D cuboid, eventually rotated
+
+   drawCuboid(CUBOID)
+   Displays a 3D cuboid on current axis. CUBOID is given by:
+   [XC YC ZC L W D YAW PITCH ROLL],
+   where (XC, YC, ZC) is the cuboid center, L, W and H are the lengths of
+   the cuboid main axes, and YAW PITCH ROLL are Euler angles representing
+   the cuboid orientation, in degrees. 
+
+   If cuboid is axis-aligned, it can be specified using only center and
+   side lengths:
+   CUBOID = [XC YC ZC L W H]
+
+   Example
+   % Draw a basic rotated cuboid
+     figure; hold on;
+     drawCuboid([10 20 30   90 40 10   10 20 30], 'FaceColor', 'g');
+     axis equal;
+     view(3);
+
+     % Draw three &quot;borromean&quot; cuboids
+     figure; hold on;
+     drawCuboid([10 20 30 90 50 10], 'FaceColor', 'r');
+     drawCuboid([10 20 30 50 10 90], 'FaceColor', 'g');
+     drawCuboid([10 20 30 10 90 50], 'FaceColor', 'b');
+     view(3); axis equal;
+     set(gcf, 'renderer', 'opengl')
+
+   See also
+   meshes3d, polyhedra, createCube, <a href="drawEllipsoid.html" class="code" title="function varargout = drawEllipsoid(elli, varargin)">drawEllipsoid</a>, <a href="drawCube.html" class="code" title="function varargout = drawCube(cube, varargin)">drawCube</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2011-06-29,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2011 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="createRotationOx.html" class="code" title="function trans = createRotationOx(varargin)">createRotationOx</a>	CREATEROTATIONOX Create the 4x4 matrix of a 3D rotation around x-axis</li><li><a href="createRotationOy.html" class="code" title="function trans = createRotationOy(varargin)">createRotationOy</a>	CREATEROTATIONOY Create the 4x4 matrix of a 3D rotation around y-axis</li><li><a href="createRotationOz.html" class="code" title="function trans = createRotationOz(varargin)">createRotationOz</a>	CREATEROTATIONOZ Create the 4x4 matrix of a 3D rotation around z-axis</li><li><a href="createScaling3d.html" class="code" title="function trans = createScaling3d(varargin)">createScaling3d</a>	CREATESCALING3D Create the 4x4 matrix of a 3D scaling</li><li><a href="createTranslation3d.html" class="code" title="function trans = createTranslation3d(varargin)">createTranslation3d</a>	CREATETRANSLATION3D Create the 4x4 matrix of a 3D translation</li><li><a href="transformPoint3d.html" class="code" title="function varargout = transformPoint3d(varargin)">transformPoint3d</a>	TRANSFORMPOINT3D Transform a point with a 3D affine transform</li><li><a href="../.././matGeom/meshes3d/createCube.html" class="code" title="function varargout = createCube()">createCube</a>	CREATECUBE Create a 3D mesh representing the unit cube</li><li><a href="../.././matGeom/meshes3d/drawMesh.html" class="code" title="function varargout = drawMesh(vertices, faces, varargin)">drawMesh</a>	DRAWMESH Draw a 3D mesh defined by vertices and faces</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = drawCuboid(cuboid, varargin)</a>
+0002 <span class="comment">%DRAWCUBOID Draw a 3D cuboid, eventually rotated</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawCuboid(CUBOID)</span>
+0005 <span class="comment">%   Displays a 3D cuboid on current axis. CUBOID is given by:</span>
+0006 <span class="comment">%   [XC YC ZC L W D YAW PITCH ROLL],</span>
+0007 <span class="comment">%   where (XC, YC, ZC) is the cuboid center, L, W and H are the lengths of</span>
+0008 <span class="comment">%   the cuboid main axes, and YAW PITCH ROLL are Euler angles representing</span>
+0009 <span class="comment">%   the cuboid orientation, in degrees.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   If cuboid is axis-aligned, it can be specified using only center and</span>
+0012 <span class="comment">%   side lengths:</span>
+0013 <span class="comment">%   CUBOID = [XC YC ZC L W H]</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   Example</span>
+0016 <span class="comment">%   % Draw a basic rotated cuboid</span>
+0017 <span class="comment">%     figure; hold on;</span>
+0018 <span class="comment">%     drawCuboid([10 20 30   90 40 10   10 20 30], 'FaceColor', 'g');</span>
+0019 <span class="comment">%     axis equal;</span>
+0020 <span class="comment">%     view(3);</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%     % Draw three &quot;borromean&quot; cuboids</span>
+0023 <span class="comment">%     figure; hold on;</span>
+0024 <span class="comment">%     drawCuboid([10 20 30 90 50 10], 'FaceColor', 'r');</span>
+0025 <span class="comment">%     drawCuboid([10 20 30 50 10 90], 'FaceColor', 'g');</span>
+0026 <span class="comment">%     drawCuboid([10 20 30 10 90 50], 'FaceColor', 'b');</span>
+0027 <span class="comment">%     view(3); axis equal;</span>
+0028 <span class="comment">%     set(gcf, 'renderer', 'opengl')</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%   See also</span>
+0031 <span class="comment">%   meshes3d, polyhedra, createCube, drawEllipsoid, drawCube</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">% ------</span>
+0034 <span class="comment">% Author: David Legland</span>
+0035 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0036 <span class="comment">% Created: 2011-06-29,    using Matlab 7.9.0.529 (R2009b)</span>
+0037 <span class="comment">% Copyright 2011 INRA - Cepia Software Platform.</span>
+0038 
+0039 phi   = 0;
+0040 theta = 0;
+0041 psi   = 0;
+0042 
+0043 <span class="comment">%% Parses the input</span>
+0044 <span class="keyword">if</span> nargin == 0
+0045     <span class="comment">% no input: assumes cuboid with default shape</span>
+0046     xc = 0;    yc = 0; zc = 0;
+0047     a = 5; b = 4; c = 3;
+0048 
+0049 <span class="keyword">else</span>
+0050     <span class="comment">% one argument: parses elements</span>
+0051     xc  = cuboid(:,1);
+0052     yc  = cuboid(:,2);
+0053     zc  = cuboid(:,3);
+0054     a   = cuboid(:,4);
+0055     b   = cuboid(:,5);
+0056     c   = cuboid(:,6);
+0057     <span class="keyword">if</span> size(cuboid, 2) &gt;= 9
+0058         k   = pi / 180;
+0059         phi   = cuboid(:,7) * k;
+0060         theta = cuboid(:,8) * k;
+0061         psi   = cuboid(:,9) * k;
+0062     <span class="keyword">end</span>
+0063 <span class="keyword">end</span>
+0064 
+0065 
+0066 <span class="comment">%% Compute cuboid coordinates</span>
+0067 
+0068 <span class="comment">% create unit centered cube</span>
+0069 [v f] = <a href="../.././matGeom/meshes3d/createCube.html" class="code" title="function varargout = createCube()">createCube</a>;
+0070 v = bsxfun(@minus, v, mean(v, 1));
+0071 
+0072 <span class="comment">% convert unit basis to ellipsoid basis</span>
+0073 sca     = <a href="createScaling3d.html" class="code" title="function trans = createScaling3d(varargin)">createScaling3d</a>(a, b, c);
+0074 rotZ    = <a href="createRotationOz.html" class="code" title="function trans = createRotationOz(varargin)">createRotationOz</a>(phi);
+0075 rotY    = <a href="createRotationOy.html" class="code" title="function trans = createRotationOy(varargin)">createRotationOy</a>(theta);
+0076 rotX    = <a href="createRotationOx.html" class="code" title="function trans = createRotationOx(varargin)">createRotationOx</a>(psi);
+0077 tra     = <a href="createTranslation3d.html" class="code" title="function trans = createTranslation3d(varargin)">createTranslation3d</a>([xc yc zc]);
+0078 
+0079 <span class="comment">% concatenate transforms</span>
+0080 trans   = tra * rotZ * rotY * rotX * sca;
+0081 
+0082 <span class="comment">% transform mesh vertices</span>
+0083 [x y z] = <a href="transformPoint3d.html" class="code" title="function varargout = transformPoint3d(varargin)">transformPoint3d</a>(v, trans);
+0084 
+0085 
+0086 <span class="comment">%% Process output</span>
+0087 <span class="keyword">if</span> nargout == 0
+0088     <span class="comment">% no output: draw the cuboid</span>
+0089     <a href="../.././matGeom/meshes3d/drawMesh.html" class="code" title="function varargout = drawMesh(vertices, faces, varargin)">drawMesh</a>([x y z], f, varargin{:});
+0090     
+0091 <span class="keyword">elseif</span> nargout == 1
+0092     <span class="comment">% one output: draw the cuboid and return handle</span>
+0093     varargout{1} = <a href="../.././matGeom/meshes3d/drawMesh.html" class="code" title="function varargout = drawMesh(vertices, faces, varargin)">drawMesh</a>([x y z], f, varargin{:});
+0094     
+0095 <span class="keyword">elseif</span> nargout == 3
+0096     <span class="comment">% 3 outputs: return computed coordinates</span>
+0097     varargout{1} = x; 
+0098     varargout{2} = y; 
+0099     varargout{3} = z; 
+0100 <span class="keyword">end</span>
+0101</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

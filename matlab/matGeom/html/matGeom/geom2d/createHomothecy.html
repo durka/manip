@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of createHomothecy</title>
+  <meta name="keywords" content="createHomothecy">
+  <meta name="description" content="CREATEHOMOTHECY Create the the 3x3 matrix of an homothetic transform">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; createHomothecy.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>createHomothecy
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CREATEHOMOTHECY Create the the 3x3 matrix of an homothetic transform</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function trans = createHomothecy(point, ratio) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CREATEHOMOTHECY Create the the 3x3 matrix of an homothetic transform
+
+   TRANS = createHomothecy(POINT, K);
+   POINT is the center of the homothecy, K is its factor.
+
+   See also:
+   <a href="transforms2d.html" class="code" title="function transforms2d(varargin)">transforms2d</a>, <a href="transformPoint.html" class="code" title="function varargout = transformPoint(varargin)">transformPoint</a>, <a href="createTranslation.html" class="code" title="function trans = createTranslation(varargin)">createTranslation</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 20/01/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="homothecy.html" class="code" title="function trans = homothecy(point, ratio)">homothecy</a>	HOMOTHECY create a homothecy as an affine transform</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function trans = createHomothecy(point, ratio)</a>
+0002 <span class="comment">%CREATEHOMOTHECY Create the the 3x3 matrix of an homothetic transform</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   TRANS = createHomothecy(POINT, K);</span>
+0005 <span class="comment">%   POINT is the center of the homothecy, K is its factor.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   See also:</span>
+0008 <span class="comment">%   transforms2d, transformPoint, createTranslation</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   ---------</span>
+0011 <span class="comment">%   author : David Legland</span>
+0012 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0013 <span class="comment">%   created the 20/01/2005.</span>
+0014 <span class="comment">%</span>
+0015 
+0016 <span class="comment">%   HISTORY</span>
+0017 <span class="comment">%   22/04/2009: rename as createHomothecy</span>
+0018 
+0019 <span class="comment">% extract coordinate of center</span>
+0020 x0 = point(:,1);
+0021 y0 = point(:,2);
+0022 
+0023 <span class="comment">% compute coefficients of the matrix</span>
+0024 m00 = ratio;
+0025 m01 = 0;
+0026 m02 = x0*(1-ratio);
+0027 m10 = 0;
+0028 m11 = ratio;
+0029 m12 = y0*(1-ratio);
+0030 
+0031 <span class="comment">% create transformation</span>
+0032 trans = [m00 m01 m02; m10 m11 m12; 0 0 1];</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

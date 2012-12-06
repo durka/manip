@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of fitLine3d</title>
+  <meta name="keywords" content="fitLine3d">
+  <meta name="description" content="FITLINE3D Fit a 3D line to a set of points">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; fitLine3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>fitLine3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>FITLINE3D Fit a 3D line to a set of points</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function line = fitLine3d(points) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">FITLINE3D Fit a 3D line to a set of points
+
+   LINE = fitLine3d(PTS)
+
+   Example
+     pts = randn(300, 3);
+     pts = transformPoint3d(pts, createScaling3d([6 4 2]));
+     pts = transformPoint3d(pts, createRotationOx(pi/6));
+     pts = transformPoint3d(pts, createRotationOy(pi/4));
+     pts = transformPoint3d(pts, createRotationOz(pi/3));
+     pts = transformPoint3d(pts, createTranslation3d([5 4 3]));
+     elli = inertiaEllipsoid(pts);
+     figure; drawPoint3d(pts); axis equal;
+     hold on; drawEllipsoid(elli, ...
+         'drawEllipses', true, 'EllipseColor', 'b', 'EllipseWidth', 3);
+     line = fitLine3d(pts);
+     drawLine3d(line, 'color', 'm', 'LineWidth', 4);
+
+   See also
+     <a href="lines3d.html" class="code" title="function lines3d(varargin)">lines3d</a>, <a href="inertiaEllipsoid.html" class="code" title="function ell = inertiaEllipsoid(points)">inertiaEllipsoid</a>, <a href="fitPlane.html" class="code" title="function plane = fitPlane(points)">fitPlane</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2012-11-11,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2012 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function line = fitLine3d(points)</a>
+0002 <span class="comment">%FITLINE3D Fit a 3D line to a set of points</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   LINE = fitLine3d(PTS)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%   Example</span>
+0007 <span class="comment">%     pts = randn(300, 3);</span>
+0008 <span class="comment">%     pts = transformPoint3d(pts, createScaling3d([6 4 2]));</span>
+0009 <span class="comment">%     pts = transformPoint3d(pts, createRotationOx(pi/6));</span>
+0010 <span class="comment">%     pts = transformPoint3d(pts, createRotationOy(pi/4));</span>
+0011 <span class="comment">%     pts = transformPoint3d(pts, createRotationOz(pi/3));</span>
+0012 <span class="comment">%     pts = transformPoint3d(pts, createTranslation3d([5 4 3]));</span>
+0013 <span class="comment">%     elli = inertiaEllipsoid(pts);</span>
+0014 <span class="comment">%     figure; drawPoint3d(pts); axis equal;</span>
+0015 <span class="comment">%     hold on; drawEllipsoid(elli, ...</span>
+0016 <span class="comment">%         'drawEllipses', true, 'EllipseColor', 'b', 'EllipseWidth', 3);</span>
+0017 <span class="comment">%     line = fitLine3d(pts);</span>
+0018 <span class="comment">%     drawLine3d(line, 'color', 'm', 'LineWidth', 4);</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   See also</span>
+0021 <span class="comment">%     lines3d, inertiaEllipsoid, fitPlane</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% ------</span>
+0024 <span class="comment">% Author: David Legland</span>
+0025 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0026 <span class="comment">% Created: 2012-11-11,    using Matlab 7.9.0.529 (R2009b)</span>
+0027 <span class="comment">% Copyright 2012 INRA - Cepia Software Platform.</span>
+0028 
+0029 <span class="comment">% number of points</span>
+0030 n = size(points, 1);
+0031 
+0032 <span class="comment">% compute centroid</span>
+0033 center = mean(points);
+0034 
+0035 <span class="comment">% compute the covariance matrix</span>
+0036 covPts = cov(points)/n;
+0037 
+0038 <span class="comment">% perform a principal component analysis with 2 variables,</span>
+0039 <span class="comment">% to extract inertia axes</span>
+0040 [U S] = svd(covPts);
+0041 
+0042 <span class="comment">% sort axes from greater to lower</span>
+0043 [dummy ind] = sort(diag(S), <span class="string">'descend'</span>); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0044 
+0045 <span class="comment">% format U to ensure first axis points to positive x direction</span>
+0046 U = U(ind, :);
+0047 <span class="keyword">if</span> U(1,1) &lt; 0
+0048     U = -U;
+0049     <span class="comment">% keep matrix determinant positive</span>
+0050     U(:,3) = -U(:,3);
+0051 <span class="keyword">end</span>
+0052 
+0053 line = [center U(:,1)'];</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

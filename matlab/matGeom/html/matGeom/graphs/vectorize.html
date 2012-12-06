@@ -1,0 +1,241 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of vectorize</title>
+  <meta name="keywords" content="vectorize">
+  <meta name="description" content="VECTORIZE Transform a binary skeleton into a graph (nodes and edges)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; vectorize.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>vectorize
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>VECTORIZE Transform a binary skeleton into a graph (nodes and edges)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = vectorize(img) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">VECTORIZE Transform a binary skeleton into a graph (nodes and edges)
+
+   [NODES EDGES] = vectorize(IMG);
+   IMG is a binary image, with structure of width 1 pixel (such as the
+   result of sketetonization)
+   NODES is a Nnodes*2 array of doubles containing values of vertices
+   coordinates
+   EDGES is a Nedges*2 array of integers, containing indices of vertices
+   of each extremity.
+
+   GRAPH = vectorize(IMG);
+   return the result as a graph structure, containing fields 'nodes' and
+   'edges'.
+
+
+   Example:
+   img = imread('circles.png');
+   skel = bwmorph(img, 'shrink', Inf);
+   [nodes, edges] = vectorize(skel);
+   figure; imshow(skel); hold on;
+   drawGraph(nodes, edges);
+
+
+   See Also: <a href="drawGraph.html" class="code" title="function varargout = drawGraph(varargin)">drawGraph</a>, minGraph, removeMultiplePoints
+
+   -----
+
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 17/07/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = vectorize(img)</a>
+0002 <span class="comment">%VECTORIZE Transform a binary skeleton into a graph (nodes and edges)</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [NODES EDGES] = vectorize(IMG);</span>
+0005 <span class="comment">%   IMG is a binary image, with structure of width 1 pixel (such as the</span>
+0006 <span class="comment">%   result of sketetonization)</span>
+0007 <span class="comment">%   NODES is a Nnodes*2 array of doubles containing values of vertices</span>
+0008 <span class="comment">%   coordinates</span>
+0009 <span class="comment">%   EDGES is a Nedges*2 array of integers, containing indices of vertices</span>
+0010 <span class="comment">%   of each extremity.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   GRAPH = vectorize(IMG);</span>
+0013 <span class="comment">%   return the result as a graph structure, containing fields 'nodes' and</span>
+0014 <span class="comment">%   'edges'.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   Example:</span>
+0018 <span class="comment">%   img = imread('circles.png');</span>
+0019 <span class="comment">%   skel = bwmorph(img, 'shrink', Inf);</span>
+0020 <span class="comment">%   [nodes, edges] = vectorize(skel);</span>
+0021 <span class="comment">%   figure; imshow(skel); hold on;</span>
+0022 <span class="comment">%   drawGraph(nodes, edges);</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%   See Also: drawGraph, minGraph, removeMultiplePoints</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">%   -----</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%   author : David Legland</span>
+0030 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0031 <span class="comment">%   created the 17/07/2003.</span>
+0032 <span class="comment">%</span>
+0033 
+0034 <span class="comment">%   HISTORY</span>
+0035 <span class="comment">%   21/07/2003 : uses only one loop to detect nodes and edges</span>
+0036 <span class="comment">%   26/01/2004 : reverse direction of searching pixels in array : faster</span>
+0037 <span class="comment">%   10/02/2004 : documentation</span>
+0038 <span class="comment">%   11/02/2004 : supprime calcul du temps execution</span>
+0039 <span class="comment">%   18/01/2006 : rewrite by using a label for each point, making it working</span>
+0040 <span class="comment">%   faster</span>
+0041 
+0042 
+0043 <span class="comment">%% Initialisations</span>
+0044 
+0045 <span class="comment">% nodes array</span>
+0046 [y x] = find(img&gt;0);
+0047 points = [x y];
+0048 
+0049 <span class="comment">% intialize empty edges array.</span>
+0050 edges  = zeros(0, 2);
+0051 
+0052 
+0053 <span class="comment">% adapt datasize of label image to the number of points.</span>
+0054 n = length(x);
+0055 <span class="keyword">if</span> n &lt; 256
+0056     typ = <span class="string">'uint8'</span>;
+0057 <span class="keyword">elseif</span> n &lt; power(2, 16)
+0058     typ = <span class="string">'uint16'</span>;
+0059 <span class="keyword">elseif</span> n &lt; power(2, 32);
+0060     typ = <span class="string">'uint32'</span>;
+0061 <span class="keyword">else</span>
+0062     typ = <span class="string">'uint64'</span>;
+0063 <span class="keyword">end</span>
+0064 
+0065 <span class="comment">% create label image</span>
+0066 dim = size(img);
+0067 img = zeros(dim, typ);
+0068 <span class="keyword">for</span> i = 1:length(x)
+0069     img(y(i), x(i)) = i;
+0070 <span class="keyword">end</span>
+0071 
+0072 <span class="comment">%% detection of edges</span>
+0073 
+0074 <span class="comment">% first line</span>
+0075 <span class="keyword">for</span> x = 2:dim(2)
+0076     <span class="comment">% continue if no point</span>
+0077     <span class="keyword">if</span> img(1, x) == 0
+0078         <span class="keyword">continue</span>;
+0079     <span class="keyword">end</span>
+0080     
+0081     <span class="comment">% check the point to the left</span>
+0082     <span class="keyword">if</span> img(1, x-1) &gt; 0
+0083         edges = [edges; img(1, x) img(1, x-1)];
+0084     <span class="keyword">end</span>
+0085 <span class="keyword">end</span>
+0086 
+0087 <span class="comment">% normal lines</span>
+0088 <span class="keyword">for</span> y = 2:dim(1)
+0089     
+0090     <span class="comment">% first point of the line</span>
+0091     <span class="keyword">if</span> img(y, 1) &gt; 0
+0092 
+0093         <span class="comment">% check point on the top</span>
+0094         <span class="keyword">if</span> img(y-1,1)&gt;0
+0095             edges = [edges; img(y, 1) img(y-1,1)];
+0096         <span class="keyword">end</span>
+0097 
+0098         <span class="comment">% check point on the top-right</span>
+0099         <span class="keyword">if</span> img(y-1,2)&gt;0
+0100             edges = [edges; img(y, 1) img(y-1,2)];
+0101         <span class="keyword">end</span>
+0102     <span class="keyword">end</span>
+0103     
+0104     <span class="comment">% each 'normal' point of the line</span>
+0105     <span class="keyword">for</span> x=2:dim(2)-1
+0106         <span class="keyword">if</span> ~img(y,x)
+0107             <span class="keyword">continue</span>;
+0108         <span class="keyword">end</span>
+0109         
+0110         <span class="comment">% check point on the left</span>
+0111         <span class="keyword">if</span> img(y, x-1)&gt;0
+0112             edges = [edges; img(y, x) img(y, x-1)];
+0113         <span class="keyword">end</span>
+0114 
+0115         <span class="comment">% check point on the top-left</span>
+0116         <span class="keyword">if</span> img(y-1, x-1)&gt;0
+0117             edges = [edges; img(y, x) img(y-1, x-1)];
+0118         <span class="keyword">end</span>
+0119         
+0120         <span class="comment">% check point on the top</span>
+0121         <span class="keyword">if</span> img(y-1, x)&gt;0
+0122             edges = [edges; img(y, x) img(y-1, x)];
+0123         <span class="keyword">end</span>
+0124         
+0125         <span class="comment">% check point on the top-right</span>
+0126         <span class="keyword">if</span> img(y-1, x+1)&gt;0
+0127             edges = [edges; img(y, x) img(y-1, x+1)];
+0128         <span class="keyword">end</span>
+0129         
+0130     <span class="keyword">end</span>
+0131     
+0132     <span class="comment">% last point of the line</span>
+0133     <span class="keyword">if</span> img(y, dim(2))
+0134 
+0135         <span class="comment">% check point on the left</span>
+0136         <span class="keyword">if</span> img(y, dim(2)-1)&gt;0
+0137             edges = [edges; img(y, dim(2)) img(y, dim(2)-1)];
+0138         <span class="keyword">end</span>
+0139         
+0140         <span class="comment">% check point on the top-left</span>
+0141         <span class="keyword">if</span> img(y-1, dim(2)-1)&gt;0
+0142             edges = [edges; img(y, dim(2)) img(y-1, dim(2)-1)];
+0143         <span class="keyword">end</span>
+0144         
+0145         <span class="comment">% check point on the top</span>
+0146         <span class="keyword">if</span> img(y-1, dim(2))&gt;0
+0147             edges = [edges; img(y, dim(2)) img(y-1, dim(2))];
+0148         <span class="keyword">end</span>
+0149     <span class="keyword">end</span>
+0150 <span class="keyword">end</span>
+0151 
+0152 
+0153 <span class="comment">%% Format output arguments</span>
+0154 
+0155 <span class="comment">% process output depending on how many arguments are needed</span>
+0156 <span class="keyword">if</span> nargout == 1
+0157     out.nodes = points;
+0158     out.edges = edges;
+0159     varargout{1} = out;
+0160 <span class="keyword">end</span>
+0161 
+0162 <span class="keyword">if</span> nargout == 2
+0163     varargout{1} = points;
+0164     varargout{2} = edges;
+0165 <span class="keyword">end</span>
+0166</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

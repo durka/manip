@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polygonLoops</title>
+  <meta name="keywords" content="polygonLoops">
+  <meta name="description" content="POLYGONLOOPS Divide a possibly self-intersecting polygon into a set of simple loops">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; polygonLoops.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polygonLoops
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYGONLOOPS Divide a possibly self-intersecting polygon into a set of simple loops</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function loops = polygonLoops(poly) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYGONLOOPS Divide a possibly self-intersecting polygon into a set of simple loops
+
+   LOOPS = polygonLoops(POLYGON);
+   POLYGON is a polygone defined by a series of vertices,
+   LOOPS is a cell array of polygons, containing the same vertices of the
+   original polygon, but no loop self-intersect, and no couple of loops
+   intersect each other.
+
+   Example:
+       poly = [0 0;0 10;20 10;20 20;10 20;10 0];
+       loops = polygonLoops(poly);
+       figure(1); hold on;
+       drawPolygon(loops);
+       polygonArea(loops)
+
+   See also
+   polygons2d, <a href="polygonSelfIntersections.html" class="code" title="function varargout = polygonSelfIntersections(poly, varargin)">polygonSelfIntersections</a>
+
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2009-06-15,    using Matlab 7.7.0.471 (R2008b)
+ Copyright 2009 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polygonSelfIntersections.html" class="code" title="function varargout = polygonSelfIntersections(poly, varargin)">polygonSelfIntersections</a>	POLYGONSELFINTERSECTIONS Find self-intersection points of a polygon</li><li><a href="polygonSubcurve.html" class="code" title="function res = polygonSubcurve(poly, t0, t1)">polygonSubcurve</a>	POLYGONSUBCURVE Extract a portion of a polygon</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="expandPolygon.html" class="code" title="function loops = expandPolygon(poly, dist, varargin)">expandPolygon</a>	EXPANDPOLYGON Expand a polygon by a given (signed) distance</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function loops = polygonLoops(poly)</a>
+0002 <span class="comment">%POLYGONLOOPS Divide a possibly self-intersecting polygon into a set of simple loops</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   LOOPS = polygonLoops(POLYGON);</span>
+0005 <span class="comment">%   POLYGON is a polygone defined by a series of vertices,</span>
+0006 <span class="comment">%   LOOPS is a cell array of polygons, containing the same vertices of the</span>
+0007 <span class="comment">%   original polygon, but no loop self-intersect, and no couple of loops</span>
+0008 <span class="comment">%   intersect each other.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   Example:</span>
+0011 <span class="comment">%       poly = [0 0;0 10;20 10;20 20;10 20;10 0];</span>
+0012 <span class="comment">%       loops = polygonLoops(poly);</span>
+0013 <span class="comment">%       figure(1); hold on;</span>
+0014 <span class="comment">%       drawPolygon(loops);</span>
+0015 <span class="comment">%       polygonArea(loops)</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   See also</span>
+0018 <span class="comment">%   polygons2d, polygonSelfIntersections</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% ------</span>
+0022 <span class="comment">% Author: David Legland</span>
+0023 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0024 <span class="comment">% Created: 2009-06-15,    using Matlab 7.7.0.471 (R2008b)</span>
+0025 <span class="comment">% Copyright 2009 INRA - Cepia Software Platform.</span>
+0026 
+0027 
+0028 <span class="comment">%% Initialisations</span>
+0029 
+0030 <span class="comment">% compute intersections</span>
+0031 [inters pos1 pos2] = <a href="polygonSelfIntersections.html" class="code" title="function varargout = polygonSelfIntersections(poly, varargin)">polygonSelfIntersections</a>(poly);
+0032 
+0033 <span class="comment">% case of a polygon without self-intersection</span>
+0034 <span class="keyword">if</span> isempty(inters)
+0035     loops = {poly};
+0036     <span class="keyword">return</span>;
+0037 <span class="keyword">end</span>
+0038 
+0039 <span class="comment">% array for storing loops</span>
+0040 loops = cell(0, 1);
+0041 
+0042 positions = sortrows([pos1 pos2;pos2 pos1]);
+0043 
+0044 
+0045 <span class="comment">%% First loop</span>
+0046 
+0047 pos0 = 0;
+0048 loop = <a href="polygonSubcurve.html" class="code" title="function res = polygonSubcurve(poly, t0, t1)">polygonSubcurve</a>(poly, pos0, positions(1, 1));
+0049 pos = positions(1, 2);
+0050 positions(1, :) = [];
+0051 
+0052 <span class="keyword">while</span> true
+0053     <span class="comment">% index of next intersection point</span>
+0054     ind = find(positions(:,1)&gt;pos, 1, <span class="string">'first'</span>);
+0055     
+0056     <span class="comment">% if not found, break</span>
+0057     <span class="keyword">if</span> isempty(ind)
+0058         <span class="keyword">break</span>;
+0059     <span class="keyword">end</span>
+0060     
+0061     <span class="comment">% add portion of curve</span>
+0062     loop = [loop;<a href="polygonSubcurve.html" class="code" title="function res = polygonSubcurve(poly, t0, t1)">polygonSubcurve</a>(poly, pos, positions(ind, 1))]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0063     
+0064     <span class="comment">% look for next intersection point</span>
+0065     pos = positions(ind, 2);
+0066     positions(ind, :) = [];
+0067 <span class="keyword">end</span>
+0068 
+0069 <span class="comment">% add the last portion of curve</span>
+0070 loop = [loop;<a href="polygonSubcurve.html" class="code" title="function res = polygonSubcurve(poly, t0, t1)">polygonSubcurve</a>(poly, pos, pos0)];
+0071 
+0072 <span class="comment">% remove redundant vertices</span>
+0073 loop(sum(loop(1:end-1,:) == loop(2:<span class="keyword">end</span>,:) ,2)==2, :) = [];
+0074 <span class="keyword">if</span> sum(diff(loop([1 end], :))==0)==2
+0075     loop(<span class="keyword">end</span>, :) = [];
+0076 <span class="keyword">end</span>
+0077 
+0078 <span class="comment">% add current loop to the list of loops</span>
+0079 loops{1} = loop;
+0080 
+0081 
+0082 <span class="comment">%% Other loops</span>
+0083 
+0084 Nl = 1;
+0085 <span class="keyword">while</span> ~isempty(positions)
+0086 
+0087     loop    = [];
+0088     pos0    = positions(1, 2);
+0089     pos     = positions(1, 2);
+0090     
+0091     <span class="keyword">while</span> true
+0092         <span class="comment">% index of next intersection point</span>
+0093         ind = find(positions(:,1)&gt;pos, 1, <span class="string">'first'</span>);
+0094 
+0095         <span class="comment">% add portion of curve</span>
+0096         loop = [loop;<a href="polygonSubcurve.html" class="code" title="function res = polygonSubcurve(poly, t0, t1)">polygonSubcurve</a>(poly, pos, positions(ind, 1))]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0097 
+0098         <span class="comment">% look for next intersection point</span>
+0099         pos = positions(ind, 2);
+0100         positions(ind, :) = [];
+0101 
+0102         <span class="comment">% if not found, break</span>
+0103         <span class="keyword">if</span> pos == pos0
+0104             <span class="keyword">break</span>;
+0105         <span class="keyword">end</span>
+0106     <span class="keyword">end</span>
+0107 
+0108     <span class="comment">% remove redundant vertices</span>
+0109     loop(sum(loop(1:end-1,:) == loop(2:<span class="keyword">end</span>,:) ,2)==2, :) = []; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0110     <span class="keyword">if</span> sum(diff(loop([1 end], :))==0)==2
+0111         loop(<span class="keyword">end</span>, :) = []; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0112     <span class="keyword">end</span>
+0113 
+0114     <span class="comment">% add current loop to the list of loops</span>
+0115     Nl = Nl + 1;
+0116     loops{Nl} = loop;
+0117 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

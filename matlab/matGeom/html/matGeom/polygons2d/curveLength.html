@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of curveLength</title>
+  <meta name="keywords" content="curveLength">
+  <meta name="description" content="CURVELENGTH return length of a curve (a list of points)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; curveLength.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>curveLength
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CURVELENGTH return length of a curve (a list of points)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function len = curveLength(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CURVELENGTH return length of a curve (a list of points)
+
+   Compute the length of a curve given as a list of following points. 
+
+   L = curveLength(X, Y);
+   L = curveLength(POINTS);
+   POINTS should be a [NxD] array, with N being the numbe of points and D
+   the dimension of the points.
+
+   PT = curveLength(..., TYPE);
+   Specifies if the last point is connected to the first one. TYPE can be
+   either 'closed' or 'open'.
+
+   TODO : specify norm (euclidian, taxi, ...).
+
+   Example:
+   Compute the perimeter of a circle with radius 1
+   curveLength(circleAsPolygon([0 0 1], 500), 'closed')
+   -&gt; return 6.2831
+
+   See also:
+   polygons2d, <a href="curveCentroid.html" class="code" title="function center = curveCentroid(varargin)">curveCentroid</a>
+
+   ---------
+
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 14/06/2004</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function len = curveLength(varargin)</a>
+0002 <span class="comment">%CURVELENGTH return length of a curve (a list of points)</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   Compute the length of a curve given as a list of following points.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%   L = curveLength(X, Y);</span>
+0007 <span class="comment">%   L = curveLength(POINTS);</span>
+0008 <span class="comment">%   POINTS should be a [NxD] array, with N being the numbe of points and D</span>
+0009 <span class="comment">%   the dimension of the points.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   PT = curveLength(..., TYPE);</span>
+0012 <span class="comment">%   Specifies if the last point is connected to the first one. TYPE can be</span>
+0013 <span class="comment">%   either 'closed' or 'open'.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   TODO : specify norm (euclidian, taxi, ...).</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   Example:</span>
+0018 <span class="comment">%   Compute the perimeter of a circle with radius 1</span>
+0019 <span class="comment">%   curveLength(circleAsPolygon([0 0 1], 500), 'closed')</span>
+0020 <span class="comment">%   -&gt; return 6.2831</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   See also:</span>
+0023 <span class="comment">%   polygons2d, curveCentroid</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%   ---------</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">%   author : David Legland</span>
+0028 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0029 <span class="comment">%   created the 14/06/2004</span>
+0030 <span class="comment">%</span>
+0031 
+0032 <span class="comment">%   HISTORY</span>
+0033 <span class="comment">%   22/05/2006 manage any dimension for points, closed and open curves,</span>
+0034 <span class="comment">%       and update doc accordingly.</span>
+0035 <span class="comment">%   30/06/2009 deprecate and replace by 'polylineLength'.</span>
+0036 
+0037 <span class="comment">% deprecation warning</span>
+0038 warning(<span class="string">'geom2d:deprecated'</span>, <span class="keyword">...</span>
+0039     <span class="string">'''curveLength'' is deprecated, use ''polylineLength'' instead'</span>);
+0040 
+0041 <span class="comment">% check whether the curve is closed</span>
+0042 closed = false;
+0043 var = varargin{end};
+0044 <span class="keyword">if</span> ischar(var)
+0045     <span class="keyword">if</span> strcmpi(var, <span class="string">'closed'</span>)
+0046         closed = true;
+0047     <span class="keyword">end</span>
+0048     varargin = varargin(1:end-1);
+0049 <span class="keyword">end</span>
+0050 
+0051 <span class="comment">% extract point coordinates</span>
+0052 <span class="keyword">if</span> length(varargin)==1
+0053     points = varargin{1};
+0054 <span class="keyword">elseif</span> length(varargin)==2
+0055     points = [varargin{1} varargin{2}];
+0056 <span class="keyword">end</span>
+0057 
+0058 <span class="comment">% compute lengths of each line segment</span>
+0059 <span class="keyword">if</span> closed
+0060     len = sum(sqrt(sum(diff(points([1:end 1],:)).^2, 2)));
+0061 <span class="keyword">else</span>
+0062     len = sum(sqrt(sum(diff(points).^2, 2)));
+0063 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

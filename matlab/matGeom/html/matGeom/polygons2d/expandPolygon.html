@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of expandPolygon</title>
+  <meta name="keywords" content="expandPolygon">
+  <meta name="description" content="EXPANDPOLYGON Expand a polygon by a given (signed) distance">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; expandPolygon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>expandPolygon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>EXPANDPOLYGON Expand a polygon by a given (signed) distance</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function loops = expandPolygon(poly, dist, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">EXPANDPOLYGON Expand a polygon by a given (signed) distance
+
+   POLY2 = expandPolygon(POLY, DIST);
+   Associates to each edge of the polygon POLY the parallel line located
+   at distance DIST from the current edge, and compute intersections with
+   neighbor parallel lines. The resulting polygon is simplified to remove
+   inner &quot;loops&quot;, and can be disconnected.
+   The result is a cell array, each cell containing a simple linear ring.
+   
+   This is a kind of dilation, but behaviour on corners is different.
+   This function keeps angles of polygons, but there is no direct relation
+   between length of 2 polygons.
+
+   It is also possible to specify negative distance, and get all points
+   inside the polygon. If the polygon is convex, the result equals
+   morphological erosion of polygon by a ball with radius equal to the
+   given distance.
+
+   See also:
+   polygons2d
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 14/05/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom2d/createLine.html" class="code" title="function line = createLine(varargin)">createLine</a>	CREATELINE Create a straight line from 2 points, or from other inputs</li><li><a href="../.././matGeom/geom2d/intersectLines.html" class="code" title="function point = intersectLines(line1, line2, varargin)">intersectLines</a>	INTERSECTLINES Return all intersection points of N lines in 2D</li><li><a href="../.././matGeom/geom2d/parallelLine.html" class="code" title="function res = parallelLine(line, point)">parallelLine</a>	PARALLELLINE Create a line parallel to another one.</li><li><a href="distancePolygons.html" class="code" title="function dist = distancePolygons(poly1, poly2)">distancePolygons</a>	DISTANCEPOLYGONS Compute the shortest distance between 2 polygons</li><li><a href="polygonLoops.html" class="code" title="function loops = polygonLoops(poly)">polygonLoops</a>	POLYGONLOOPS Divide a possibly self-intersecting polygon into a set of simple loops</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function loops = expandPolygon(poly, dist, varargin)</a>
+0002 <span class="comment">%EXPANDPOLYGON Expand a polygon by a given (signed) distance</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   POLY2 = expandPolygon(POLY, DIST);</span>
+0005 <span class="comment">%   Associates to each edge of the polygon POLY the parallel line located</span>
+0006 <span class="comment">%   at distance DIST from the current edge, and compute intersections with</span>
+0007 <span class="comment">%   neighbor parallel lines. The resulting polygon is simplified to remove</span>
+0008 <span class="comment">%   inner &quot;loops&quot;, and can be disconnected.</span>
+0009 <span class="comment">%   The result is a cell array, each cell containing a simple linear ring.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   This is a kind of dilation, but behaviour on corners is different.</span>
+0012 <span class="comment">%   This function keeps angles of polygons, but there is no direct relation</span>
+0013 <span class="comment">%   between length of 2 polygons.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   It is also possible to specify negative distance, and get all points</span>
+0016 <span class="comment">%   inside the polygon. If the polygon is convex, the result equals</span>
+0017 <span class="comment">%   morphological erosion of polygon by a ball with radius equal to the</span>
+0018 <span class="comment">%   given distance.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   See also:</span>
+0021 <span class="comment">%   polygons2d</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   ---------</span>
+0024 <span class="comment">%   author : David Legland</span>
+0025 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0026 <span class="comment">%   created the 14/05/2005.</span>
+0027 <span class="comment">%</span>
+0028 
+0029 <span class="comment">%   HISTORY :</span>
+0030 <span class="comment">%   31/07/2005 : change algo for negative distance : use clipping of</span>
+0031 <span class="comment">%   polygon by half-planes</span>
+0032 
+0033 <span class="comment">% default options</span>
+0034 cleanupLoops = false;
+0035 
+0036 <span class="comment">% process input argument</span>
+0037 <span class="keyword">while</span> length(varargin) &gt; 1
+0038     paramName = varargin{1};
+0039     <span class="keyword">switch</span> lower(paramName)
+0040         <span class="keyword">case</span> <span class="string">'cleanuploops'</span>
+0041             cleanupLoops = varargin{2};
+0042         <span class="keyword">otherwise</span>
+0043             error([<span class="string">'Unknown parameter name: '</span> paramName]);
+0044     <span class="keyword">end</span>
+0045     varargin(1:2) = [];
+0046 <span class="keyword">end</span>
+0047 
+0048 <span class="comment">% eventually copy first point at the end to ensure closed polygon</span>
+0049 <span class="keyword">if</span> sum(poly(<span class="keyword">end</span>, :) == poly(1,:)) ~= 2
+0050     poly = [poly; poly(1,:)];
+0051 <span class="keyword">end</span>
+0052 
+0053 <span class="comment">% number of vertices of the polygon</span>
+0054 N = size(poly, 1)-1;
+0055 
+0056 <span class="comment">% find lines parallel to polygon edges located at distance DIST</span>
+0057 lines = zeros(N, 4);
+0058 <span class="keyword">for</span> i = 1:N
+0059     side = <a href="../.././matGeom/geom2d/createLine.html" class="code" title="function line = createLine(varargin)">createLine</a>(poly(i,:), poly(i+1,:));
+0060     lines(i, 1:4) = <a href="../.././matGeom/geom2d/parallelLine.html" class="code" title="function res = parallelLine(line, point)">parallelLine</a>(side, dist);
+0061 <span class="keyword">end</span>
+0062 
+0063 <span class="comment">% compute intersection points of consecutive lines</span>
+0064 lines = [lines;lines(1,:)];
+0065 poly2 = zeros(N, 2);
+0066 <span class="keyword">for</span> i = 1:N
+0067     poly2(i,1:2) = <a href="../.././matGeom/geom2d/intersectLines.html" class="code" title="function point = intersectLines(line1, line2, varargin)">intersectLines</a>(lines(i,:), lines(i+1,:));
+0068 <span class="keyword">end</span>
+0069 
+0070 <span class="comment">% split result polygon into set of loops (simple polygons)</span>
+0071 loops = <a href="polygonLoops.html" class="code" title="function loops = polygonLoops(poly)">polygonLoops</a>(poly2);
+0072 
+0073 <span class="comment">% keep only loops whose distance to original polygon is correct</span>
+0074 <span class="keyword">if</span> cleanupLoops
+0075     distLoop = zeros(length(loops), 1);
+0076     <span class="keyword">for</span> i = 1:length(loops)
+0077         distLoop(i) = <a href="distancePolygons.html" class="code" title="function dist = distancePolygons(poly1, poly2)">distancePolygons</a>(loops{i}, poly);
+0078     <span class="keyword">end</span>
+0079     loops = loops(abs(distLoop-abs(dist)) &lt; abs(dist)/1000);
+0080 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

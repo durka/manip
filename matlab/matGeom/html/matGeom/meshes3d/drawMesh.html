@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of drawMesh</title>
+  <meta name="keywords" content="drawMesh">
+  <meta name="description" content="DRAWMESH Draw a 3D mesh defined by vertices and faces">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; drawMesh.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>drawMesh
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DRAWMESH Draw a 3D mesh defined by vertices and faces</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = drawMesh(vertices, faces, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DRAWMESH Draw a 3D mesh defined by vertices and faces
+
+   drawMesh(VERTICES, FACES)
+   Draws the 3D mesh defined by vertices VERTICES and the faces FACES. 
+   vertices is a [NVx3] array containing coordinates of vertices, and FACES
+   is either a [NFx3] or [NFx4] array containing indices of vertices of
+   the triangular or rectangular faces.
+   FACES can also be a cell array, in the content of each cell is an array
+   of indices to the vertices of the current face. Faces can have different
+   number of vertices.
+   
+   drawMesh(MESH)
+   Where mesh is a structure with fields 'vertices' and 'faces', draws the
+   given mesh.
+
+   drawMesh(..., COLOR)
+   Use the specified color to render the mesh faces.
+
+   drawMesh(..., NAME, VALUE)
+   Use one or several pairs of parameter name/value to specify drawing
+   options. Options are the same as the 'patch' function.
+
+
+   H = drawMesh(...);
+   Also returns a handle to the created patch.
+
+   Example:
+     [v f] = createSoccerBall;
+     drawMesh(v, f);
+
+   See also:
+   <a href="polyhedra.html" class="code" title="function polyhedra(varargin)">polyhedra</a>, meshes3d, patch
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 10/02/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom3d/drawCube.html" class="code" title="function varargout = drawCube(cube, varargin)">drawCube</a>	DRAWCUBE Draw a 3D centered cube, eventually rotated</li><li><a href="../.././matGeom/geom3d/drawCuboid.html" class="code" title="function varargout = drawCuboid(cuboid, varargin)">drawCuboid</a>	DRAWCUBOID Draw a 3D cuboid, eventually rotated</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = drawMesh(vertices, faces, varargin)</a>
+0002 <span class="comment">%DRAWMESH Draw a 3D mesh defined by vertices and faces</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   drawMesh(VERTICES, FACES)</span>
+0005 <span class="comment">%   Draws the 3D mesh defined by vertices VERTICES and the faces FACES.</span>
+0006 <span class="comment">%   vertices is a [NVx3] array containing coordinates of vertices, and FACES</span>
+0007 <span class="comment">%   is either a [NFx3] or [NFx4] array containing indices of vertices of</span>
+0008 <span class="comment">%   the triangular or rectangular faces.</span>
+0009 <span class="comment">%   FACES can also be a cell array, in the content of each cell is an array</span>
+0010 <span class="comment">%   of indices to the vertices of the current face. Faces can have different</span>
+0011 <span class="comment">%   number of vertices.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   drawMesh(MESH)</span>
+0014 <span class="comment">%   Where mesh is a structure with fields 'vertices' and 'faces', draws the</span>
+0015 <span class="comment">%   given mesh.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   drawMesh(..., COLOR)</span>
+0018 <span class="comment">%   Use the specified color to render the mesh faces.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   drawMesh(..., NAME, VALUE)</span>
+0021 <span class="comment">%   Use one or several pairs of parameter name/value to specify drawing</span>
+0022 <span class="comment">%   options. Options are the same as the 'patch' function.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%   H = drawMesh(...);</span>
+0026 <span class="comment">%   Also returns a handle to the created patch.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">%   Example:</span>
+0029 <span class="comment">%     [v f] = createSoccerBall;</span>
+0030 <span class="comment">%     drawMesh(v, f);</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">%   See also:</span>
+0033 <span class="comment">%   polyhedra, meshes3d, patch</span>
+0034 <span class="comment">%</span>
+0035 <span class="comment">%   ---------</span>
+0036 <span class="comment">%   author : David Legland</span>
+0037 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0038 <span class="comment">%   created the 10/02/2005.</span>
+0039 <span class="comment">%</span>
+0040 
+0041 <span class="comment">%   HISTORY</span>
+0042 <span class="comment">%   07/11/2005 update doc.</span>
+0043 <span class="comment">%   04/01/2007 typo</span>
+0044 <span class="comment">%   18/01/2007 add support for 2D polyhedra (&quot;vertices&quot; is N-by-2 array), and</span>
+0045 <span class="comment">%       make 'cnodes' a list of points instead of a list of indices</span>
+0046 <span class="comment">%   14/08/2007 add comment, add support for NaN in faces (complex polygons)</span>
+0047 <span class="comment">%   14/09/2007 rename as drawPolyhedron</span>
+0048 <span class="comment">%   16/10/2008 better support for colors</span>
+0049 <span class="comment">%   27/07/2010 renamed as drawMesh</span>
+0050 <span class="comment">%   09/11/2010 update doc</span>
+0051 <span class="comment">%   07/12/2010 update management of mesh structures</span>
+0052 
+0053 
+0054 <span class="comment">%% Initialisations</span>
+0055 
+0056 <span class="comment">% Check if the input is a mesh structure</span>
+0057 <span class="keyword">if</span> isstruct(vertices)
+0058     <span class="comment">% refresh options</span>
+0059     <span class="keyword">if</span> nargin &gt; 1
+0060         varargin = [{faces} varargin];
+0061     <span class="keyword">end</span>
+0062     
+0063     <span class="comment">% extract data to display</span>
+0064     faces = vertices.faces;
+0065     vertices = vertices.vertices;
+0066 <span class="keyword">end</span>
+0067 
+0068 <span class="comment">% process input arguments</span>
+0069 <span class="keyword">switch</span> length(varargin)
+0070     <span class="keyword">case</span> 0 
+0071         <span class="comment">% default color is red</span>
+0072         varargin = {<span class="string">'facecolor'</span>, [1 0 0]};
+0073     <span class="keyword">case</span> 1
+0074         <span class="comment">% use argument as color for faces</span>
+0075         varargin = {<span class="string">'facecolor'</span>, varargin{1}};
+0076     <span class="keyword">otherwise</span>
+0077         <span class="comment">% otherwise keep varargin unchanged</span>
+0078 <span class="keyword">end</span>
+0079 
+0080 <span class="comment">% overwrites on current figure</span>
+0081 hold on;
+0082 
+0083 <span class="comment">% if vertices are 2D points, add a z=0 coordinate</span>
+0084 <span class="keyword">if</span> size(vertices, 2)==2
+0085     vertices(1,3)=0;
+0086 <span class="keyword">end</span>
+0087 
+0088 
+0089 <span class="comment">%% Use different processing depending on the type of faces</span>
+0090 <span class="keyword">if</span> isnumeric(faces)
+0091     <span class="comment">% array FACES is a NC*NV indices array, with NV : number of vertices of</span>
+0092     <span class="comment">% each face, and NC number of faces</span>
+0093     h = patch(<span class="string">'vertices'</span>, vertices, <span class="string">'faces'</span>, faces, varargin{:});
+0094 
+0095 <span class="keyword">elseif</span> iscell(faces)
+0096     <span class="comment">% array FACES is a cell array</span>
+0097     h = zeros(length(faces(:)), 1);
+0098 
+0099     <span class="keyword">for</span> f=1:length(faces(:))
+0100         <span class="comment">% get vertices of the cell</span>
+0101         face = faces{f};
+0102 
+0103         <span class="comment">% Special processing in case of multiple polygonal face:</span>
+0104         <span class="comment">% each polygonal loop is separated by a NaN.</span>
+0105         <span class="keyword">if</span> sum(isnan(face))~=0
+0106             
+0107             <span class="comment">% find indices of loops breaks</span>
+0108             inds = find(isnan(face));
+0109             
+0110             <span class="comment">% replace NaNs by index of first vertex of each polygon</span>
+0111             face(inds(2:end))   = face(inds(1:end-1)+1);
+0112             face(inds(1))       = face(1);
+0113             face(length(face)+1)= face(inds(end)+1);            
+0114         <span class="keyword">end</span>
+0115         
+0116         <span class="comment">% draw current face</span>
+0117         cnodes  = vertices(face, :);
+0118         h(f)    = patch(cnodes(:, 1), cnodes(:, 2), cnodes(:, 3), [1 0 0]);
+0119     <span class="keyword">end</span>
+0120     
+0121     <span class="comment">% set up drawing options</span>
+0122     set(h, varargin{:});
+0123 <span class="keyword">else</span>
+0124     error(<span class="string">'second argument must be a face array'</span>);
+0125 <span class="keyword">end</span>
+0126 
+0127 
+0128 <span class="comment">%% Process output arguments</span>
+0129 
+0130 <span class="comment">% format output parameters</span>
+0131 <span class="keyword">if</span> nargout&gt;0
+0132     varargout{1}=h;
+0133 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

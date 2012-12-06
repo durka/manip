@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of rectAsPolygon</title>
+  <meta name="keywords" content="rectAsPolygon">
+  <meta name="description" content="RECTASPOLYGON Convert a (centered) rectangle into a series of points">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; rectAsPolygon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>rectAsPolygon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>RECTASPOLYGON Convert a (centered) rectangle into a series of points</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = rectAsPolygon(rect) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">RECTASPOLYGON Convert a (centered) rectangle into a series of points
+
+   P = rectAsPolygon(RECT);
+   Converts rectangle given as [x0 y0 w h] or [x0 y0 w h theta] into a
+   4*2 array double, containing coordinate of rectangle vertices.
+
+   See also:
+   polygons2d, drawRect, drawOrientedBox, <a href="drawPolygon.html" class="code" title="function varargout = drawPolygon(varargin)">drawPolygon</a>
+
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 06/04/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom2d/drawShape.html" class="code" title="function varargout = drawShape(type, param, varargin)">drawShape</a>	DRAWSHAPE Draw various types of shapes (circles, polygons...)</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = rectAsPolygon(rect)</a>
+0002 <span class="comment">%RECTASPOLYGON Convert a (centered) rectangle into a series of points</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   P = rectAsPolygon(RECT);</span>
+0005 <span class="comment">%   Converts rectangle given as [x0 y0 w h] or [x0 y0 w h theta] into a</span>
+0006 <span class="comment">%   4*2 array double, containing coordinate of rectangle vertices.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   See also:</span>
+0009 <span class="comment">%   polygons2d, drawRect, drawOrientedBox, drawPolygon</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   ---------</span>
+0013 <span class="comment">%   author : David Legland</span>
+0014 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0015 <span class="comment">%   created the 06/04/2005.</span>
+0016 <span class="comment">%</span>
+0017 
+0018 <span class="comment">%   HISTORY</span>
+0019 
+0020 theta = 0;
+0021 x = rect(1);
+0022 y = rect(2);
+0023 w = rect(3)/2;  <span class="comment">% easier to compute with w and h divided by 2</span>
+0024 h = rect(4)/2;
+0025 <span class="keyword">if</span> length(rect)&gt;4
+0026     theta = rect(5);
+0027 <span class="keyword">end</span>
+0028 
+0029 cot = cos(theta);
+0030 sit = sin(theta);
+0031 
+0032 tx(1) = x - w*cot + h*sit;
+0033 ty(1) = y - w*sit - h*cot;
+0034 tx(2) = x + w*cot + h*sit;
+0035 ty(2) = y + w*sit - h*cot;
+0036 tx(3) = x + w*cot - h*sit;
+0037 ty(3) = y + w*sit + h*cot;
+0038 tx(4) = x - w*cot - h*sit;
+0039 ty(4) = y - w*sit + h*cot;
+0040 
+0041 
+0042 <span class="keyword">if</span> nargout==1
+0043     varargout{1}=[tx' ty'];
+0044 <span class="keyword">elseif</span> nargout==2
+0045     varargout{1}=tx';
+0046     varargout{2}=ty';    
+0047 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

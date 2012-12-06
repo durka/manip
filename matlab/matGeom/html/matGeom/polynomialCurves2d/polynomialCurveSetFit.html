@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polynomialCurveSetFit</title>
+  <meta name="keywords" content="polynomialCurveSetFit">
+  <meta name="description" content="POLYNOMIALCURVESETFIT Fit a set of polynomial curves to a segmented image">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polynomialCurves2d</a> &gt; polynomialCurveSetFit.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polynomialCurves2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polynomialCurveSetFit
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYNOMIALCURVESETFIT Fit a set of polynomial curves to a segmented image</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [coefs lblBranches] = polynomialCurveSetFit(seg, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYNOMIALCURVESETFIT Fit a set of polynomial curves to a segmented image
+
+   COEFS = polynomialCurveSetFit(IMG);
+   COEFS = polynomialCurveSetFit(IMG, DEG);
+   Result is a cell array of matrices. Each matrix is DEG+1-by-2, and
+   contains coefficients of polynomial curve for each coordinate.
+   IMG is first binarised, then skeletonized. Each cure
+
+   [COEFS LBL] = polynomialCurveSetFit(...);
+   also returns an image of labels for the segmented curves. The max label
+   is the number of curves, and the length of COEFS.
+
+   Requires the toolboxes:
+   - Optimization
+   - Image Processing
+
+   Example
+   polynomialCurveSetFit
+
+   See also
+   polynomialCurves2d, <a href="polynomialCurveFit.html" class="code" title="function varargout = polynomialCurveFit(t, varargin)">polynomialCurveFit</a>
+
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2007-03-21
+ Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom2d/minDistancePoints.html" class="code" title="function varargout = minDistancePoints(p1, varargin)">minDistancePoints</a>	MINDISTANCEPOINTS Minimal distance between several points</li><li><a href="../.././matGeom/polygons2d/parametrize.html" class="code" title="function par = parametrize(varargin)">parametrize</a>	PARAMETRIZE Parametrization of a polyline, based on edges lengths</li><li><a href="polynomialCurveFit.html" class="code" title="function varargout = polynomialCurveFit(t, varargin)">polynomialCurveFit</a>	POLYNOMIALCURVEFIT Fit a polynomial curve to a series of points</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function points = chainPixels(img, varargin)</a></li></ul>
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [coefs lblBranches] = polynomialCurveSetFit(seg, varargin)</a>
+0002 <span class="comment">%POLYNOMIALCURVESETFIT Fit a set of polynomial curves to a segmented image</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   COEFS = polynomialCurveSetFit(IMG);</span>
+0005 <span class="comment">%   COEFS = polynomialCurveSetFit(IMG, DEG);</span>
+0006 <span class="comment">%   Result is a cell array of matrices. Each matrix is DEG+1-by-2, and</span>
+0007 <span class="comment">%   contains coefficients of polynomial curve for each coordinate.</span>
+0008 <span class="comment">%   IMG is first binarised, then skeletonized. Each cure</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   [COEFS LBL] = polynomialCurveSetFit(...);</span>
+0011 <span class="comment">%   also returns an image of labels for the segmented curves. The max label</span>
+0012 <span class="comment">%   is the number of curves, and the length of COEFS.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   Requires the toolboxes:</span>
+0015 <span class="comment">%   - Optimization</span>
+0016 <span class="comment">%   - Image Processing</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%   Example</span>
+0019 <span class="comment">%   polynomialCurveSetFit</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%   See also</span>
+0022 <span class="comment">%   polynomialCurves2d, polynomialCurveFit</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% ------</span>
+0026 <span class="comment">% Author: David Legland</span>
+0027 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0028 <span class="comment">% Created: 2007-03-21</span>
+0029 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0030 
+0031 <span class="comment">% default degree for curves</span>
+0032 deg = 2;
+0033 <span class="keyword">if</span> ~isempty(varargin)
+0034     deg = varargin{1};
+0035 <span class="keyword">end</span>
+0036 
+0037 
+0038 <span class="comment">% ajoute un contour</span>
+0039 seg([1 end], :) = 1;
+0040 seg(:, [1 end]) = 1;
+0041 
+0042 <span class="comment">% skeletise le segmentat</span>
+0043 seg = bwmorph(seg, <span class="string">'shrink'</span>, Inf);
+0044 
+0045 <span class="comment">% compute image of multiple points (intersections between curves)</span>
+0046 imgNodes = imfilter(double(seg), ones([3 3])) .* seg &gt; 3;
+0047 
+0048 <span class="comment">% compute coordinate of nodes, as c entroids of the multiple points</span>
+0049 lblNodes = bwlabel(imgNodes, 4);
+0050 struct   = regionprops(lblNodes, <span class="string">'Centroid'</span>);
+0051 nodes = zeros(length(struct), 2);
+0052 <span class="keyword">for</span> i=1:length(struct)
+0053     nodes(i, 1:2) = struct(i).Centroid;
+0054 <span class="keyword">end</span>
+0055 
+0056 <span class="comment">% enleve les bords de l'image</span>
+0057 seg([1 end], :) = 0;
+0058 seg(:, [1 end]) = 0;
+0059 
+0060 <span class="comment">% Isoles les branches</span>
+0061 imgBranches = seg &amp; ~imgNodes;
+0062 lblBranches = bwlabel(imgBranches, 8);
+0063 
+0064 <span class="comment">% % donne une couleur a chaque branche, et affiche</span>
+0065 <span class="comment">% map = colorcube(max(lblBranches(:))+1);</span>
+0066 <span class="comment">% rgbBranches = label2rgb(lblBranches, map, 'w', 'shuffle');</span>
+0067 <span class="comment">% imshow(rgbBranches);</span>
+0068 
+0069 <span class="comment">% number of curves</span>
+0070 nBranches = max(lblBranches(:));
+0071 
+0072 <span class="comment">% allocate memory</span>
+0073 coefs = cell(nBranches, 1);
+0074 
+0075 
+0076 <span class="comment">% For each curve, find interpolated polynomial curve</span>
+0077 <span class="keyword">for</span> i = 1:nBranches
+0078     disp(i);
+0079     
+0080     <span class="comment">% extract points corresponding to current curve</span>
+0081     imgBranch = lblBranches == i;
+0082     points = <a href="#_sub1" class="code" title="subfunction points = chainPixels(img, varargin)">chainPixels</a>(imgBranch);
+0083     
+0084     <span class="comment">% check number of points is sufficient</span>
+0085     <span class="keyword">if</span> size(points, 1) &lt; max(deg+1-2, 2)
+0086         <span class="comment">% find labels of nodes</span>
+0087         inds = unique(lblNodes(imdilate(imgBranch, ones(3,3))));
+0088         inds = inds(inds ~= 0);
+0089         
+0090         <span class="keyword">if</span> length(inds) &lt; 2
+0091             disp([<span class="string">'Could not find extremities of branch number '</span> num2str(i)]);
+0092             <span class="keyword">continue</span>;
+0093         <span class="keyword">end</span>
+0094         
+0095         <span class="comment">% consider extremity nodes</span>
+0096         node0 = nodes(inds(1), :);
+0097         node1 = nodes(inds(2), :);
+0098         
+0099         <span class="comment">% use only a linear approximation</span>
+0100         xc = zeros(1, deg+1);
+0101         yc = zeros(1, deg+1);
+0102         xc(1) = node0(1);
+0103         yc(1) = node0(2);
+0104         xc(2) = node1(1)-node0(1);
+0105         yc(2) = node1(2)-node0(2);
+0106         
+0107         <span class="comment">% assigne au tableau de courbes</span>
+0108         coefs{i} = [xc;yc];
+0109         
+0110         <span class="comment">% next branch</span>
+0111         <span class="keyword">continue</span>;
+0112     <span class="keyword">end</span>
+0113 
+0114     <span class="comment">% find nodes closest to first and last points of the current curve</span>
+0115     [dist, ind0] = <a href="../.././matGeom/geom2d/minDistancePoints.html" class="code" title="function varargout = minDistancePoints(p1, varargin)">minDistancePoints</a>(points(1, :), nodes); <span class="comment">%#ok&lt;*ASGLU&gt;</span>
+0116     [dist, ind1] = <a href="../.././matGeom/geom2d/minDistancePoints.html" class="code" title="function varargout = minDistancePoints(p1, varargin)">minDistancePoints</a>(points(<span class="keyword">end</span>, :), nodes);
+0117     
+0118     <span class="comment">% add nodes to the curve.</span>
+0119     points = [nodes(ind0,:); points; nodes(ind1,:)]; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0120     
+0121     <span class="comment">% parametrization of the polyline</span>
+0122     t = <a href="../.././matGeom/polygons2d/parametrize.html" class="code" title="function par = parametrize(varargin)">parametrize</a>(points);
+0123     t = t / max(t);
+0124     
+0125     <span class="comment">% fit a polynomial curve to the set of points</span>
+0126     [xc yc] = <a href="polynomialCurveFit.html" class="code" title="function varargout = polynomialCurveFit(t, varargin)">polynomialCurveFit</a>(<span class="keyword">...</span>
+0127         t, points, deg, <span class="keyword">...</span>
+0128         0, {points(1,1), points(1,2)},<span class="keyword">...</span>
+0129         1, {points(<span class="keyword">end</span>,1), points(<span class="keyword">end</span>,2)});
+0130     
+0131     <span class="comment">% stores result</span>
+0132     coefs{i} = [xc;yc];
+0133 <span class="keyword">end</span>
+0134 
+0135 
+0136 
+0137 
+0138 <a name="_sub1" href="#_subfunctions" class="code">function points = chainPixels(img, varargin)</a>
+0139 <span class="comment">%CHAINPIXELS return the list of points which constitute a curve on image</span>
+0140 <span class="comment">%   output = chainPixels(input)</span>
+0141 <span class="comment">%</span>
+0142 <span class="comment">%   Example</span>
+0143 <span class="comment">%   chainPixels</span>
+0144 <span class="comment">%</span>
+0145 <span class="comment">%   See also</span>
+0146 <span class="comment">%</span>
+0147 <span class="comment">%</span>
+0148 <span class="comment">% ------</span>
+0149 <span class="comment">% Author: David Legland</span>
+0150 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0151 <span class="comment">% Created: 2007-03-21</span>
+0152 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0153 
+0154 
+0155 conn = 8;
+0156 <span class="keyword">if</span> ~isempty(varargin)
+0157     conn = varargin{1};
+0158 <span class="keyword">end</span>
+0159 
+0160 <span class="comment">% matrice de voisinage</span>
+0161 <span class="keyword">if</span> conn == 4
+0162     f = [0 1 0;1 1 1;0 1 0];
+0163 <span class="keyword">elseif</span> conn == 8
+0164     f = ones([3 3]);
+0165 <span class="keyword">end</span>
+0166 
+0167 <span class="comment">% find extremity points</span>
+0168 nb = imfilter(double(img), f) .* img;
+0169 imgEnding = nb == 2 | nb == 1;
+0170 [yi xi] = find(imgEnding);
+0171 
+0172 <span class="comment">% extract coordinates of points</span>
+0173 [y x] = find(img);
+0174 
+0175 <span class="comment">% index of first point</span>
+0176 <span class="keyword">if</span> isempty(xi)
+0177     <span class="comment">% take arbitrary point</span>
+0178     ind = 1;
+0179 <span class="keyword">else</span>
+0180     ind = find(x==xi(1) &amp; y==yi(1));
+0181 <span class="keyword">end</span>
+0182 
+0183 <span class="comment">% allocate memory</span>
+0184 points  = zeros(length(x), 2);
+0185 
+0186 <span class="keyword">if</span> conn == 8
+0187     <span class="keyword">for</span> i = 1:size(points, 1)
+0188         <span class="comment">% avoid multiple neighbors (can happen in loops)</span>
+0189         ind = ind(1);
+0190         
+0191         <span class="comment">% add current point to chained curve</span>
+0192         points(i,:) = [x(ind) y(ind)];
+0193 
+0194         <span class="comment">% remove processed coordinate</span>
+0195         x(ind) = [];
+0196         y(ind) = [];
+0197 
+0198         <span class="comment">% find next candidate</span>
+0199         ind = find(abs(x-points(i,1))&lt;=1 &amp; abs(y-points(i,2))&lt;=1);
+0200     <span class="keyword">end</span>
+0201     
+0202 <span class="keyword">else</span>
+0203     <span class="keyword">for</span> i = 1:size(points, 1)
+0204         <span class="comment">% avoid multiple neighbors (can happen in loops)</span>
+0205         ind = ind(1);
+0206         
+0207         <span class="comment">% add current point to chained curve</span>
+0208         points(i,:) = [x(ind) y(ind)];
+0209 
+0210         <span class="comment">% remove processed coordinate</span>
+0211         x(ind) = [];
+0212         y(ind) = [];
+0213 
+0214         <span class="comment">% find next candidate</span>
+0215         ind = find(abs(x-points(i,1)) + abs(y-points(i,2)) &lt;=1 );
+0216     <span class="keyword">end</span>
+0217 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polygonSelfIntersections</title>
+  <meta name="keywords" content="polygonSelfIntersections">
+  <meta name="description" content="POLYGONSELFINTERSECTIONS Find self-intersection points of a polygon">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; polygonSelfIntersections.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polygonSelfIntersections
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYGONSELFINTERSECTIONS Find self-intersection points of a polygon</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = polygonSelfIntersections(poly, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYGONSELFINTERSECTIONS Find self-intersection points of a polygon
+
+   PTS = polygonSelfIntersections(POLY)
+   Return the position of self intersection points
+
+   [PTS POS1 POS2] = polygonSelfIntersections(POLY)
+   Also return the 2 positions of each intersection point (the position
+   when meeting point for first time, then position when meeting point
+   for the second time).
+
+   Example
+       % use a '8'-shaped polygon
+       poly = [10 0;0 0;0 10;20 10;20 20;10 20];
+       polygonSelfIntersections(poly)
+       ans = 
+           10 10
+
+   See also
+   polygons2d, <a href="polylineSelfIntersections.html" class="code" title="function varargout = polylineSelfIntersections(poly, varargin)">polylineSelfIntersections</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2009-06-15,    using Matlab 7.7.0.471 (R2008b)
+ Copyright 2009 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polylineSelfIntersections.html" class="code" title="function varargout = polylineSelfIntersections(poly, varargin)">polylineSelfIntersections</a>	POLYLINESELFINTERSECTIONS Find self-intersection points of a polyline</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polygonLoops.html" class="code" title="function loops = polygonLoops(poly)">polygonLoops</a>	POLYGONLOOPS Divide a possibly self-intersecting polygon into a set of simple loops</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = polygonSelfIntersections(poly, varargin)</a>
+0002 <span class="comment">%POLYGONSELFINTERSECTIONS Find self-intersection points of a polygon</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   PTS = polygonSelfIntersections(POLY)</span>
+0005 <span class="comment">%   Return the position of self intersection points</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   [PTS POS1 POS2] = polygonSelfIntersections(POLY)</span>
+0008 <span class="comment">%   Also return the 2 positions of each intersection point (the position</span>
+0009 <span class="comment">%   when meeting point for first time, then position when meeting point</span>
+0010 <span class="comment">%   for the second time).</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   Example</span>
+0013 <span class="comment">%       % use a '8'-shaped polygon</span>
+0014 <span class="comment">%       poly = [10 0;0 0;0 10;20 10;20 20;10 20];</span>
+0015 <span class="comment">%       polygonSelfIntersections(poly)</span>
+0016 <span class="comment">%       ans =</span>
+0017 <span class="comment">%           10 10</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   See also</span>
+0020 <span class="comment">%   polygons2d, polylineSelfIntersections</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% ------</span>
+0023 <span class="comment">% Author: David Legland</span>
+0024 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0025 <span class="comment">% Created: 2009-06-15,    using Matlab 7.7.0.471 (R2008b)</span>
+0026 <span class="comment">% Copyright 2009 INRA - Cepia Software Platform.</span>
+0027 
+0028 <span class="comment">%   HISTORY</span>
+0029 <span class="comment">%   2011-06-22 fix bug when removing origin vertex (thanks to Federico</span>
+0030 <span class="comment">%       Bonelli)</span>
+0031 
+0032 tol = 1e-14;
+0033 
+0034 <span class="comment">% ensure the last point equals the first one</span>
+0035 <span class="keyword">if</span> sum(abs(poly(<span class="keyword">end</span>, :)-poly(1,:)) &lt; tol) ~= 2
+0036     poly = [poly; poly(1,:)];
+0037 <span class="keyword">end</span>
+0038 
+0039 <span class="comment">% compute intersections by calling algo for polylines</span>
+0040 [points pos1 pos2] = <a href="polylineSelfIntersections.html" class="code" title="function varargout = polylineSelfIntersections(poly, varargin)">polylineSelfIntersections</a>(poly, <span class="string">'closed'</span>);
+0041 
+0042 <span class="comment">% It may append that first vertex of polygon is detected as intersection,</span>
+0043 <span class="comment">% the following tries to detect this</span>
+0044 n = size(poly, 1) - 1;
+0045 inds = (pos1 == 0 &amp; pos2 == n) | (pos1 == n &amp; pos2 == 0);
+0046 points(inds, :) = [];
+0047 pos1(inds)   = [];
+0048 pos2(inds)   = [];
+0049 
+0050 <span class="comment">% remove multiple intersections</span>
+0051 [points I J] = unique(points, <span class="string">'rows'</span>, <span class="string">'first'</span>); <span class="comment">%#ok&lt;NASGU&gt;</span>
+0052 pos1 = pos1(I);
+0053 pos2 = pos2(I);
+0054 
+0055 
+0056 <span class="comment">%% Post-processing</span>
+0057 
+0058 <span class="comment">% process output arguments</span>
+0059 <span class="keyword">if</span> nargout &lt;= 1
+0060     varargout = {points};
+0061 <span class="keyword">elseif</span> nargout == 3
+0062     varargout = {points, pos1, pos2};
+0063 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

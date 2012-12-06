@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of isLeftOriented</title>
+  <meta name="keywords" content="isLeftOriented">
+  <meta name="description" content="ISLEFTORIENTED Test if a point is on the left side of a line">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; isLeftOriented.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>isLeftOriented
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>ISLEFTORIENTED Test if a point is on the left side of a line</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function b = isLeftOriented(point, line) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ISLEFTORIENTED Test if a point is on the left side of a line
+
+   B = isLeftOriented(POINT, LINE);
+   Returns TRUE if the point lies on the left side of the line with
+   respect to the line direction.
+
+   See also:
+   <a href="lines2d.html" class="code" title="function lines2d(varargin)">lines2d</a>, <a href="points2d.html" class="code" title="function points2d">points2d</a>, <a href="isCounterClockwise.html" class="code" title="function res = isCounterClockwise(p1, p2, p3, varargin)">isCounterClockwise</a>, <a href="isPointOnLine.html" class="code" title="function b = isPointOnLine(point, line, varargin)">isPointOnLine</a>, <a href="distancePointLine.html" class="code" title="function [dist pos] = distancePointLine(point, line)">distancePointLine</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 31/07/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/polygons2d/clipPolygonHP.html" class="code" title="function poly2 = clipPolygonHP(poly, line)">clipPolygonHP</a>	CLIPPOLYGONHP Clip a polygon with a Half-plane defined by a directed line</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function b = isLeftOriented(point, line)</a>
+0002 <span class="comment">%ISLEFTORIENTED Test if a point is on the left side of a line</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   B = isLeftOriented(POINT, LINE);</span>
+0005 <span class="comment">%   Returns TRUE if the point lies on the left side of the line with</span>
+0006 <span class="comment">%   respect to the line direction.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   See also:</span>
+0009 <span class="comment">%   lines2d, points2d, isCounterClockwise, isPointOnLine, distancePointLine</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   ---------</span>
+0012 <span class="comment">%   author : David Legland</span>
+0013 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0014 <span class="comment">%   created the 31/07/2005.</span>
+0015 <span class="comment">%</span>
+0016 
+0017 Nl = size(line, 1);
+0018 Np = size(point, 1);
+0019 
+0020 x0 = repmat(line(:,1)', Np, 1);
+0021 y0 = repmat(line(:,2)', Np, 1);
+0022 dx = repmat(line(:,3)', Np, 1);
+0023 dy = repmat(line(:,4)', Np, 1);
+0024 xp = repmat(point(:,1), 1, Nl);
+0025 yp = repmat(point(:,2), 1, Nl);
+0026 
+0027 
+0028 b = (xp-x0).*dy-(yp-y0).*dx &lt; 0;</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

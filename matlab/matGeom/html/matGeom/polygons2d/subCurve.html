@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of subCurve</title>
+  <meta name="keywords" content="subCurve">
+  <meta name="description" content="SUBCURVE  extract a portion of a curve">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; subCurve.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>subCurve
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>SUBCURVE  extract a portion of a curve</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function res = subCurve(curve, P1, P2, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">SUBCURVE  extract a portion of a curve
+
+   CURVE2 = subCurve(CURVE, POS1, POS2)
+   extract a subcurve by keeping only points located between indices POS1
+   and POS2. If POS1&gt;POS2, function considers all points after POS1 and
+   all points before POS2.
+
+   CURVE2 = subCurve(CURVE, POS1, POS2, DIRECT)
+   If DIRECT is false, curve points are taken in reverse order, from POS1
+   to POS2 with -1 increment, or from POS1 to 1, then from last point to
+   POS2 index. If direct is true, behaviour corresponds to the first
+   described case.
+
+   Example
+   C = circleAsPolygon([0 0 10], 120);
+   C2 = subCurve(C, 30, 60);
+
+   See also
+   polygons2d
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2007-08-23,    using Matlab 7.4.0.287 (R2007a)
+ Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function res = subCurve(curve, P1, P2, varargin)</a>
+0002 <span class="comment">%SUBCURVE  extract a portion of a curve</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   CURVE2 = subCurve(CURVE, POS1, POS2)</span>
+0005 <span class="comment">%   extract a subcurve by keeping only points located between indices POS1</span>
+0006 <span class="comment">%   and POS2. If POS1&gt;POS2, function considers all points after POS1 and</span>
+0007 <span class="comment">%   all points before POS2.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   CURVE2 = subCurve(CURVE, POS1, POS2, DIRECT)</span>
+0010 <span class="comment">%   If DIRECT is false, curve points are taken in reverse order, from POS1</span>
+0011 <span class="comment">%   to POS2 with -1 increment, or from POS1 to 1, then from last point to</span>
+0012 <span class="comment">%   POS2 index. If direct is true, behaviour corresponds to the first</span>
+0013 <span class="comment">%   described case.</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   Example</span>
+0016 <span class="comment">%   C = circleAsPolygon([0 0 10], 120);</span>
+0017 <span class="comment">%   C2 = subCurve(C, 30, 60);</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   See also</span>
+0020 <span class="comment">%   polygons2d</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% ------</span>
+0023 <span class="comment">% Author: David Legland</span>
+0024 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0025 <span class="comment">% Created: 2007-08-23,    using Matlab 7.4.0.287 (R2007a)</span>
+0026 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0027 
+0028 <span class="comment">% deprecation warning</span>
+0029 warning(<span class="string">'geom2d:deprecated'</span>, <span class="keyword">...</span>
+0030     <span class="string">'''subCurve'' will be deprecated in a future release, please consider using ''polylineSubcurve'''</span>);
+0031 
+0032 <span class="comment">% check if curve is inverted</span>
+0033 direct = true;
+0034 <span class="keyword">if</span> ~isempty(varargin)
+0035     direct = varargin{1};
+0036 <span class="keyword">end</span>
+0037 
+0038 <span class="comment">% process different cases</span>
+0039 <span class="keyword">if</span> direct
+0040     <span class="keyword">if</span> P1&lt;P2
+0041         res = curve(P1:P2, :);
+0042     <span class="keyword">else</span>
+0043         res = curve([P1:end 1:P2], :);
+0044     <span class="keyword">end</span>
+0045 <span class="keyword">else</span>
+0046     <span class="keyword">if</span> P1&lt;P2
+0047         res = curve([P1:-1:1 end:-1:P2], :);
+0048     <span class="keyword">else</span>
+0049         res = curve(P1:-1:P2, :);
+0050     <span class="keyword">end</span>
+0051 <span class="keyword">end</span>
+0052</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of rowToPolygon</title>
+  <meta name="keywords" content="rowToPolygon">
+  <meta name="description" content="ROWTOPOLYGON  Create a polygon from a row vector">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; rowToPolygon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>rowToPolygon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>ROWTOPOLYGON  Create a polygon from a row vector</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function poly = rowToPolygon(row, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ROWTOPOLYGON  Create a polygon from a row vector
+
+   POLY = rowToPolygon(ROW)
+   Convert a 1-by-2*N row vector that concatenates all polygon vertex
+   coordinates into a N-by-2 array of coordinates.
+   Default ordering of coordinates in ROW is:
+   [X1 Y1 X2 Y2 X3 Y3 .... XN YN].
+
+   POLY = rowToPolygon(ROW, METHOD)
+   Specifies the method for concatenating coordinates. METHOS is one of:
+   'interlaced': default method, described above.
+   'packed': the vector ROW has format:
+   [X1 X2 X3 ... XN Y1 Y2 Y3 ... YN].
+
+   Example
+   % Concatenate coordinates of a circle and draw it as a polygon
+     t = linspace (0, 2*pi, 200);
+     row = [cos(t) sin(t)];
+     poly = rowToPolygon(row, 'packed');
+     figure;drawPolygon(poly)
+
+   See also
+   polygons2d, <a href="polygonToRow.html" class="code" title="function row = polygonToRow(polygon, varargin)">polygonToRow</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2010-07-23,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2010 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function poly = rowToPolygon(row, varargin)</a>
+0002 <span class="comment">%ROWTOPOLYGON  Create a polygon from a row vector</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   POLY = rowToPolygon(ROW)</span>
+0005 <span class="comment">%   Convert a 1-by-2*N row vector that concatenates all polygon vertex</span>
+0006 <span class="comment">%   coordinates into a N-by-2 array of coordinates.</span>
+0007 <span class="comment">%   Default ordering of coordinates in ROW is:</span>
+0008 <span class="comment">%   [X1 Y1 X2 Y2 X3 Y3 .... XN YN].</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   POLY = rowToPolygon(ROW, METHOD)</span>
+0011 <span class="comment">%   Specifies the method for concatenating coordinates. METHOS is one of:</span>
+0012 <span class="comment">%   'interlaced': default method, described above.</span>
+0013 <span class="comment">%   'packed': the vector ROW has format:</span>
+0014 <span class="comment">%   [X1 X2 X3 ... XN Y1 Y2 Y3 ... YN].</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   Example</span>
+0017 <span class="comment">%   % Concatenate coordinates of a circle and draw it as a polygon</span>
+0018 <span class="comment">%     t = linspace (0, 2*pi, 200);</span>
+0019 <span class="comment">%     row = [cos(t) sin(t)];</span>
+0020 <span class="comment">%     poly = rowToPolygon(row, 'packed');</span>
+0021 <span class="comment">%     figure;drawPolygon(poly)</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   See also</span>
+0024 <span class="comment">%   polygons2d, polygonToRow</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% ------</span>
+0027 <span class="comment">% Author: David Legland</span>
+0028 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0029 <span class="comment">% Created: 2010-07-23,    using Matlab 7.9.0.529 (R2009b)</span>
+0030 <span class="comment">% Copyright 2010 INRA - Cepia Software Platform.</span>
+0031 
+0032 type = <span class="string">'interlaced'</span>;
+0033 <span class="keyword">if</span> ~isempty(varargin)
+0034     type = varargin{1};
+0035 <span class="keyword">end</span>
+0036 
+0037 <span class="comment">% polygon vertex number</span>
+0038 Np = length(row)/2;
+0039     
+0040 <span class="keyword">if</span> strcmp(type, <span class="string">'interlaced'</span>)
+0041     <span class="comment">% ordering is [X1 Y1 X2 X2... XN YN]</span>
+0042     poly = reshape(row, [2 Np])';
+0043     
+0044 <span class="keyword">elseif</span> strcmp(type, <span class="string">'packed'</span>)
+0045     <span class="comment">% ordering is [X1 X2 X3... XN Y1 Y2 Y3... YN]</span>
+0046     poly = [row(1:Np)' row(Np+1:end)'];
+0047 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

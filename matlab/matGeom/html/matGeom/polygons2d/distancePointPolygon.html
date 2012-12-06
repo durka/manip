@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of distancePointPolygon</title>
+  <meta name="keywords" content="distancePointPolygon">
+  <meta name="description" content="DISTANCEPOINTPOLYGON  Compute shortest distance between a point and a polygon">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; distancePointPolygon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>distancePointPolygon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>DISTANCEPOINTPOLYGON  Compute shortest distance between a point and a polygon</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = distancePointPolygon(point, poly) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">DISTANCEPOINTPOLYGON  Compute shortest distance between a point and a polygon
+   output = distancePointPolygon(POINT, POLYGON)
+
+   Example
+   distancePointPolygon
+
+   See also
+   polygons2d, points2d, <a href="distancePointPolyline.html" class="code" title="function varargout = distancePointPolyline(point, poly, varargin)">distancePointPolyline</a>
+   distancePointEdge, <a href="projPointOnPolyline.html" class="code" title="function varargout = projPointOnPolyline(point, poly, varargin)">projPointOnPolyline</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2009-04-30,    using Matlab 7.7.0.471 (R2008b)
+ Copyright 2009 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="distancePointPolyline.html" class="code" title="function varargout = distancePointPolyline(point, poly, varargin)">distancePointPolyline</a>	DISTANCEPOINTPOLYLINE  Compute shortest distance between a point and a polyline</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="distancePolygons.html" class="code" title="function dist = distancePolygons(poly1, poly2)">distancePolygons</a>	DISTANCEPOLYGONS Compute the shortest distance between 2 polygons</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = distancePointPolygon(point, poly)</a>
+0002 <span class="comment">%DISTANCEPOINTPOLYGON  Compute shortest distance between a point and a polygon</span>
+0003 <span class="comment">%   output = distancePointPolygon(POINT, POLYGON)</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">%   Example</span>
+0006 <span class="comment">%   distancePointPolygon</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   See also</span>
+0009 <span class="comment">%   polygons2d, points2d, distancePointPolyline</span>
+0010 <span class="comment">%   distancePointEdge, projPointOnPolyline</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% ------</span>
+0013 <span class="comment">% Author: David Legland</span>
+0014 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0015 <span class="comment">% Created: 2009-04-30,    using Matlab 7.7.0.471 (R2008b)</span>
+0016 <span class="comment">% Copyright 2009 INRA - Cepia Software Platform.</span>
+0017 
+0018 <span class="comment">% eventually copy first point at the end to ensure closed polygon</span>
+0019 <span class="keyword">if</span> sum(poly(<span class="keyword">end</span>, :)==poly(1,:))~=2
+0020     poly = [poly; poly(1,:)];
+0021 <span class="keyword">end</span>
+0022 
+0023 <span class="comment">% call to distancePointPolyline</span>
+0024 minDist = <a href="distancePointPolyline.html" class="code" title="function varargout = distancePointPolyline(point, poly, varargin)">distancePointPolyline</a>(point, poly);
+0025 
+0026 <span class="comment">% process output arguments</span>
+0027 <span class="keyword">if</span> nargout&lt;=1
+0028     varargout{1} = minDist;
+0029 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

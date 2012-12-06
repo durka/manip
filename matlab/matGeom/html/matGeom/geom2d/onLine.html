@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of onLine</title>
+  <meta name="keywords" content="onLine">
+  <meta name="description" content="ONLINE test if a point belongs to a line">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; onLine.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>onLine
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>ONLINE test if a point belongs to a line</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function b = onLine(point, line) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ONLINE test if a point belongs to a line
+
+   B = onLine(POINT, LINE)
+   with POINT being [xp yp], and LINE being [x0 y0 dx dy].
+   Returns 1 if point lies on the line, 0 otherwise.
+
+   If POINT is an N*2 array of points, B is a N*1 array of booleans.
+
+   If LINE is a N*4 arrat of line, B is a 1*N array of booleans.
+
+   See also:
+   <a href="lines2d.html" class="code" title="function lines2d(varargin)">lines2d</a>, <a href="points2d.html" class="code" title="function points2d">points2d</a>, <a href="onEdge.html" class="code" title="function b = onEdge(point, edge)">onEdge</a>, <a href="onRay.html" class="code" title="function b = onRay(point, ray)">onRay</a>, <a href="angle3Points.html" class="code" title="function theta = angle3Points(varargin)">angle3Points</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 31/10/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function b = onLine(point, line)</a>
+0002 <span class="comment">%ONLINE test if a point belongs to a line</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   B = onLine(POINT, LINE)</span>
+0005 <span class="comment">%   with POINT being [xp yp], and LINE being [x0 y0 dx dy].</span>
+0006 <span class="comment">%   Returns 1 if point lies on the line, 0 otherwise.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   If POINT is an N*2 array of points, B is a N*1 array of booleans.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   If LINE is a N*4 arrat of line, B is a 1*N array of booleans.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   See also:</span>
+0013 <span class="comment">%   lines2d, points2d, onEdge, onRay, angle3Points</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   ---------</span>
+0016 <span class="comment">%   author : David Legland</span>
+0017 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0018 <span class="comment">%   created the 31/10/2003.</span>
+0019 <span class="comment">%</span>
+0020 
+0021 <span class="comment">%   HISTORY</span>
+0022 <span class="comment">%   11/03/2004 : support for multiple inputs</span>
+0023 <span class="comment">%   08/12/2004 : complete implementation, add doc</span>
+0024 <span class="comment">%   22/05/2009 deprecate</span>
+0025 
+0026 <span class="comment">% deprecation warning</span>
+0027 warning(<span class="string">'geom2d:deprecated'</span>, <span class="keyword">...</span>
+0028     <span class="string">'''onLine'' is deprecated, use ''isPointOnLine'' instead'</span>);
+0029 
+0030 Nl = size(line, 1);
+0031 Np = size(point, 1);
+0032 
+0033 x0 = repmat(line(:,1)', Np, 1);
+0034 y0 = repmat(line(:,2)', Np, 1);
+0035 dx = repmat(line(:,3)', Np, 1);
+0036 dy = repmat(line(:,4)', Np, 1);
+0037 xp = repmat(point(:,1), 1, Nl);
+0038 yp = repmat(point(:,2), 1, Nl);
+0039 
+0040 
+0041     
+0042 <span class="comment">% test if lines are colinear</span>
+0043 b = abs((xp-x0).*dy-(yp-y0).*dx)./sqrt(dx.*dx+dy.*dy) &lt; 1e-14;
+0044 
+0045 
+0046 
+0047 
+0048 
+0049 
+0050 
+0051 
+0052 
+0053 
+0054 
+0055 
+0056 
+0057 
+0058</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of boundedCentroidalVoronoi2d</title>
+  <meta name="keywords" content="boundedCentroidalVoronoi2d">
+  <meta name="description" content="BOUNDEDCENTROIDALVORONOI2D Create a 2D Centroidal Voronoi Tesselation in a box">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; boundedCentroidalVoronoi2d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>boundedCentroidalVoronoi2d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>BOUNDEDCENTROIDALVORONOI2D Create a 2D Centroidal Voronoi Tesselation in a box</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = boundedCentroidalVoronoi2d(germs, box, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">BOUNDEDCENTROIDALVORONOI2D Create a 2D Centroidal Voronoi Tesselation in a box
+
+   [N E F] = boundedCentroidalVoronoi2d(GERMS, BOX)
+   GERMS are N-by-2 point array, BOX is given as [xmin xmax ymin ymax].
+   Algorithm is an iteration of voronoi diagram computations, using at
+   each steps the centroids of previous diagram as germs for the new
+   diagram.
+
+   [N E F] = boundedCentroidalVoronoi2d(GERMS, BOX, NITER)
+   Specifies the number of iterations.
+
+   [N E F G] = boundedCentroidalVoronoi2d(...)
+   also returns the positions of germs/centroids for each face. If the
+   number of iteration was sufficient, location of germs should correspond
+   to centroids of faces 'fc' computed using: 
+   fc(i,:) = polygonCentroid(n(f{i}, :));
+
+   Example
+   [n e f] = boundedCentroidalVoronoi2d(rand(20, 2)*100, [0 100 0 100]);
+   drawGraph(n, e, f);
+
+   See also
+
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2007-01-12
+ Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="clipGraph.html" class="code" title="function varargout = clipGraph(nodes, edges, varargin)">clipGraph</a>	CLIPGRAPH Clip a graph with a rectangular area</li><li><a href="voronoi2d.html" class="code" title="function [nodes edges faces] = voronoi2d(germs)">voronoi2d</a>	VORONOI2D Compute a voronoi diagram as a graph structure</li><li><a href="../.././matGeom/polygons2d/polygonCentroid.html" class="code" title="function [centroid area] = polygonCentroid(varargin)">polygonCentroid</a>	POLYGONCENTROID Compute the centroid (center of mass) of a polygon</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = boundedCentroidalVoronoi2d(germs, box, varargin)</a>
+0002 <span class="comment">%BOUNDEDCENTROIDALVORONOI2D Create a 2D Centroidal Voronoi Tesselation in a box</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [N E F] = boundedCentroidalVoronoi2d(GERMS, BOX)</span>
+0005 <span class="comment">%   GERMS are N-by-2 point array, BOX is given as [xmin xmax ymin ymax].</span>
+0006 <span class="comment">%   Algorithm is an iteration of voronoi diagram computations, using at</span>
+0007 <span class="comment">%   each steps the centroids of previous diagram as germs for the new</span>
+0008 <span class="comment">%   diagram.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   [N E F] = boundedCentroidalVoronoi2d(GERMS, BOX, NITER)</span>
+0011 <span class="comment">%   Specifies the number of iterations.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   [N E F G] = boundedCentroidalVoronoi2d(...)</span>
+0014 <span class="comment">%   also returns the positions of germs/centroids for each face. If the</span>
+0015 <span class="comment">%   number of iteration was sufficient, location of germs should correspond</span>
+0016 <span class="comment">%   to centroids of faces 'fc' computed using:</span>
+0017 <span class="comment">%   fc(i,:) = polygonCentroid(n(f{i}, :));</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   Example</span>
+0020 <span class="comment">%   [n e f] = boundedCentroidalVoronoi2d(rand(20, 2)*100, [0 100 0 100]);</span>
+0021 <span class="comment">%   drawGraph(n, e, f);</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   See also</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% ------</span>
+0027 <span class="comment">% Author: David Legland</span>
+0028 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0029 <span class="comment">% Created: 2007-01-12</span>
+0030 <span class="comment">% Copyright 2007 INRA - BIA PV Nantes - MIAJ Jouy-en-Josas.</span>
+0031 
+0032 <span class="comment">% HISTORY</span>
+0033 <span class="comment">% 27/07/2007 add doc, and psb to specify number of iterations</span>
+0034 <span class="comment">% 18/09/2007 add psb to return germs of tessellation</span>
+0035 <span class="comment">% 23/02/2012 rename from centroidalVoronoi2d to boundedCentroidalVoronoi2d</span>
+0036 
+0037 <span class="comment">% number of iteration</span>
+0038 nIter = 10;
+0039 <span class="keyword">if</span> ~isempty(varargin)
+0040     nIter = varargin{1};
+0041 <span class="keyword">end</span>
+0042 
+0043 <span class="comment">% limits and size of the box</span>
+0044 x0 = box(1); x1 = box(2);
+0045 y0 = box(3); y1 = box(4);
+0046 dx = x1 - x0;  dy = y1 - y0;
+0047 
+0048 <span class="comment">% far points to bound the voronoi diagram</span>
+0049 farPoints = [<span class="keyword">...</span>
+0050     x1 + 10 * dx, y1 + 10 * dy;<span class="keyword">...</span>
+0051     x0 - 10 * dx, y1 + 10 * dy;<span class="keyword">...</span>
+0052     x0 - 10 * dx, y0 - 10 * dy;<span class="keyword">...</span>
+0053     x1 + 10 * dx, y0 - 10 * dy];
+0054 
+0055 <span class="comment">% iterate bounded voronoi tesselation</span>
+0056 <span class="keyword">for</span> i = 1:nIter
+0057     <span class="comment">% generate Voronoi diagram, and clip with the box</span>
+0058     [n e f] = <a href="voronoi2d.html" class="code" title="function [nodes edges faces] = voronoi2d(germs)">voronoi2d</a>([germs ; farPoints]);
+0059     [n e f] = <a href="clipGraph.html" class="code" title="function varargout = clipGraph(nodes, edges, varargin)">clipGraph</a>(n, e, f, box);
+0060     
+0061     <span class="comment">% centroid of each face will be used as germs for next iteration</span>
+0062     <span class="keyword">for</span> j = 1:length(f)
+0063         face = n(f{j}, :);
+0064         germs(j, 1:2) = <a href="../.././matGeom/polygons2d/polygonCentroid.html" class="code" title="function [centroid area] = polygonCentroid(varargin)">polygonCentroid</a>(face);
+0065     <span class="keyword">end</span>
+0066 <span class="keyword">end</span>
+0067 
+0068 <span class="comment">% result is given in n, e, and f, eventually germs</span>
+0069 varargout{1} = n;
+0070 varargout{2} = e;
+0071 varargout{3} = f;
+0072 <span class="keyword">if</span> nargout &gt; 3
+0073     varargout{4} = germs;
+0074 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

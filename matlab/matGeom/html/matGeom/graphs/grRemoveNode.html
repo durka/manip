@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of grRemoveNode</title>
+  <meta name="keywords" content="grRemoveNode">
+  <meta name="description" content="GRREMOVENODE Remove a node in a graph">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; grRemoveNode.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>grRemoveNode
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GRREMOVENODE Remove a node in a graph</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [nodes2, edges2] = grRemoveNode(nodes, edges, node) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GRREMOVENODE Remove a node in a graph
+ 
+   usage:
+   [NODES2 EDGES2] = grRemoveNode(NODES, EDGES, NODE2REMOVE)
+   remove the node with index NODE2REMOVE from array NODES, and also
+   remove edges containing the node NODE2REMOVE.
+
+   -----
+
+   author : David Legland 
+   INRA - TPV URPOI - BIA IMASTE
+   created the 13/08/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>	GRNEIGHBORNODES Find adjacent nodes of a given node</li><li><a href="grRemoveEdges.html" class="code" title="function [nodes2, edges2] = grRemoveEdges(nodes, edges, rmEdges)">grRemoveEdges</a>	GRREMOVEEDGES Remove several edges from a graph</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grMergeNodesMedian.html" class="code" title="function [nodes2, edges2] = grMergeNodesMedian(nodes, edges, mnodes)">grMergeNodesMedian</a>	GRMERGENODESMEDIAN Replace several nodes by their median coordinate</li><li><a href="grSimplifyBranches_old.html" class="code" title="function varargout = grSimplifyBranches_old(nodes, edges)">grSimplifyBranches_old</a>	GRSIMPLIFYBRANCHES_OLD Replace branches of a graph by single edges</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [nodes2, edges2] = grRemoveNode(nodes, edges, node)</a>
+0002 <span class="comment">%GRREMOVENODE Remove a node in a graph</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   usage:</span>
+0005 <span class="comment">%   [NODES2 EDGES2] = grRemoveNode(NODES, EDGES, NODE2REMOVE)</span>
+0006 <span class="comment">%   remove the node with index NODE2REMOVE from array NODES, and also</span>
+0007 <span class="comment">%   remove edges containing the node NODE2REMOVE.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   -----</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   author : David Legland</span>
+0012 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0013 <span class="comment">%   created the 13/08/2003.</span>
+0014 <span class="comment">%</span>
+0015 
+0016 <span class="comment">%   HISTORY</span>
+0017 <span class="comment">%   10/02/2004: doc</span>
+0018 
+0019 
+0020 <span class="comment">% remove all edges connected to the node</span>
+0021 neighbours = <a href="grNeighborNodes.html" class="code" title="function nodes2 = grNeighborNodes(edges, node)">grNeighborNodes</a>(edges, node);
+0022 [nodes2, edges2] = <a href="grRemoveEdges.html" class="code" title="function [nodes2, edges2] = grRemoveEdges(nodes, edges, rmEdges)">grRemoveEdges</a>(nodes, edges, neighbours); <span class="comment">%#ok&lt;ASGLU&gt;</span>
+0023 
+0024 
+0025 <span class="comment">% change edges information, due to the node index shift</span>
+0026 <span class="keyword">for</span> i = 1:length(edges2)
+0027     <span class="keyword">if</span> edges2(i,1) &gt; node
+0028         edges2(i,1) = edges2(i,1) - 1;
+0029     <span class="keyword">end</span>
+0030     <span class="keyword">if</span> edges2(i,2) &gt; node
+0031         edges2(i,2) = edges2(i,2) - 1;
+0032     <span class="keyword">end</span>
+0033 <span class="keyword">end</span>
+0034 
+0035 <span class="comment">% allocate memory</span>
+0036 dim = size(nodes);
+0037 nodes2 = zeros(dim(1)-1, 2);
+0038 
+0039 <span class="comment">% copy nodes information, except the undesired node</span>
+0040 nodes2(1:node-1, :) = nodes(1:node-1, :);
+0041 nodes2(node:dim(1)-1, :) = nodes(node+1:dim(1), :);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

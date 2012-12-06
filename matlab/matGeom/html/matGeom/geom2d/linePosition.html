@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of linePosition</title>
+  <meta name="keywords" content="linePosition">
+  <meta name="description" content="LINEPOSITION Position of a point on a line">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; linePosition.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>linePosition
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>LINEPOSITION Position of a point on a line</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function pos = linePosition(point, line, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">LINEPOSITION Position of a point on a line
+
+   POS = linePosition(POINT, LINE);
+   Computes position of point POINT on the line LINE, relative to origin
+   point and direction vector of the line.
+   LINE has the form [x0 y0 dx dy],
+   POINT has the form [x y], and is assumed to belong to line.
+
+   POS = linePosition(POINT, LINES);
+   If LINES is an array of NL lines, return NL positions, corresponding to
+   each line.
+
+   POS = linePosition(POINTS, LINE);
+   If POINTS is an array of NP points, return NP positions, corresponding
+   to each point.
+
+   POS = linePosition(POINTS, LINES);
+   If POINTS is an array of NP points and LINES is an array of NL lines,
+   return an array of [NP NL] position, corresponding to each couple
+   point-line.
+
+   POS = linePosition(POINTS, LINES, 'diag');
+   When POINTS and LINES have the same number of rows, computes positions
+   only for couples POINTS(i,:) and LINES(i,:). The result POS is a column
+   vector with as many rows as the number of points/lines.
+
+
+   Example
+   line = createLine([10 30], [30 90]);
+   linePosition([20 60], line)
+   ans =
+       .5
+
+   See also:
+   <a href="lines2d.html" class="code" title="function lines2d(varargin)">lines2d</a>, <a href="createLine.html" class="code" title="function line = createLine(varargin)">createLine</a>, <a href="projPointOnLine.html" class="code" title="function point = projPointOnLine(point, line)">projPointOnLine</a>, <a href="isPointOnLine.html" class="code" title="function b = isPointOnLine(point, line, varargin)">isPointOnLine</a>
+
+   ---------
+
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 25/05/2004.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="clipLine.html" class="code" title="function edge = clipLine(line, box, varargin)">clipLine</a>	CLIPLINE Clip a line with a box</li><li><a href="clipRay.html" class="code" title="function [edge isInside] = clipRay(ray, box)">clipRay</a>	Clip a ray with a box</li><li><a href="crackPattern.html" class="code" title="function edges = crackPattern(box, points, alpha, varargin)">crackPattern</a>	CRACKPATTERN Create a (bounded) crack pattern tessellation</li><li><a href="crackPattern2.html" class="code" title="function edges = crackPattern2(box, points, alpha, varargin)">crackPattern2</a>	CRACKPATTERN2 Create a (bounded) crack pattern tessellation</li><li><a href="../.././matGeom/polygons2d/intersectEdgePolygon.html" class="code" title="function [intersects inds] = intersectEdgePolygon(edge, poly, varargin)">intersectEdgePolygon</a>	INTERSECTEDGEPOLYGON  Intersection point of an edge with a polygon</li><li><a href="../.././matGeom/polygons2d/intersectLinePolygon.html" class="code" title="function [intersects edgeIndices] = intersectLinePolygon(line, poly, varargin)">intersectLinePolygon</a>	INTERSECTLINEPOLYGON Intersection points between a line and a polygon</li><li><a href="../.././matGeom/polygons2d/intersectRayPolygon.html" class="code" title="function intersects = intersectRayPolygon(ray, poly, varargin)">intersectRayPolygon</a>	INTERSECTRAYPOLYGON Intersection points between a ray and a polygon</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function pos = linePosition(point, line, varargin)</a>
+0002 <span class="comment">%LINEPOSITION Position of a point on a line</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   POS = linePosition(POINT, LINE);</span>
+0005 <span class="comment">%   Computes position of point POINT on the line LINE, relative to origin</span>
+0006 <span class="comment">%   point and direction vector of the line.</span>
+0007 <span class="comment">%   LINE has the form [x0 y0 dx dy],</span>
+0008 <span class="comment">%   POINT has the form [x y], and is assumed to belong to line.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   POS = linePosition(POINT, LINES);</span>
+0011 <span class="comment">%   If LINES is an array of NL lines, return NL positions, corresponding to</span>
+0012 <span class="comment">%   each line.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   POS = linePosition(POINTS, LINE);</span>
+0015 <span class="comment">%   If POINTS is an array of NP points, return NP positions, corresponding</span>
+0016 <span class="comment">%   to each point.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%   POS = linePosition(POINTS, LINES);</span>
+0019 <span class="comment">%   If POINTS is an array of NP points and LINES is an array of NL lines,</span>
+0020 <span class="comment">%   return an array of [NP NL] position, corresponding to each couple</span>
+0021 <span class="comment">%   point-line.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   POS = linePosition(POINTS, LINES, 'diag');</span>
+0024 <span class="comment">%   When POINTS and LINES have the same number of rows, computes positions</span>
+0025 <span class="comment">%   only for couples POINTS(i,:) and LINES(i,:). The result POS is a column</span>
+0026 <span class="comment">%   vector with as many rows as the number of points/lines.</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%   Example</span>
+0030 <span class="comment">%   line = createLine([10 30], [30 90]);</span>
+0031 <span class="comment">%   linePosition([20 60], line)</span>
+0032 <span class="comment">%   ans =</span>
+0033 <span class="comment">%       .5</span>
+0034 <span class="comment">%</span>
+0035 <span class="comment">%   See also:</span>
+0036 <span class="comment">%   lines2d, createLine, projPointOnLine, isPointOnLine</span>
+0037 <span class="comment">%</span>
+0038 <span class="comment">%   ---------</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">%   author : David Legland</span>
+0041 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0042 <span class="comment">%   created the 25/05/2004.</span>
+0043 <span class="comment">%</span>
+0044 
+0045 <span class="comment">%   HISTORY</span>
+0046 <span class="comment">%   2005-07-07 manage multiple input</span>
+0047 <span class="comment">%   2011-06-15 avoid the use of repmat when possible</span>
+0048 <span class="comment">%   2012-10-24 rewrite using bsxfun</span>
+0049 <span class="comment">%   2012-11-22 add support for the diag option</span>
+0050 
+0051 
+0052 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; ischar(varargin{1}) &amp;&amp; strcmpi(varargin{1}, <span class="string">'diag'</span>)
+0053     <span class="comment">% In the case of 'diag' option, use direct correspondence between</span>
+0054     <span class="comment">% points and lines</span>
+0055     
+0056     <span class="comment">% check input have same size</span>
+0057     np = size(point, 1);
+0058     nl = size(line, 1);
+0059     <span class="keyword">if</span> np ~= nl
+0060         error(<span class="string">'matGeom:linePosition'</span>, <span class="keyword">...</span>
+0061             <span class="string">'Using diag option, number of points and lines should be the same'</span>);
+0062     <span class="keyword">end</span>
+0063     
+0064     <span class="comment">% direction vector of the lines</span>
+0065     vx = line(:, 3);
+0066     vy = line(:, 4);
+0067     
+0068     <span class="comment">% difference of coordinates between point and line origin</span>
+0069     dx = point(:, 1) - line(:, 1);
+0070     dy = point(:, 2) - line(:, 2);
+0071     
+0072 <span class="keyword">else</span>
+0073     <span class="comment">% General case -&gt; return NP-by-NL array</span>
+0074     
+0075     <span class="comment">% direction vector of the lines</span>
+0076     vx = line(:, 3)';
+0077     vy = line(:, 4)';
+0078     
+0079     <span class="comment">% difference of coordinates between point and line origin</span>
+0080     dx = bsxfun(@minus, point(:, 1), line(:, 1)');
+0081     dy = bsxfun(@minus, point(:, 2), line(:, 2)');
+0082 
+0083 <span class="keyword">end</span>
+0084 
+0085 <span class="comment">% squared norm of direction vector, with a check of validity</span>
+0086 delta = vx .* vx + vy .* vy;
+0087 invalidLine = delta &lt; eps;
+0088 delta(invalidLine) = 1; 
+0089 
+0090 <span class="comment">% compute position of points projected on the line, by using normalised dot</span>
+0091 <span class="comment">% product (NP-by-NE array)</span>
+0092 pos = bsxfun(@rdivide, bsxfun(@times, dx, vx) + bsxfun(@times, dy, vy), delta);
+0093 
+0094 <span class="comment">% ensure degenerated edges are correclty processed (consider the first</span>
+0095 <span class="comment">% vertex is the closest)</span>
+0096 pos(:, invalidLine) = 0;</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

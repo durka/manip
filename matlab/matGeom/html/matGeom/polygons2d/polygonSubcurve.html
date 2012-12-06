@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polygonSubcurve</title>
+  <meta name="keywords" content="polygonSubcurve">
+  <meta name="description" content="POLYGONSUBCURVE Extract a portion of a polygon">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">polygons2d</a> &gt; polygonSubcurve.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\polygons2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polygonSubcurve
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYGONSUBCURVE Extract a portion of a polygon</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function res = polygonSubcurve(poly, t0, t1) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYGONSUBCURVE Extract a portion of a polygon
+
+   POLY2 = polygonSubcurve(POLYGON, POS0, POS1)
+   Create a new polyline, by keeping vertices located between positions
+   POS0 and POS1, and adding points corresponding to positions POS0 and
+   POS1 if they are not already vertices.
+
+   Example
+   Nv = 100;
+   poly = circleAsPolygon([10 20 30], Nv);
+   poly2 = polygonSubcurve(poly, 15, 65);
+   drawCurve(poly2);
+
+   See also
+   polygons2d, <a href="polylineSubcurve.html" class="code" title="function res = polylineSubcurve(poly, t0, t1)">polylineSubcurve</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2009-04-30,    using Matlab 7.7.0.471 (R2008b)
+ Copyright 2009 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polygonPoint.html" class="code" title="function point = polygonPoint(poly, pos)">polygonPoint</a>	POLYGONPOINT Extract a point from a polygon</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="polygonLoops.html" class="code" title="function loops = polygonLoops(poly)">polygonLoops</a>	POLYGONLOOPS Divide a possibly self-intersecting polygon into a set of simple loops</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function res = polygonSubcurve(poly, t0, t1)</a>
+0002 <span class="comment">%POLYGONSUBCURVE Extract a portion of a polygon</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   POLY2 = polygonSubcurve(POLYGON, POS0, POS1)</span>
+0005 <span class="comment">%   Create a new polyline, by keeping vertices located between positions</span>
+0006 <span class="comment">%   POS0 and POS1, and adding points corresponding to positions POS0 and</span>
+0007 <span class="comment">%   POS1 if they are not already vertices.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   Example</span>
+0010 <span class="comment">%   Nv = 100;</span>
+0011 <span class="comment">%   poly = circleAsPolygon([10 20 30], Nv);</span>
+0012 <span class="comment">%   poly2 = polygonSubcurve(poly, 15, 65);</span>
+0013 <span class="comment">%   drawCurve(poly2);</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   See also</span>
+0016 <span class="comment">%   polygons2d, polylineSubcurve</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% ------</span>
+0019 <span class="comment">% Author: David Legland</span>
+0020 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0021 <span class="comment">% Created: 2009-04-30,    using Matlab 7.7.0.471 (R2008b)</span>
+0022 <span class="comment">% Copyright 2009 INRA - Cepia Software Platform.</span>
+0023 
+0024 <span class="comment">% number of vertices</span>
+0025 Nv = size(poly, 1);
+0026 
+0027 <span class="keyword">if</span> t0&lt;t1
+0028     <span class="comment">% format positions</span>
+0029     t0 = max(t0, 0);
+0030     t1 = min(t1, Nv);
+0031 <span class="keyword">end</span>
+0032 
+0033 <span class="comment">% indices of extreme vertices inside subcurve</span>
+0034 ind0 = ceil(t0)+1;
+0035 ind1 = floor(t1)+1;
+0036 
+0037 <span class="comment">% get the portion of polyline between 2 extremities</span>
+0038 <span class="keyword">if</span> t0&lt;t1
+0039     <span class="keyword">if</span> ind1&lt;=Nv
+0040         res = poly(ind0:ind1, :);
+0041     <span class="keyword">else</span>
+0042         res = poly(1, :);
+0043     <span class="keyword">end</span>
+0044 <span class="keyword">else</span> 
+0045     res = poly([ind0:end 1:ind1], :);
+0046 <span class="keyword">end</span>
+0047 
+0048 <span class="comment">% add first point if it is not already a vertex</span>
+0049 <span class="keyword">if</span> t0~=ind0-1
+0050     res = [<a href="polygonPoint.html" class="code" title="function point = polygonPoint(poly, pos)">polygonPoint</a>(poly, t0); res];
+0051 <span class="keyword">end</span>
+0052 
+0053 <span class="comment">% add last point if it is not already a vertex</span>
+0054 <span class="keyword">if</span> t1~=ind1-1
+0055     res = [res; <a href="polygonPoint.html" class="code" title="function point = polygonPoint(poly, pos)">polygonPoint</a>(poly, t1)];
+0056 <span class="keyword">end</span>
+0057</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

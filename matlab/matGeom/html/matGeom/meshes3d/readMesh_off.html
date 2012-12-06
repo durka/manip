@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of readMesh_off</title>
+  <meta name="keywords" content="readMesh_off">
+  <meta name="description" content="READMESH_OFF Read mesh data stord in OFF format">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">meshes3d</a> &gt; readMesh_off.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\meshes3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>readMesh_off
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>READMESH_OFF Read mesh data stord in OFF format</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function [vertices faces] = readMesh_off(fileName) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">READMESH_OFF Read mesh data stord in OFF format
+
+   [VERTICES FACES] = readMesh_off(FILNAME)
+
+   Example
+   readMesh_off
+
+   See also
+
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2011-12-20,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2011 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [vertices faces] = readMesh_off(fileName)</a>
+0002 <span class="comment">%READMESH_OFF Read mesh data stord in OFF format</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [VERTICES FACES] = readMesh_off(FILNAME)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%   Example</span>
+0007 <span class="comment">%   readMesh_off</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   See also</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% ------</span>
+0013 <span class="comment">% Author: David Legland</span>
+0014 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0015 <span class="comment">% Created: 2011-12-20,    using Matlab 7.9.0.529 (R2009b)</span>
+0016 <span class="comment">% Copyright 2011 INRA - Cepia Software Platform.</span>
+0017 
+0018 <span class="comment">% open file</span>
+0019 f = fopen(fileName, <span class="string">'r'</span>);
+0020 <span class="keyword">if</span> f == -1 
+0021     error(<span class="string">'matGeom:readMesh_off:FileNotFound'</span>, <span class="keyword">...</span>
+0022         [<span class="string">'Could not find file: '</span> fileName]);
+0023 <span class="keyword">end</span>
+0024 
+0025 <span class="comment">% check format</span>
+0026 line = fgets(f);   <span class="comment">% -1 if eof</span>
+0027 <span class="keyword">if</span> ~strcmp(line(1:3), <span class="string">'OFF'</span>)
+0028     error(<span class="string">'matGeom:readMesh_off:FileFormatError'</span>, <span class="keyword">...</span>
+0029         <span class="string">'Not a valid OFF file'</span>);    
+0030 <span class="keyword">end</span>
+0031 
+0032 <span class="comment">% number of faces and vertices</span>
+0033 line = fgets(f);
+0034 vals = sscanf(line, <span class="string">'%d %d'</span>);
+0035 nv = vals(1);
+0036 nf = vals(2);
+0037 
+0038 
+0039 <span class="comment">% read vertex data</span>
+0040 [vertices count] = fscanf(f, <span class="string">'%f '</span>, [3 nv]);
+0041 <span class="keyword">if</span> count ~= nv*3
+0042     error(<span class="string">'matGeom:readMesh_off:FileFormatError'</span>, <span class="keyword">...</span>
+0043         [<span class="string">'Could not read all the '</span> num2str(nv) <span class="string">' vertices'</span>]);
+0044 <span class="keyword">end</span>
+0045 vertices = vertices';
+0046 
+0047 <span class="comment">% read face data (face start by index)</span>
+0048 [faces count] = fscanf(f, <span class="string">'%d %d %d %d\n'</span>, [4 nf]);
+0049 <span class="keyword">if</span> count ~= nf * 4
+0050     error(<span class="string">'matGeom:readMesh_off:FileFormatError'</span>, <span class="keyword">...</span>
+0051         [<span class="string">'Could not read all the '</span> num2str(nf) <span class="string">' faces'</span>]);
+0052 <span class="keyword">end</span>
+0053 
+0054 <span class="comment">% clean up: remove index, and use 1-indexing</span>
+0055 faces = faces(2:4, :)' + 1;
+0056 
+0057 <span class="comment">% close the file</span>
+0058 fclose(f);
+0059</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

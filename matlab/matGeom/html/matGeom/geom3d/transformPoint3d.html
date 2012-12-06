@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of transformPoint3d</title>
+  <meta name="keywords" content="transformPoint3d">
+  <meta name="description" content="TRANSFORMPOINT3D Transform a point with a 3D affine transform">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; transformPoint3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>transformPoint3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>TRANSFORMPOINT3D Transform a point with a 3D affine transform</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = transformPoint3d(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">TRANSFORMPOINT3D Transform a point with a 3D affine transform
+
+   PT2 = transformPoint3d(PT1, TRANS);
+   PT2 = transformPoint3d(X1, Y1, Z1, TRANS);
+   where PT1 has the form [xp yp zp], and TRANS is a [3x3], [3x4], [4x4]
+   matrix, return the point transformed according to the affine transform
+   specified by TRANS.
+
+   Format of TRANS is a 4-by-4 matrix.
+
+   The function accepts transforms given using the following formats:
+   [a b c]   ,   [a b c j] , or [a b c j]
+   [d e f]       [d e f k]      [d e f k]
+   [g h i]       [g h i l]      [g h i l]
+                                [0 0 0 1]
+
+   PT2 = transformPoint3d(PT1, TRANS) 
+   also work when PT1 is a [Nx3xMxPxETC] array of double. In this case, 
+   PT2 has the same size as PT1.
+
+   PT2 = transformPoint3d(X1, Y1, Z1, TRANS);
+   also work when X1, Y1 and Z1 are 3 arrays with the same size. In this
+   case, PT2 will be a 1-by-3 cell containing {X Y Z} outputs of size(X1).
+
+   [X2 Y2 Z2] = transformPoint3d(...);
+   returns the result in 3 different arrays the same size as the input.
+   This form can be useful when used with functions like meshgrid or warp.
+
+
+   See also:
+   <a href="points3d.html" class="code" title="function points3d(varargin)">points3d</a>, <a href="transforms3d.html" class="code" title="function transforms3d(varargin)">transforms3d</a>, <a href="translation3d.html" class="code" title="function trans = translation3d(varargin)">translation3d</a>
+   meshgrid
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 10/02/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="circle3dOrigin.html" class="code" title="function ori = circle3dOrigin(varargin)">circle3dOrigin</a>	CIRCLE3DORIGIN Return the first point of a 3D circle</li><li><a href="circle3dPoint.html" class="code" title="function point = circle3dPoint(circle, pos)">circle3dPoint</a>	CIRCLE3DPOINT Coordinates of a point on a 3D circle from its position</li><li><a href="drawCircle3d.html" class="code" title="function varargout = drawCircle3d(varargin)">drawCircle3d</a>	DRAWCIRCLE3D Draw a 3D circle</li><li><a href="drawCircleArc3d.html" class="code" title="function varargout = drawCircleArc3d(arc, varargin)">drawCircleArc3d</a>	DRAWCIRCLEARC3D Draw a 3D circle arc</li><li><a href="drawCube.html" class="code" title="function varargout = drawCube(cube, varargin)">drawCube</a>	DRAWCUBE Draw a 3D centered cube, eventually rotated</li><li><a href="drawCuboid.html" class="code" title="function varargout = drawCuboid(cuboid, varargin)">drawCuboid</a>	DRAWCUBOID Draw a 3D cuboid, eventually rotated</li><li><a href="drawCylinder.html" class="code" title="function varargout = drawCylinder(cyl, varargin)">drawCylinder</a>	DRAWCYLINDER Draw a cylinder</li><li><a href="drawEllipse3d.html" class="code" title="function varargout = drawEllipse3d(varargin)">drawEllipse3d</a>	DRAWELLIPSE3D Draw a 3D ellipse</li><li><a href="drawEllipsoid.html" class="code" title="function varargout = drawEllipsoid(elli, varargin)">drawEllipsoid</a>	DRAWELLIPSOID Draw a 3D ellipsoid</li><li><a href="drawTorus.html" class="code" title="function varargout = drawTorus(torus, varargin)">drawTorus</a>	DRAWTORUS Draw a torus (3D ring)</li><li><a href="transformLine3d.html" class="code" title="function res = transformLine3d(line, trans)">transformLine3d</a>	TRANSFORMLINE3D Transform a 3D line with a 3D affine transform</li><li><a href="transformVector3d.html" class="code" title="function varargout = transformVector3d(varargin)">transformVector3d</a>	TRANSFORMVECTOR3D Transform a vector with a 3D affine transform</li><li><a href="../.././matGeom/meshes3d/createDurerPolyhedron.html" class="code" title="function varargout = createDurerPolyhedron(varargin)">createDurerPolyhedron</a>	CREATEDURERPOLYHEDRON  Create a mesh representing Durer's polyhedron</li><li><a href="../.././matGeom/meshes3d/cylinderMesh.html" class="code" title="function varargout = cylinderMesh(cyl, varargin)">cylinderMesh</a>	CYLINDERMESH  Create a 3D mesh representing a cylinder</li><li><a href="../.././matGeom/meshes3d/torusMesh.html" class="code" title="function varargout = torusMesh(torus, varargin)">torusMesh</a>	TORUSMESH  Create a 3D mesh representing a torus</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = transformPoint3d(varargin)</a>
+0002 <span class="comment">%TRANSFORMPOINT3D Transform a point with a 3D affine transform</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   PT2 = transformPoint3d(PT1, TRANS);</span>
+0005 <span class="comment">%   PT2 = transformPoint3d(X1, Y1, Z1, TRANS);</span>
+0006 <span class="comment">%   where PT1 has the form [xp yp zp], and TRANS is a [3x3], [3x4], [4x4]</span>
+0007 <span class="comment">%   matrix, return the point transformed according to the affine transform</span>
+0008 <span class="comment">%   specified by TRANS.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">%   Format of TRANS is a 4-by-4 matrix.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   The function accepts transforms given using the following formats:</span>
+0013 <span class="comment">%   [a b c]   ,   [a b c j] , or [a b c j]</span>
+0014 <span class="comment">%   [d e f]       [d e f k]      [d e f k]</span>
+0015 <span class="comment">%   [g h i]       [g h i l]      [g h i l]</span>
+0016 <span class="comment">%                                [0 0 0 1]</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%   PT2 = transformPoint3d(PT1, TRANS)</span>
+0019 <span class="comment">%   also work when PT1 is a [Nx3xMxPxETC] array of double. In this case,</span>
+0020 <span class="comment">%   PT2 has the same size as PT1.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   PT2 = transformPoint3d(X1, Y1, Z1, TRANS);</span>
+0023 <span class="comment">%   also work when X1, Y1 and Z1 are 3 arrays with the same size. In this</span>
+0024 <span class="comment">%   case, PT2 will be a 1-by-3 cell containing {X Y Z} outputs of size(X1).</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%   [X2 Y2 Z2] = transformPoint3d(...);</span>
+0027 <span class="comment">%   returns the result in 3 different arrays the same size as the input.</span>
+0028 <span class="comment">%   This form can be useful when used with functions like meshgrid or warp.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%   See also:</span>
+0032 <span class="comment">%   points3d, transforms3d, translation3d</span>
+0033 <span class="comment">%   meshgrid</span>
+0034 <span class="comment">%</span>
+0035 <span class="comment">%   ---------</span>
+0036 <span class="comment">%   author : David Legland</span>
+0037 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0038 <span class="comment">%   created the 10/02/2005.</span>
+0039 <span class="comment">%</span>
+0040 
+0041 <span class="comment">%   23/03/2006 add support for non vector point data</span>
+0042 <span class="comment">%   26/10/2006 better support for large data handling: iterate on points</span>
+0043 <span class="comment">%       in the case of a memory lack.</span>
+0044 <span class="comment">%   20/04/2007 add link to rotationXX functions</span>
+0045 <span class="comment">%   29/09/2010 fix bug in catch case</span>
+0046 <span class="comment">%   12/03/2011 slightly reduce memory usage</span>
+0047 
+0048 <span class="comment">% process input arguments</span>
+0049 <span class="keyword">if</span> length(varargin) == 2
+0050     <span class="comment">% Point coordinates are given in a single N-by-3-by-M-by-etc argument.</span>
+0051     <span class="comment">% Preallocate x, y, and z to size N-by-1-by-M-by-etc, then fill them in</span>
+0052     dim = size(varargin{1});
+0053     dim(2) = 1;
+0054     [x,y,z] = deal(zeros(dim,class(varargin{1})));
+0055     x(:) = varargin{1}(:,1,:);
+0056     y(:) = varargin{1}(:,2,:);
+0057     z(:) = varargin{1}(:,3,:);
+0058     trans  = varargin{2};
+0059     
+0060 <span class="keyword">elseif</span> length(varargin) == 4
+0061     <span class="comment">% Point coordinates are given in 3 different arrays</span>
+0062     x = varargin{1};
+0063     y = varargin{2};
+0064     z = varargin{3};
+0065     dim = size(x);
+0066     trans = varargin{4};
+0067 <span class="keyword">end</span>
+0068 
+0069 <span class="comment">% eventually add null translation</span>
+0070 <span class="keyword">if</span> size(trans, 2) == 3
+0071     trans = [trans zeros(size(trans, 1), 1)];
+0072 <span class="keyword">end</span>
+0073 
+0074 <span class="comment">% eventually add normalization</span>
+0075 <span class="keyword">if</span> size(trans, 1) == 3
+0076     trans = [trans;0 0 0 1];
+0077 <span class="keyword">end</span>
+0078 
+0079 <span class="comment">% convert coordinates</span>
+0080 NP  = numel(x);
+0081 <span class="keyword">try</span>
+0082     <span class="comment">% vectorial processing, if there is enough memory</span>
+0083     <span class="comment">%res = (trans*[x(:) y(:) z(:) ones(NP, 1)]')';</span>
+0084     <span class="comment">%res = [x(:) y(:) z(:) ones(NP, 1)]*trans';</span>
+0085     res = [x(:) y(:) z(:) ones(NP,1,class(x))] * trans';
+0086     
+0087     <span class="comment">% Back-fill x,y,z with new result (saves calling costly reshape())</span>
+0088     x(:) = res(:,1);
+0089     y(:) = res(:,2);
+0090     z(:) = res(:,3);
+0091 <span class="keyword">catch</span> ME
+0092     disp(ME.message)
+0093     <span class="comment">% process each point one by one, writing in existing array</span>
+0094     <span class="keyword">for</span> i = 1:NP
+0095         res = [x(i) y(i) z(i) 1] * trans';
+0096         x(i) = res(1);
+0097         y(i) = res(2);
+0098         z(i) = res(3);
+0099     <span class="keyword">end</span>
+0100 <span class="keyword">end</span>
+0101 
+0102 <span class="comment">% process output arguments</span>
+0103 <span class="keyword">if</span> nargout &lt;= 1
+0104     <span class="comment">% results are stored in a unique array</span>
+0105     <span class="keyword">if</span> length(dim) &gt; 2 &amp;&amp; dim(2) &gt; 1
+0106         warning(<span class="string">'geom3d:shapeMismatch'</span>,<span class="keyword">...</span>
+0107             <span class="string">'Shape mismatch: Non-vector xyz input should have multiple x,y,z output arguments. Cell {x,y,z} returned instead.'</span>)
+0108         varargout{1} = {x,y,z};
+0109     <span class="keyword">else</span>
+0110         varargout{1} = [x y z];
+0111     <span class="keyword">end</span>
+0112     
+0113 <span class="keyword">elseif</span> nargout == 3
+0114     varargout{1} = x;
+0115     varargout{2} = y;
+0116     varargout{3} = z;
+0117 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

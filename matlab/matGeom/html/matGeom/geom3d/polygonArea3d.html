@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of polygonArea3d</title>
+  <meta name="keywords" content="polygonArea3d">
+  <meta name="description" content="POLYGONAREA3D Area of a 3D polygon">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; polygonArea3d.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>polygonArea3d
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>POLYGONAREA3D Area of a 3D polygon</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function area = polygonArea3d(poly, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">POLYGONAREA3D Area of a 3D polygon
+
+   AREA = polygonArea3d(POLY)
+   POLY is given as a N-by-3 array of vertex coordinates. The resulting
+   area is positive.
+
+   Example
+     poly = [10 30 20;20 30 20;20 40 20;10 40 20];
+     polygonArea3d(poly)
+     ans =
+        100
+
+   See also
+     <a href="polygons3d.html" class="code" title="function polygons3d(varargin)">polygons3d</a>, <a href="triangleArea3d.html" class="code" title="function area = triangleArea3d(pt1, pt2, pt3)">triangleArea3d</a>, polygonArea, <a href="polygonCentroid3d.html" class="code" title="function centroid = polygonCentroid3d(varargin)">polygonCentroid3d</a>
+
+ ------
+ Author: David Legland
+ e-mail: david.legland@grignon.inra.fr
+ Created: 2012-02-24,    using Matlab 7.9.0.529 (R2009b)
+ Copyright 2012 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="vectorNorm3d.html" class="code" title="function n = vectorNorm3d(v)">vectorNorm3d</a>	VECTORNORM3D Norm of a 3D vector or of set of 3D vectors</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function area = polygonArea3d(poly, varargin)</a>
+0002 <span class="comment">%POLYGONAREA3D Area of a 3D polygon</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   AREA = polygonArea3d(POLY)</span>
+0005 <span class="comment">%   POLY is given as a N-by-3 array of vertex coordinates. The resulting</span>
+0006 <span class="comment">%   area is positive.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   Example</span>
+0009 <span class="comment">%     poly = [10 30 20;20 30 20;20 40 20;10 40 20];</span>
+0010 <span class="comment">%     polygonArea3d(poly)</span>
+0011 <span class="comment">%     ans =</span>
+0012 <span class="comment">%        100</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   See also</span>
+0015 <span class="comment">%     polygons3d, triangleArea3d, polygonArea, polygonCentroid3d</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% ------</span>
+0018 <span class="comment">% Author: David Legland</span>
+0019 <span class="comment">% e-mail: david.legland@grignon.inra.fr</span>
+0020 <span class="comment">% Created: 2012-02-24,    using Matlab 7.9.0.529 (R2009b)</span>
+0021 <span class="comment">% Copyright 2012 INRA - Cepia Software Platform.</span>
+0022 
+0023 <span class="comment">% put the first vertex at origin (reducing computation errors for polygons</span>
+0024 <span class="comment">% far from origin)</span>
+0025 v0 = poly(1, :);
+0026 poly = bsxfun(@minus, poly, v0);
+0027 
+0028 <span class="comment">% indices of next vertices</span>
+0029 N = size(poly, 1);
+0030 iNext = [2:N 1];
+0031 
+0032 <span class="comment">% compute area (vectorized version)</span>
+0033 <span class="comment">% need to compute the sign expicitely, as the norm of the cross product</span>
+0034 <span class="comment">% doas not keep orientation within supporting plane.</span>
+0035 cp = cross(poly, poly(iNext,:), 2);
+0036 sign_i = sign(dot(cp, repmat(cp(2,:), N, 1), 2));
+0037 area_i = <a href="vectorNorm3d.html" class="code" title="function n = vectorNorm3d(v)">vectorNorm3d</a>(cp) .* sign_i;
+0038 
+0039 <span class="comment">% sum up individual triangles area</span>
+0040 area = sum(area_i) / 2;</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

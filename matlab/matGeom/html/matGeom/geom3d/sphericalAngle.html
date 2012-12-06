@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of sphericalAngle</title>
+  <meta name="keywords" content="sphericalAngle">
+  <meta name="description" content="SPHERICALANGLE Compute angle between points on the sphere">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; sphericalAngle.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>sphericalAngle
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>SPHERICALANGLE Compute angle between points on the sphere</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function alpha = sphericalAngle(p1, p2, p3) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">SPHERICALANGLE Compute angle between points on the sphere
+
+   ALPHA = sphericalAngle(P1, P2, P3)
+   Compute angle (P1, P2, P3), i.e. the angle, measured at point P2,
+   between the direction P2 P1 and the direction P2 P3.
+   The result is given in radians, between 0 and 2*PI.
+
+   Points are given either as [x y z] (there will be normalized to lie on
+   the unit sphere), or as [phi theta], with phi being the longitude in [0
+   2*PI] and theta being the elevation on horizontal [-pi/2 pi/2].
+
+
+   NOTE: 
+   this is an 'oriented' version of the angle computation, that is, the
+   result of sphericalAngle(P1, P2, P3) equals
+   2*pi-sphericalAngle(P3,P2,P1). To have the more classical relation
+   (with results given betwen 0 and PI), it suffices to take the minimum
+   of angle and 2*pi-angle.
+   
+   See also:
+   <a href="angles3d.html" class="code" title="function angles3d(varargin)">angles3d</a>, <a href="spheres.html" class="code" title="function spheres(varargin)">spheres</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 21/02/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../.././matGeom/geom2d/angle3Points.html" class="code" title="function theta = angle3Points(varargin)">angle3Points</a>	ANGLE3POINTS Compute oriented angle made by 3 points</li><li><a href="createPlane.html" class="code" title="function plane = createPlane(varargin)">createPlane</a>	CREATEPLANE Create a plane in parametrized form</li><li><a href="normalizeVector3d.html" class="code" title="function vn = normalizeVector3d(v)">normalizeVector3d</a>	NORMALIZEVECTOR3D Normalize a 3D vector to have norm equal to 1</li><li><a href="planePosition.html" class="code" title="function pos = planePosition(point, plane)">planePosition</a>	PLANEPOSITION Compute position of a point on a plane</li><li><a href="projPointOnPlane.html" class="code" title="function point = projPointOnPlane(point, plane)">projPointOnPlane</a>	PROJPOINTONPLANE Return the orthogonal projection of a point on a plane</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function alpha = sphericalAngle(p1, p2, p3)</a>
+0002 <span class="comment">%SPHERICALANGLE Compute angle between points on the sphere</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   ALPHA = sphericalAngle(P1, P2, P3)</span>
+0005 <span class="comment">%   Compute angle (P1, P2, P3), i.e. the angle, measured at point P2,</span>
+0006 <span class="comment">%   between the direction P2 P1 and the direction P2 P3.</span>
+0007 <span class="comment">%   The result is given in radians, between 0 and 2*PI.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   Points are given either as [x y z] (there will be normalized to lie on</span>
+0010 <span class="comment">%   the unit sphere), or as [phi theta], with phi being the longitude in [0</span>
+0011 <span class="comment">%   2*PI] and theta being the elevation on horizontal [-pi/2 pi/2].</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   NOTE:</span>
+0015 <span class="comment">%   this is an 'oriented' version of the angle computation, that is, the</span>
+0016 <span class="comment">%   result of sphericalAngle(P1, P2, P3) equals</span>
+0017 <span class="comment">%   2*pi-sphericalAngle(P3,P2,P1). To have the more classical relation</span>
+0018 <span class="comment">%   (with results given betwen 0 and PI), it suffices to take the minimum</span>
+0019 <span class="comment">%   of angle and 2*pi-angle.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">%   See also:</span>
+0022 <span class="comment">%   angles3d, spheres</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">%   ---------</span>
+0025 <span class="comment">%   author : David Legland</span>
+0026 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0027 <span class="comment">%   created the 21/02/2005.</span>
+0028 <span class="comment">%</span>
+0029 
+0030 <span class="comment">%   HISTORY</span>
+0031 <span class="comment">%   23/05/2006 fix bug for points with angle from center &gt; pi/2</span>
+0032 
+0033 <span class="comment">% test if points are given as matlab spherical coordinate</span>
+0034 <span class="keyword">if</span> size(p1, 2) ==2
+0035     [x y z] = sph2cart(p1(:,1), p1(:,2));
+0036     p1 = [x y z];
+0037     [x y z] = sph2cart(p2(:,1), p2(:,2));
+0038     p2 = [x y z];
+0039     [x y z] = sph2cart(p3(:,1), p3(:,2));
+0040     p3 = [x y z];
+0041 <span class="keyword">end</span>
+0042 
+0043 <span class="comment">% normalize points</span>
+0044 p1  = <a href="normalizeVector3d.html" class="code" title="function vn = normalizeVector3d(v)">normalizeVector3d</a>(p1);
+0045 p2  = <a href="normalizeVector3d.html" class="code" title="function vn = normalizeVector3d(v)">normalizeVector3d</a>(p2);
+0046 p3  = <a href="normalizeVector3d.html" class="code" title="function vn = normalizeVector3d(v)">normalizeVector3d</a>(p3);
+0047 
+0048 <span class="comment">% create the plane tangent to the unit sphere and containing central point</span>
+0049 plane = <a href="createPlane.html" class="code" title="function plane = createPlane(varargin)">createPlane</a>(p2, p2);
+0050 
+0051 <span class="comment">% project the two other points on the plane</span>
+0052 pi1 = <a href="planePosition.html" class="code" title="function pos = planePosition(point, plane)">planePosition</a>(<a href="projPointOnPlane.html" class="code" title="function point = projPointOnPlane(point, plane)">projPointOnPlane</a>(p1, plane), plane);
+0053 pi3 = <a href="planePosition.html" class="code" title="function pos = planePosition(point, plane)">planePosition</a>(<a href="projPointOnPlane.html" class="code" title="function point = projPointOnPlane(point, plane)">projPointOnPlane</a>(p3, plane), plane);
+0054 
+0055 <span class="comment">% compute angle on the tangent plane</span>
+0056 alpha = <a href="../.././matGeom/geom2d/angle3Points.html" class="code" title="function theta = angle3Points(varargin)">angle3Points</a>(pi1, [0 0], pi3);
+0057</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

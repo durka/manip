@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of clipLineRect</title>
+  <meta name="keywords" content="clipLineRect">
+  <meta name="description" content="CLIPLINERECT clip a line with a polygon">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; clipLineRect.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>clipLineRect
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>CLIPLINERECT clip a line with a polygon</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function edge = clipLineRect(line, rect) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">CLIPLINERECT clip a line with a polygon
+
+   EDGE = clipLineRect(LINE, RECT);
+   LINE: line in the form [x0 y0 dx dy]
+   RECT: a rectangle in the form [xr yr wr hr] (xr and yr: coordinate of
+   first point, wr and hr are width and height of rectangle)
+   
+   Deprecated: use function clipLine instead
+
+ ---------
+ author : David Legland 
+ created the 24/07/2006.
+ Copyright 2010 INRA - Cepia Software Platform.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="intersectLineEdge.html" class="code" title="function point = intersectLineEdge(line, edge)">intersectLineEdge</a>	INTERSECTLINEEDGE Return intersection between a line and an edge</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function edge = clipLineRect(line, rect)</a>
+0002 <span class="comment">%CLIPLINERECT clip a line with a polygon</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   EDGE = clipLineRect(LINE, RECT);</span>
+0005 <span class="comment">%   LINE: line in the form [x0 y0 dx dy]</span>
+0006 <span class="comment">%   RECT: a rectangle in the form [xr yr wr hr] (xr and yr: coordinate of</span>
+0007 <span class="comment">%   first point, wr and hr are width and height of rectangle)</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   Deprecated: use function clipLine instead</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% ---------</span>
+0012 <span class="comment">% author : David Legland</span>
+0013 <span class="comment">% created the 24/07/2006.</span>
+0014 <span class="comment">% Copyright 2010 INRA - Cepia Software Platform.</span>
+0015 <span class="comment">%</span>
+0016 
+0017 <span class="comment">%   HISTORY</span>
+0018 
+0019 <span class="keyword">if</span> size(line, 1)==1
+0020     line = repmat(line, size(rect, 1), 1);
+0021 <span class="keyword">elseif</span> size(rect, 1)==1
+0022     rect = repmat(rect, size(line, 1), 1);
+0023 <span class="keyword">elseif</span> size(line, 1) ~= size(rect, 1)
+0024     error(<span class="string">'bad sizes for input'</span>);
+0025 <span class="keyword">end</span>
+0026 
+0027 edge = zeros(size(line, 1), 4);
+0028 <span class="keyword">for</span> i=1:size(line, 1)
+0029     x = rect(i, 1); y = rect(i, 2); w = rect(i, 3); h = rect(i, 4);
+0030     
+0031     <span class="comment">% intersection with axis : x=xmin</span>
+0032     px1 = <a href="intersectLineEdge.html" class="code" title="function point = intersectLineEdge(line, edge)">intersectLineEdge</a>(line(i,:), [x y x+w y]);
+0033     px2 = <a href="intersectLineEdge.html" class="code" title="function point = intersectLineEdge(line, edge)">intersectLineEdge</a>(line(i,:), [x+w y x+w y+h]);
+0034     py1 = <a href="intersectLineEdge.html" class="code" title="function point = intersectLineEdge(line, edge)">intersectLineEdge</a>(line(i,:), [x+w y+h x y+h]);
+0035     py2 = <a href="intersectLineEdge.html" class="code" title="function point = intersectLineEdge(line, edge)">intersectLineEdge</a>(line(i,:), [x y+h x y]);
+0036     
+0037     <span class="comment">% sort points along the x coordinate, and  draw a line between</span>
+0038     <span class="comment">% the two in the middle</span>
+0039     points = sortrows([px1 ; px2 ; py1 ; py2], 1);
+0040     <span class="keyword">if</span> points(2,1)&gt;=x-1e-14 &amp;&amp; points(2,1)&lt;=x+w+1e-14
+0041         <span class="keyword">if</span> isfinite(points(3,1))
+0042             edge(i, 1:4) = [points(2,:) points(3,:)];
+0043         <span class="keyword">else</span>
+0044             edge(i, 1:4) = [points(1,:) points(2,:)];
+0045         <span class="keyword">end</span> 
+0046     <span class="keyword">else</span>
+0047         <span class="comment">% line outside the rectangle</span>
+0048         edge(i, 1:4) = [0 0 0 0];
+0049     <span class="keyword">end</span>
+0050 <span class="keyword">end</span>
+0051</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

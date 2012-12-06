@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ellipseAsPolygon</title>
+  <meta name="keywords" content="ellipseAsPolygon">
+  <meta name="description" content="ELLIPSEASPOLYGON Convert an ellipse into a series of points">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; ellipseAsPolygon.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>ellipseAsPolygon
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>ELLIPSEASPOLYGON Convert an ellipse into a series of points</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = ellipseAsPolygon(ellipse, N) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">ELLIPSEASPOLYGON Convert an ellipse into a series of points
+
+   Deprecated, use ellipseToPolygon instead.
+
+   P = ellipseAsPolygon(ELL, N);
+   converts ELL given as [x0 y0 a b] or [x0 y0 a b theta] into a polygon
+   with N edges. The result P is (N+1)-by-2 array containing coordinates
+   of the N+1 vertices of the polygon.
+   The resulting polygon is closed, i.e. the last point is the same as the
+   first one.
+
+   P = ellipseAsPolygon(ELL);
+   Use a default number of edges equal to 72. This result in one piont for
+   each 5 degrees.
+   
+   [X Y] = ellipseAsPolygon(...);
+   Return the coordinates o fvertices in two separate arrays.
+
+   See also:
+   <a href="ellipses2d.html" class="code" title="function ellipses2d(varargin)">ellipses2d</a>, <a href="circleAsPolygon.html" class="code" title="function varargout = circleAsPolygon(circle, varargin)">circleAsPolygon</a>, rectAsPolygon, <a href="drawEllipse.html" class="code" title="function varargout = drawEllipse(varargin)">drawEllipse</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 06/04/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="ellipseToPolygon.html" class="code" title="function varargout = ellipseToPolygon(ellipse, N)">ellipseToPolygon</a>	ELLIPSETOPOLYGON Convert an ellipse into a series of points</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = ellipseAsPolygon(ellipse, N)</a>
+0002 <span class="comment">%ELLIPSEASPOLYGON Convert an ellipse into a series of points</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   Deprecated, use ellipseToPolygon instead.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%   P = ellipseAsPolygon(ELL, N);</span>
+0007 <span class="comment">%   converts ELL given as [x0 y0 a b] or [x0 y0 a b theta] into a polygon</span>
+0008 <span class="comment">%   with N edges. The result P is (N+1)-by-2 array containing coordinates</span>
+0009 <span class="comment">%   of the N+1 vertices of the polygon.</span>
+0010 <span class="comment">%   The resulting polygon is closed, i.e. the last point is the same as the</span>
+0011 <span class="comment">%   first one.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   P = ellipseAsPolygon(ELL);</span>
+0014 <span class="comment">%   Use a default number of edges equal to 72. This result in one piont for</span>
+0015 <span class="comment">%   each 5 degrees.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   [X Y] = ellipseAsPolygon(...);</span>
+0018 <span class="comment">%   Return the coordinates o fvertices in two separate arrays.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   See also:</span>
+0021 <span class="comment">%   ellipses2d, circleAsPolygon, rectAsPolygon, drawEllipse</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">%   ---------</span>
+0024 <span class="comment">%   author : David Legland</span>
+0025 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0026 <span class="comment">%   created the 06/04/2005.</span>
+0027 <span class="comment">%</span>
+0028 
+0029 <span class="comment">%   HISTORY</span>
+0030 <span class="comment">%   2011-03-30 use angles in degrees, add default value for N</span>
+0031 <span class="comment">%   2011-12-09 deprecate</span>
+0032 
+0033 warning(<span class="string">'matGeom:deprecated'</span>, <span class="keyword">...</span>
+0034     <span class="string">'function &quot;ellipseAsCurve&quot; is deprecated, use &quot;ellipseToPolygon&quot; instead'</span>);
+0035 
+0036 <span class="comment">% format output</span>
+0037 <span class="keyword">if</span> nargout &lt;= 1
+0038     varargout = {<a href="ellipseToPolygon.html" class="code" title="function varargout = ellipseToPolygon(ellipse, N)">ellipseToPolygon</a>(ellipse, N)};
+0039 <span class="keyword">else</span>
+0040     [x y] = <a href="ellipseToPolygon.html" class="code" title="function varargout = ellipseToPolygon(ellipse, N)">ellipseToPolygon</a>(ellipse, N);
+0041     varargout = {x, y};
+0042 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

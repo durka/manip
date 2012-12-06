@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of intersectLineEdge</title>
+  <meta name="keywords" content="intersectLineEdge">
+  <meta name="description" content="INTERSECTLINEEDGE Return intersection between a line and an edge">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom2d</a> &gt; intersectLineEdge.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom2d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>intersectLineEdge
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>INTERSECTLINEEDGE Return intersection between a line and an edge</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function point = intersectLineEdge(line, edge) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">INTERSECTLINEEDGE Return intersection between a line and an edge
+
+   P = intersectLineEdge(LINE, EDGE);
+   returns the intersection point of lines LINE and edge EDGE. 
+   LINE is a 1x4 array containing parametric representation of the line
+   (in the form [x0 y0 dx dy], see 'createLine' for details). 
+   EDGE is a 1x4 array containing coordinates of first and second point
+   (in the form [x1 y1 x2 y2], see 'createEdge' for details). 
+   
+   In case of colinear line and edge, returns [Inf Inf].
+   If line does not intersect edge, returns [NaN NaN].
+
+   If each input is [N*4] array, the result is a [N*2] array containing
+   intersections for each couple of edge and line.
+   If one of the input has N rows and the other 1 row, the result is a
+   [N*2] array.
+
+   See also:
+   <a href="lines2d.html" class="code" title="function lines2d(varargin)">lines2d</a>, <a href="edges2d.html" class="code" title="function edges2d(varargin)">edges2d</a>, <a href="intersectEdges.html" class="code" title="function point = intersectEdges(edge1, edge2)">intersectEdges</a>, <a href="intersectLines.html" class="code" title="function point = intersectLines(line1, line2, varargin)">intersectLines</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 31/10/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="isPointOnEdge.html" class="code" title="function b = isPointOnEdge(point, edge, varargin)">isPointOnEdge</a>	ISPOINTONEDGE Test if a point belongs to an edge</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="clipEdge.html" class="code" title="function edge2 = clipEdge(edge, box)">clipEdge</a>	CLIPEDGE Clip an edge with a rectangular box</li><li><a href="clipLineRect.html" class="code" title="function edge = clipLineRect(line, rect)">clipLineRect</a>	CLIPLINERECT clip a line with a polygon</li><li><a href="../.././matGeom/polygons2d/clipPolygonHP.html" class="code" title="function poly2 = clipPolygonHP(poly, line)">clipPolygonHP</a>	CLIPPOLYGONHP Clip a polygon with a Half-plane defined by a directed line</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function point = intersectLineEdge(line, edge)</a>
+0002 <span class="comment">%INTERSECTLINEEDGE Return intersection between a line and an edge</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   P = intersectLineEdge(LINE, EDGE);</span>
+0005 <span class="comment">%   returns the intersection point of lines LINE and edge EDGE.</span>
+0006 <span class="comment">%   LINE is a 1x4 array containing parametric representation of the line</span>
+0007 <span class="comment">%   (in the form [x0 y0 dx dy], see 'createLine' for details).</span>
+0008 <span class="comment">%   EDGE is a 1x4 array containing coordinates of first and second point</span>
+0009 <span class="comment">%   (in the form [x1 y1 x2 y2], see 'createEdge' for details).</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   In case of colinear line and edge, returns [Inf Inf].</span>
+0012 <span class="comment">%   If line does not intersect edge, returns [NaN NaN].</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   If each input is [N*4] array, the result is a [N*2] array containing</span>
+0015 <span class="comment">%   intersections for each couple of edge and line.</span>
+0016 <span class="comment">%   If one of the input has N rows and the other 1 row, the result is a</span>
+0017 <span class="comment">%   [N*2] array.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   See also:</span>
+0020 <span class="comment">%   lines2d, edges2d, intersectEdges, intersectLines</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   ---------</span>
+0023 <span class="comment">%   author : David Legland</span>
+0024 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0025 <span class="comment">%   created the 31/10/2003.</span>
+0026 <span class="comment">%</span>
+0027 
+0028 <span class="comment">%   HISTORY</span>
+0029 <span class="comment">%   19/02/2004: add support for multiple lines.</span>
+0030 <span class="comment">%   08/03/2007: update doc</span>
+0031 
+0032 x0 =  line(:,1);
+0033 y0 =  line(:,2);
+0034 dx1 = line(:,3);
+0035 dy1 = line(:,4);
+0036 x1 =  edge(:,1);
+0037 y1 =  edge(:,2);
+0038 x2 = edge(:,3);
+0039 y2 = edge(:,4);
+0040 dx2 = x2-x1;
+0041 dy2 = y2-y1;
+0042 
+0043 N1 = length(x0);
+0044 N2 = length(x1);
+0045 
+0046 <span class="comment">% indices of parallel lines</span>
+0047 par = abs(dx1.*dy2-dx2.*dy1)&lt;1e-14;
+0048 
+0049 <span class="comment">% indices of colinear lines</span>
+0050 col = abs((x1-x0).*dy1-(y1-y0).*dx1)&lt;1e-14 &amp; par ;
+0051 
+0052 xi(col) = Inf;
+0053 yi(col) = Inf;
+0054 xi(par &amp; ~col) = NaN;
+0055 yi(par &amp; ~col) = NaN;
+0056 
+0057 i = ~par;
+0058 
+0059 <span class="comment">% compute intersection points</span>
+0060 <span class="keyword">if</span> N1==N2
+0061     xi(i) = ((y1(i)-y0(i)).*dx1(i).*dx2(i) + x0(i).*dy1(i).*dx2(i) - x1(i).*dy2(i).*dx1(i)) ./ <span class="keyword">...</span>
+0062         (dx2(i).*dy1(i)-dx1(i).*dy2(i)) ;
+0063     yi(i) = ((x1(i)-x0(i)).*dy1(i).*dy2(i) + y0(i).*dx1(i).*dy2(i) - y1(i).*dx2(i).*dy1(i)) ./ <span class="keyword">...</span>
+0064         (dx1(i).*dy2(i)-dx2(i).*dy1(i)) ;
+0065 <span class="keyword">elseif</span> N1==1
+0066     xi(i) = ((y1(i)-y0).*dx1.*dx2(i) + x0.*dy1.*dx2(i) - x1(i).*dy2(i).*dx1) ./ <span class="keyword">...</span>
+0067         (dx2(i).*dy1-dx1.*dy2(i)) ;
+0068     yi(i) = ((x1(i)-x0).*dy1.*dy2(i) + y0.*dx1.*dy2(i) - y1(i).*dx2(i).*dy1) ./ <span class="keyword">...</span>
+0069         (dx1.*dy2(i)-dx2(i).*dy1) ;
+0070 <span class="keyword">elseif</span> N2==1
+0071     xi(i) = ((y1-y0(i)).*dx1(i).*dx2 + x0(i).*dy1(i).*dx2 - x1(i).*dy2.*dx1(i)) ./ <span class="keyword">...</span>
+0072         (dx2.*dy1(i)-dx1(i).*dy2) ;
+0073     yi(i) = ((x1-x0(i)).*dy1(i).*dy2 + y0(i).*dx1(i).*dy2 - y1(i).*dx2.*dy1(i)) ./ <span class="keyword">...</span>
+0074         (dx1(i).*dy2-dx2.*dy1(i)) ;
+0075 <span class="keyword">end</span>
+0076 
+0077 point   = [xi' yi'];
+0078 out     = find(~<a href="isPointOnEdge.html" class="code" title="function b = isPointOnEdge(point, edge, varargin)">isPointOnEdge</a>(point, edge));
+0079 point(out, :) = repmat([NaN NaN], [length(out) 1]);</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

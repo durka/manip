@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of grMergeMultipleEdges</title>
+  <meta name="keywords" content="grMergeMultipleEdges">
+  <meta name="description" content="GRMERGEMULTIPLEEDGES Remove all edges sharing the same extremities">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">graphs</a> &gt; grMergeMultipleEdges.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\graphs&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>grMergeMultipleEdges
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>GRMERGEMULTIPLEEDGES Remove all edges sharing the same extremities</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function varargout = grMergeMultipleEdges(nodes, edges) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">GRMERGEMULTIPLEEDGES Remove all edges sharing the same extremities
+
+   [NODES2 EDGES2] = grMergeMultipleEdges(NODES, EDGES)
+   Remove configuration with two edges sharing the same 2 nodes.
+
+   -----
+
+   author : David Legland 
+   INRA - TPV URPOI - BIA IMASTE
+   created the 13/08/2003.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="grRemoveEdges.html" class="code" title="function [nodes2, edges2] = grRemoveEdges(nodes, edges, rmEdges)">grRemoveEdges</a>	GRREMOVEEDGES Remove several edges from a graph</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = grMergeMultipleEdges(nodes, edges)</a>
+0002 <span class="comment">%GRMERGEMULTIPLEEDGES Remove all edges sharing the same extremities</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   [NODES2 EDGES2] = grMergeMultipleEdges(NODES, EDGES)</span>
+0005 <span class="comment">%   Remove configuration with two edges sharing the same 2 nodes.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   -----</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   author : David Legland</span>
+0010 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0011 <span class="comment">%   created the 13/08/2003.</span>
+0012 <span class="comment">%</span>
+0013 
+0014 <span class="comment">%   HISTORY</span>
+0015 <span class="comment">%   10/02/2004 doc</span>
+0016 <span class="comment">%   2011-05-18 rename to grMergeMultipleEdges</span>
+0017 
+0018 rmedge = [];
+0019 <span class="keyword">for</span> e = 1:length(edges)
+0020     edge = edges(e, :);
+0021     <span class="keyword">for</span> e2 = e+1:length(edges)
+0022         <span class="keyword">if</span> (edge(1) == edges(e2, 1) &amp;&amp; edge(2) == edges(e2, 2)) || <span class="keyword">...</span>
+0023            (edge(1) == edges(e2, 2) &amp;&amp; edge(2) == edges(e2, 1))
+0024                 rmedge(length(rmedge)+1) = e2; <span class="comment">%#ok&lt;AGROW&gt;</span>
+0025         <span class="keyword">end</span>
+0026     <span class="keyword">end</span>
+0027 <span class="keyword">end</span>
+0028 
+0029 [nodes edges] = <a href="grRemoveEdges.html" class="code" title="function [nodes2, edges2] = grRemoveEdges(nodes, edges, rmEdges)">grRemoveEdges</a>(nodes, edges, rmedge);
+0030 
+0031 <span class="comment">% process output depending on how many arguments are needed</span>
+0032 <span class="keyword">if</span> nargout == 1
+0033     out{1} = nodes;
+0034     out{2} = edges;
+0035     varargout{1} = out;
+0036 <span class="keyword">end</span>
+0037 
+0038 <span class="keyword">if</span> nargout == 2
+0039     varargout = {nodes, edges};
+0040 <span class="keyword">end</span>
+0041</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

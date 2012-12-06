@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of intersectLinePlane</title>
+  <meta name="keywords" content="intersectLinePlane">
+  <meta name="description" content="INTERSECTLINEPLANE Intersection point between a 3D line and a plane">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../../index.html">Home</a> &gt;  <a href="#">matGeom</a> &gt; <a href="#">geom3d</a> &gt; intersectLinePlane.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../../index.html"><img alt="<" border="0" src="../../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\matGeom\geom3d&nbsp;<img alt=">" border="0" src="../../right.png"></a></td></tr></table>-->
+
+<h1>intersectLinePlane
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>INTERSECTLINEPLANE Intersection point between a 3D line and a plane</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>function point = intersectLinePlane(line, plane, varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">INTERSECTLINEPLANE Intersection point between a 3D line and a plane
+
+   PT = intersectLinePlane(LINE, PLANE)
+   Returns the intersection point of the given line and the given plane.
+   LINE:  [x0 y0 z0 dx dy dz]
+   PLANE: [x0 y0 z0 dx1 dy1 dz1 dx2 dy2 dz2]
+   PT:    [xi yi zi]
+   If LINE and PLANE are parallel, return [NaN NaN NaN].
+   If LINE (or PLANE) is a matrix with 6 (or 9) columns and N rows, result
+   is an array of points with N rows and 3 columns.
+   
+   PT = intersectLinePlane(LINE, PLANE, TOL)
+   Specifies the tolerance factor to test if a line is parallel to a
+   plane. Default is 1e-14.
+
+   Example
+     % define horizontal plane through origin
+     plane = [0 0 0   1 0 0   0 1 0];
+     % intersection with a vertical line
+     line = [2 3 4  0 0 1];
+     intersectLinePlane(line, plane)
+     ans = 
+        2   3   0
+     % intersection with a line &quot;parallel&quot; to plane
+     line = [2 3 4  1 2 0];
+     intersectLinePlane(line, plane)
+     ans = 
+       NaN  NaN  NaN
+
+   See also:
+   <a href="lines3d.html" class="code" title="function lines3d(varargin)">lines3d</a>, <a href="planes3d.html" class="code" title="function planes3d(varargin)">planes3d</a>, <a href="points3d.html" class="code" title="function points3d(varargin)">points3d</a>, <a href="clipLine3d.html" class="code" title="function edge = clipLine3d(line, box)">clipLine3d</a>
+
+   ---------
+   author : David Legland
+   INRA - TPV URPOI - BIA IMASTE
+   created the 17/02/2005.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="vectorCross3d.html" class="code" title="function c = vectorCross3d(a,b)">vectorCross3d</a>	VECTORCROSS3D Vector cross product faster than inbuilt MATLAB cross.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="clipConvexPolygon3dHP.html" class="code" title="function poly2 = clipConvexPolygon3dHP(poly, plane)">clipConvexPolygon3dHP</a>	CLIPCONVEXPOLYGON3DHP Clip a convex 3D polygon with Half-space</li><li><a href="clipLine3d.html" class="code" title="function edge = clipLine3d(line, box)">clipLine3d</a>	CLIPLINE3D Clip a line with a box and return an edge</li><li><a href="clipPolygon3dHP.html" class="code" title="function poly2 = clipPolygon3dHP(poly, plane)">clipPolygon3dHP</a>	CLIPPOLYGON3DHP clip a 3D polygon with Half-space</li><li><a href="drawPlane3d.html" class="code" title="function varargout = drawPlane3d(plane, varargin)">drawPlane3d</a>	DRAWPLANE3D Draw a plane clipped in the current window</li><li><a href="fillSphericalTriangle.html" class="code" title="function varargout = fillSphericalTriangle(sphere, p1, p2, p3, varargin)">fillSphericalTriangle</a>	FILLSPHERICALTRIANGLE Fill a triangle on a sphere</li><li><a href="intersectLinePolygon3d.html" class="code" title="function [inter inside]= intersectLinePolygon3d(line, poly)">intersectLinePolygon3d</a>	INTERSECTLINEPOLYGON3D Intersection point of a 3D line and a 3D polygon</li><li><a href="intersectRayPolygon3d.html" class="code" title="function [inter inside]= intersectRayPolygon3d(ray, poly)">intersectRayPolygon3d</a>	INTERSECTRAYPOLYGON3D Intersection point of a 3D ray and a 3D polygon</li><li><a href="projPointOnPlane.html" class="code" title="function point = projPointOnPlane(point, plane)">projPointOnPlane</a>	PROJPOINTONPLANE Return the orthogonal projection of a point on a plane</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function point = intersectLinePlane(line, plane, varargin)</a>
+0002 <span class="comment">%INTERSECTLINEPLANE Intersection point between a 3D line and a plane</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">%   PT = intersectLinePlane(LINE, PLANE)</span>
+0005 <span class="comment">%   Returns the intersection point of the given line and the given plane.</span>
+0006 <span class="comment">%   LINE:  [x0 y0 z0 dx dy dz]</span>
+0007 <span class="comment">%   PLANE: [x0 y0 z0 dx1 dy1 dz1 dx2 dy2 dz2]</span>
+0008 <span class="comment">%   PT:    [xi yi zi]</span>
+0009 <span class="comment">%   If LINE and PLANE are parallel, return [NaN NaN NaN].</span>
+0010 <span class="comment">%   If LINE (or PLANE) is a matrix with 6 (or 9) columns and N rows, result</span>
+0011 <span class="comment">%   is an array of points with N rows and 3 columns.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   PT = intersectLinePlane(LINE, PLANE, TOL)</span>
+0014 <span class="comment">%   Specifies the tolerance factor to test if a line is parallel to a</span>
+0015 <span class="comment">%   plane. Default is 1e-14.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%   Example</span>
+0018 <span class="comment">%     % define horizontal plane through origin</span>
+0019 <span class="comment">%     plane = [0 0 0   1 0 0   0 1 0];</span>
+0020 <span class="comment">%     % intersection with a vertical line</span>
+0021 <span class="comment">%     line = [2 3 4  0 0 1];</span>
+0022 <span class="comment">%     intersectLinePlane(line, plane)</span>
+0023 <span class="comment">%     ans =</span>
+0024 <span class="comment">%        2   3   0</span>
+0025 <span class="comment">%     % intersection with a line &quot;parallel&quot; to plane</span>
+0026 <span class="comment">%     line = [2 3 4  1 2 0];</span>
+0027 <span class="comment">%     intersectLinePlane(line, plane)</span>
+0028 <span class="comment">%     ans =</span>
+0029 <span class="comment">%       NaN  NaN  NaN</span>
+0030 <span class="comment">%</span>
+0031 <span class="comment">%   See also:</span>
+0032 <span class="comment">%   lines3d, planes3d, points3d, clipLine3d</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">%   ---------</span>
+0035 <span class="comment">%   author : David Legland</span>
+0036 <span class="comment">%   INRA - TPV URPOI - BIA IMASTE</span>
+0037 <span class="comment">%   created the 17/02/2005.</span>
+0038 <span class="comment">%</span>
+0039 
+0040 <span class="comment">%   HISTORY</span>
+0041 <span class="comment">%   24/11/2005 add support for multiple input</span>
+0042 <span class="comment">%   23/06/2006 correction from Songbai Ji allowing different number of</span>
+0043 <span class="comment">%       lines or plane if other input has one row</span>
+0044 <span class="comment">%   14/12/2006 correction for parallel lines and plane normals</span>
+0045 <span class="comment">%   05/01/2007 fixup for parallel lines and plane normals</span>
+0046 <span class="comment">%   24/04/2007 rename as 'intersectLinePlane'</span>
+0047 <span class="comment">%   11/19/2010 Added bsxfun functionality for improved speed (Sven Holcombe)</span>
+0048 <span class="comment">%   01/02/2011 code cleanup, add option for tolerance, update doc</span>
+0049 
+0050 
+0051 <span class="comment">% extract tolerance if needed</span>
+0052 tol = 1e-14;
+0053 <span class="keyword">if</span> nargin &gt; 2
+0054     tol = varargin{1};
+0055 <span class="keyword">end</span>
+0056 
+0057 <span class="comment">% unify sizes of data</span>
+0058 nLines  = size(line, 1);
+0059 nPlanes = size(plane, 1);
+0060 
+0061 <span class="comment">% N planes and M lines not allowed</span>
+0062 <span class="keyword">if</span> nLines ~= nPlanes &amp;&amp; min(nLines, nPlanes) &gt; 1
+0063     error(<span class="string">'MatGeom:geom3d:intersectLinePlane'</span>, <span class="keyword">...</span>
+0064         <span class="string">'Input must have same number of rows, or one must be 1'</span>);
+0065 <span class="keyword">end</span>
+0066 
+0067 <span class="comment">% plane normal</span>
+0068 n = <a href="vectorCross3d.html" class="code" title="function c = vectorCross3d(a,b)">vectorCross3d</a>(plane(:,4:6), plane(:,7:9));
+0069 
+0070 <span class="comment">% difference between origins of plane and line</span>
+0071 dp = bsxfun(@minus, plane(:, 1:3), line(:, 1:3));
+0072 
+0073 <span class="comment">% dot product of line direction with plane normal</span>
+0074 denom = sum(bsxfun(@times, n, line(:,4:6)), 2);
+0075 
+0076 <span class="comment">% relative position of intersection point on line (can be inf in case of a</span>
+0077 <span class="comment">% line parallel to the plane)</span>
+0078 t = sum(bsxfun(@times, n, dp),2) ./ denom;
+0079 
+0080 <span class="comment">% compute coord of intersection point</span>
+0081 point = bsxfun(@plus, line(:,1:3),  bsxfun(@times, [t t t], line(:,4:6)));
+0082 
+0083 <span class="comment">% set indices of line and plane which are parallel to NaN</span>
+0084 par = abs(denom) &lt; tol;
+0085 point(par,:) = NaN;</pre></div>
+<hr><address>Generated on Thu 22-Nov-2012 11:56:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>
