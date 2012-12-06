@@ -55,7 +55,7 @@ function X = manip_simulate(dims, n, f, S)
     for frame = 1:f
         origin = squeeze(X(frame,1, :,:));
         for i = 1:n
-            dX = T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.1, .1, [dims*(dims-1)/2 1]));
+            dX = eye(dims+1);%T(unifrnd(-.025, .025, [dims 1])) * R(unifrnd(-.05, .05, [dims*(dims-1)/2 1]));
             X(frame,i, :,:) = origin * dX / origin * squeeze(X(frame,i, :,:));
         end
     end
