@@ -326,6 +326,7 @@ if isempty(X)
 end
 
 learned = manip_learn(X, true);
+assignin('base', 'SS', learned);
 setappdata(handles.stuff, 'GUESS', learned);
 draw_tree(handles.tree_out, learned, 0);
 
