@@ -157,6 +157,48 @@ function S = manip_learn(X, dbg)
         end
     end
     
+    dbg('Removing rigid subclusters...\n');
+    SS = S(strcmp({S.joint}, 'rigid'));
+    S = S(~strcmp({S.joint}, 'rigid'));
+    for i = 1:length(SS)
+        % merge the nodes in S
+        
+        for j = find([S.b] == SS(i).b)
+            S(j).b = SS(i).a;
+            % TODO S(j).params = feval(['move_' S(j).joint], 'b', SS(i).params);
+        end
+        
+        for j = find([S.a] == SS(i).b)
+            S(j).a = SS(i).a;
+            % TODO S(j).params = feval(['move_' S(j).joint], 'a', SS(i).params);
+        end
+    end
+    
+    dbg('Fixing up the indices...\n');
+    for i = 1:max([S.a S.b])
+        j = i;
+        
+        if j > [S.a S.b]
+            break
+        end
+        
+        while j ~= [S.a S.b]
+            j = j + 1;
+        end
+        
+        if j ~= i
+            dbg('\t%d >= %d\n', j, i);
+            dbg('\t\t%s\n\t\t%s\n', mat2str([S.a]), mat2str([S.b]));
+            for k = find([S.a] == j)
+                S(k).a = i;
+            end
+            for k = find([S.b] == j)
+                S(k).b = i;
+            end
+            dbg('\t\t%s\n\t\t%s\n', mat2str([S.a]), mat2str([S.b]));
+        end
+    end
+    
     dbg('Done learning (%g sec)\n\n', toc);
     profile viewer;
 end
