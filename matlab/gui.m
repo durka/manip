@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 15-Nov-2012 00:47:08
+% Last Modified by GUIDE v2.5 14-Dec-2012 14:34:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,25 +61,25 @@ for j = 1:length(S)
         % 2D
         plot([X(f,S(j).a, 1,3), X(f,S(j).b, 1,3)], ...
              [X(f,S(j).a, 2,3), X(f,S(j).b, 2,3)], ...
-             [colors(j) '.-']);
+             [colors(mod(j-1,4)+1) '.-']);
         quiver([X(f,S(j).a, 1,3), X(f,S(j).b, 1,3)], ...
                [X(f,S(j).a, 2,3), X(f,S(j).b, 2,3)], ...
                [X(f,S(j).a, 1,1), X(f,S(j).b, 1,1)], ...
                [X(f,S(j).a, 2,1), X(f,S(j).b, 2,1)], ...
-               0.2, colors(j));
+               0.2, colors(mod(j-1,4)+1));
     else
         % 3D
         plot3([X(f,S(j).a, 1,4), X(f,S(j).b, 1,4)], ...
               [X(f,S(j).a, 2,4), X(f,S(j).b, 2,4)], ...
               [X(f,S(j).a, 3,4), X(f,S(j).b, 3,4)], ...
-              [colors(j) '.-']);
+              [colors(mod(j-1,4)+1) '.-']);
         quiver3([X(f,S(j).a, 1,4), X(f,S(j).b, 1,4)], ...
                 [X(f,S(j).a, 2,4), X(f,S(j).b, 2,4)], ...
                 [X(f,S(j).a, 3,4), X(f,S(j).b, 3,4)], ...
                 [X(f,S(j).a, 1,1), X(f,S(j).b, 1,1)], ...
                 [X(f,S(j).a, 2,1), X(f,S(j).b, 2,1)], ...
                 [X(f,S(j).a, 3,1), X(f,S(j).b, 3,1)], ...
-                0.2, colors(j));
+                0.2, colors(mod(j-1,4)+1));
     end
 end
 hold off;
@@ -139,6 +139,7 @@ guidata(hObject, handles);
 % all of the gui's state is going to stored in the properties of this static text control
 setappdata(handles.stuff, 'joint', 1);
 setappdata(handles.stuff, 'dims', 3); % TODO: load these from the uicontrols
+setappdata(handles.stuff, 'fudge', 1);
 setappdata(handles.stuff, 'frames', 50);
 setappdata(handles.stuff, 'curframe', 1);
 setappdata(handles.stuff, 'animdir', 1);
@@ -658,3 +659,53 @@ function debug_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 keyboard
+
+
+
+function fudge_factor_Callback(hObject, eventdata, handles)
+% hObject    handle to fudge_factor (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of fudge_factor as text
+%        str2double(get(hObject,'String')) returns contents of fudge_factor as a double
+setappdata(handles.stuff, 'fudge', str2double(get(hObject, 'String')));
+
+
+% --- Executes during object creation, after setting all properties.
+function fudge_factor_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fudge_factor (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in fudge.
+function fudge_Callback(hObject, eventdata, handles)
+% hObject    handle to fudge (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+S = getappdata(handles.stuff, 'TREE');
+dims = getappdata(handles.stuff, 'dims');
+fudge = getappdata(handles.stuff, 'fudge');
+
+% inflate using the fudge factor
+for i = unique([S.a S.b])
+    for j = 1:fudge-1
+        S(end+1) = struct('a',      { i                                                                                    }, ...
+                          'b',      { max([S.a S.b])+1                                                                     }, ...
+                          'joint',  { 'rigid'                                                                              }, ...
+                          'params', { {T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [1*(dims==2)+3*(dims==3) 1]))} }, ...
+                          'state',  { 0                                                                                    }, ...
+                          'bounds', { [0; 0]                                                                               });
+    end
+end
+
+change_tree(handles, S);
+draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
