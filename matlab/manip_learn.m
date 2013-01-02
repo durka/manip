@@ -132,7 +132,7 @@ function S = manip_learn(X, dbg)
             S(i).params = params{best};
             S(i).bounds = [0;0];
             S(i).state = 0;
-            S(i).cost = best_crit;
+            S(i).cost = best_crit + SE_dist(eye(dims+1), feval(['forward_' S(i).joint], S(i).params, S(i).state));
         end
     end
     
