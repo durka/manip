@@ -65,8 +65,8 @@ function S = manip_learn(X, dbg)
                                  [ inf(size(t))  pi*ones(size(r))], ...
                                  [], ... % no nonlinear constraints
                                  options);
-            rigid_params = T(rigid_fit(1:dims))*R(rigid_fit(dims+1:end));
-            dbg('\t\tRigid joint (%d steps, err=%g, flag=%d): o=%s\n', output.iterations, rigid_err, flag, format_SE(rigid_params, 3));
+            rigid_params = {T(rigid_fit(1:dims))*R(rigid_fit(dims+1:end))};
+            dbg('\t\tRigid joint (%d steps, err=%g, flag=%d): o=%s\n', output.iterations, rigid_err, flag, format_SE(rigid_params{1}, 3));
             
             
             %dbg('\t%s\n', mat2str([t r, eye(1,dims)], 3));
