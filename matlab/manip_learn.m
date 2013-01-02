@@ -122,7 +122,7 @@ function S = manip_learn(X, dbg)
             fits = {rigid_fit, prismatic_fit, revolute_fit};
             params = {rigid_params, prismatic_params, revolute_params};
             errs = [rigid_err, prismatic_err, revolute_err];
-            crits = errs + 5*cellfun(@length, fits); % TODO need weights here
+            crits = errs + cellfun(@length, fits); % TODO need weights here
             [best_crit, best] = min(crits);
             dbg('\tBest: %s (bics %s)\n', names{best}, mat2str(crits, 3));
             i = length(S)+1;
