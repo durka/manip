@@ -154,12 +154,12 @@ function S = manip_learn(X, dbg)
         
         for j = find([S.b] == SS(i).b)
             S(j).b = SS(i).a;
-            % TODO S(j).params = feval(['move_' S(j).joint], 'b', SS(i).params);
+            S(j).params = feval(['move_' S(j).joint], 'b', SS(i).params{1});
         end
         
         for j = find([S.a] == SS(i).b)
             S(j).a = SS(i).a;
-            % TODO S(j).params = feval(['move_' S(j).joint], 'a', SS(i).params);
+            S(j).params = feval(['move_' S(j).joint], 'a', SS(i).params{1});
         end
     end
     
