@@ -142,7 +142,9 @@ function S = manip_learn(X, dbg)
         if S(i-1).a == b
             S(i-1).a = a;
             S(i-1).b = b;
-            % TODO S(i-1).params = feval(['reverse_' S(i-1).joint], S(i-1).params);
+            S(i-1).params = feval(['reverse_' S(i-1).joint], S(i-1).params);
+            S(i-1).bounds = -S(i-1).bounds;
+            S(i-1).state = -S(i-1).state;
         end
     end
     
