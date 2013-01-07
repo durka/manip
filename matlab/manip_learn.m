@@ -138,28 +138,35 @@ function S = manip_learn(X, dbg)
         b = i;
         S(i-1) = SS(([SS.a] == a & [SS.b] == b) | ([SS.a] == b & [SS.b] == a));
         
+        dbg('\tinserting %s joint from %d to %d ', S(i-1).joint, a, b);
+        
         % might have to reverse the edge
         if S(i-1).a == b
+            dbg('reversed');
             S(i-1).a = a;
             S(i-1).b = b;
             S(i-1).params = feval(['reverse_' S(i-1).joint], S(i-1).params);
             S(i-1).bounds = -S(i-1).bounds;
             S(i-1).state = -S(i-1).state;
         end
+        dbg('\n');
     end
     
     dbg('Removing rigid subclusters...\n');
     SS = S(strcmp({S.joint}, 'rigid'));
     S = S(~strcmp({S.joint}, 'rigid'));
+    dbg('\trigid part\n\t\t%s\n\t\t%s\n\tnonrigid part\n\t\t%s\n\t\t%s\n', mat2str([SS.a]), mat2str([SS.b]), mat2str([S.a]), mat2str([S.b]));
     for i = 1:length(SS)
         % merge the nodes in S
         
-        for j = find([S.b] == SS(i).b)
+        for j = find([S.b] == SS(i).a)
+            dbg('\tadding transform after joint %d-%d\n', S(j).a, S(j).b);
             S(j).b = SS(i).a;
             S(j).params = feval(['move_' S(j).joint], 'b', SS(i).params{1});
         end
         
         for j = find([S.a] == SS(i).b)
+            dbg('\tadding transform before joint %d-%d\n', S(j).a, S(j).b);
             S(j).a = SS(i).a;
             S(j).params = feval(['move_' S(j).joint], 'a', SS(i).params{1});
         end
