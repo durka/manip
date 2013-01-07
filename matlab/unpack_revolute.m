@@ -4,13 +4,13 @@ function params = unpack_revolute(p, dims)
     
     t = p(i:i+dims-1); i = i+dims;
     r = p(i:i+n-1);    i = i+n;
-    params{1} = Tmex(t)*Rmex(r);
+    params{1} = SEmex(t,r);
     
     %fprintf('\t\t\tunpacked %s, %s;', mat2str(t), mat2str(r));
     
     t = p(i:i+dims-1); i = i+dims;
     r = p(i:i+n-1);    i = i+n;
-    params{2} = Tmex(t)*Rmex(r);
+    params{2} = SEmex(t,r);
     
     %fprintf(' %s, %s => %s, %s\n', mat2str(t), mat2str(r), mat2str(params{1}), mat2str(params{2}));
 end
