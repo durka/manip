@@ -4,5 +4,5 @@
 function params = reverse_prismatic(params)
     dims = size(params{1}, 1) - 1;
     params{1} = inv(params{1});
-    params{2} = params{1}(1:dims,1:dims)*params{2};
+    params{2} = params{1}(1:dims,1:dims)*params{2}(:);
 end

@@ -162,13 +162,13 @@ function S = manip_learn(X, dbg)
         for j = find([S.b] == SS(i).a)
             dbg('\tadding transform after joint %d-%d\n', S(j).a, S(j).b);
             S(j).b = SS(i).a;
-            S(j).params = feval(['move_' S(j).joint], 'b', SS(i).params{1});
+            S(j).params = feval(['move_' S(j).joint], S(j).params, 'b', SS(i).params{1});
         end
         
         for j = find([S.a] == SS(i).b)
             dbg('\tadding transform before joint %d-%d\n', S(j).a, S(j).b);
             S(j).a = SS(i).a;
-            S(j).params = feval(['move_' S(j).joint], 'a', SS(i).params{1});
+            S(j).params = feval(['move_' S(j).joint], S(j).params, 'a', SS(i).params{1});
         end
     end
     

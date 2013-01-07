@@ -8,6 +8,6 @@ function params = move_prismatic(params, aorb, rigid)
         case 'b'
             dims = size(rigid,1)-1;
             params{1} = rigid*params{1};
-            params{2} = rigid(1:dims,1:dims)*params{2};
+            params{2} = rigid(1:dims,1:dims)*params{2}(:);
     end
 end
