@@ -25,6 +25,7 @@
         <script src="./AR_mediaStream_files/utils.js.pagespeed.jm.TXVjeF_BBR.js"></script>
         <script src="./AR_mediaStream_files/photos.js.pagespeed.jm.5APXXL9PLR.js"></script>
         <script>
+            // setup
             threshold = 128;
             DEBUG = false;
             photos = Photos.map(Image.load);
@@ -54,6 +55,8 @@
             if (!createObjectURL) {
                 throw new Error("URL.createObjectURL not found.");
             }
+
+            // grab camera
             getUserMedia({
                 'video': true
             }, function (stream) {
@@ -62,21 +65,39 @@
             }, function (error) {
                 alert("Couldn't access webcam.");
             });
+
             window.onload = function () {
+                // create video element
                 byId('loading').style.display = 'none';
                 document.body.appendChild(video);
+
+                // create canvas element
                 var canvas = document.createElement('canvas');
                 canvas.width = 320;
                 canvas.height = 240;
                 canvas.style.display = 'block';
+
+                // create video canvas
                 var videoCanvas = document.createElement('canvas');
                 videoCanvas.width = video.width;
                 videoCanvas.height = video.height;
+
+                // Create a RGB raster object for the 2D canvas.
+                // JSARToolKit uses raster objects to read image data.
+                // Note that you need to set canvas.changed = true on every frame.
                 var raster = new NyARRgbRaster_Canvas2D(canvas);
+                // FLARParam is the thing used by FLARToolKit to set camera parameters.
+                // Here we create a FLARParam for images with 320x240 pixel dimensions.
                 var param = new FLARParam(320, 240);
+                // Create a NyARTransMatResult object for getting the marker translation matrices.
                 var resultMat = new NyARTransMatResult();
+                // The FLARMultiIdMarkerDetector is the actual detection engine for marker detection.
+                // It detects multiple ID markers. ID markers are special markers that encode a number.
                 var detector = new FLARMultiIdMarkerDetector(param, 120);
+                // For tracking video set continue mode to true. In continue mode, the detector
+                // tracks markers across multiple frames.
                 detector.setContinueMode(true);
+
                 var ctx = canvas.getContext('2d');
                 ctx.font = "24px URW Gothic L, Arial, Sans-serif";
                 var glCanvas = document.createElement('canvas');
@@ -85,10 +106,14 @@
                 glCanvas.height = 720;
                 var s = glCanvas.style;
                 document.body.appendChild(glCanvas);
+
                 display = new Magi.Scene(glCanvas);
                 display.drawOnlyWhenChanged = true;
+                // Copy the camera perspective matrix from the FLARParam to the WebGL library camera matrix.
+                // The second and third parameters determine the zNear and zFar planes for the perspective matrix.
                 param.copyCameraMatrix(display.camera.perspectiveMatrix, 10, 10000);
                 display.camera.useProjectionMatrix = true;
+
                 var videoTex = new Magi.FlipFilterQuad();
                 videoTex.material.textures.Texture0 = new Magi.Texture();
                 videoTex.material.textures.Texture0.image = videoCanvas;
@@ -99,9 +124,11 @@
                 var lastTime = 0;
                 var cubes = {};
                 var images = [];
+
                 window.updateImage = function () {
                     display.changed = true;
                 }
+
                 window.addEventListener('keydown', function (ev) {
                     if (Key.match(ev, Key.LEFT)) {
                         images.forEach(function (e) {
@@ -113,6 +140,7 @@
                         });
                     }
                 }, false);
+
                 setInterval(function () {
                     if (video.ended) video.play();
                     if (video.paused) return;
@@ -122,17 +150,31 @@
                     }
                     if (video.currentTime == lastTime) return;
                     lastTime = video.currentTime;
+
+                    // Draw the video frame to the raster canvas, scaled to 320x240.
                     videoCanvas.getContext('2d').drawImage(video, 0, 0);
                     ctx.drawImage(videoCanvas, 0, 0, 320, 240);
                     var dt = new Date().getTime();
                     videoTex.material.textures.Texture0.changed = true;
+
+                    // Tell the raster object that the underlying canvas has changed.
                     canvas.changed = true;
                     display.changed = true;
                     var t = new Date();
+
+                    // Do marker detection by using the detector object on the raster object.
+                    // The threshold parameter determines the threshold value
+                    // for turning the video frame into a 1-bit black-and-white image.
                     var detected = detector.detectMarkerLite(raster, threshold);
                     for (var idx = 0; idx < detected; idx++) {
+                        // Get the ID marker data for the current marker.
+                        // ID markers are special kind of markers that encode a number.
+                        // The bytes for the number are in the ID marker data.
                         var id = detector.getIdMarkerData(idx);
+
+                        // Read bytes from the id packet.
                         var currId;
+                        // This code handles only 32-bit numbers or shorter.
                         if (id.packetLength > 4) {
                             currId = -1;
                         } else {
@@ -141,13 +183,18 @@
                                 currId = (currId << 8) | id.getPacketData(i);
                             }
                         }
+
+                        // If this is a new id, let's start tracking it.
                         if (!pastResults[currId]) {
                             pastResults[currId] = {};
                         }
+                        // Get the transformation matrix for the detected marker.
                         detector.getTransformMatrix(idx, resultMat);
+                        // Copy the result matrix into our marker tracker object.
                         pastResults[currId].age = 0;
                         pastResults[currId].transform = Object.asCopy(resultMat);
                     }
+
                     for (var i in pastResults) {
                         var r = pastResults[i];
                         if (r.age > 1) {
@@ -156,7 +203,9 @@
                         }
                         r.age++;
                     }
+
                     for (var i in cubes) cubes[i].display = false;
+
                     for (var i in pastResults) {
                         if (!cubes[i]) {
                             var pivot = new Magi.Node();
@@ -191,6 +240,7 @@
                             cubes[i] = pivot;
                         }
                         cubes[i].display = true;
+                        console.log([i, cubes[i].matrix[0], cubes[i].matrix[1], cubes[i].matrix[2], cubes[i].matrix[3], cubes[i].matrix[4], cubes[i].matrix[5], cubes[i].matrix[6], cubes[i].matrix[7], cubes[i].matrix[8], cubes[i].matrix[9], cubes[i].matrix[10], cubes[i].matrix[11], cubes[i].matrix[12], cubes[i].matrix[13], cubes[i].matrix[14], cubes[i].matrix[15]]);
                         var mat = pastResults[i].transform;
                         var cm = cubes[i].transform;
                         cm[0] = mat.m00;
@@ -325,16 +375,6 @@
 
             pagespeed.addInstrumentationInit('http://1-ps.googleusercontent.com/beacon?org=67_1_dp', 'load', '', '', '', 'http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html');
         </script>
-
-        <video width="640"
-               height="480"
-               loop=""
-               autoplay=""
-               style="display: none;"
-               controls=""></video>
-        <canvas style="-webkit-transform: scale(-1, 1);"
-                width="960"
-                height="720"></canvas>
     </body>
 </html>
 
