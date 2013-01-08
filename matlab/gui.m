@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 14-Dec-2012 14:34:36
+% Last Modified by GUIDE v2.5 07-Jan-2013 23:11:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -115,11 +115,12 @@ setappdata(handles.stuff, 'TREE', S);
 if isappdata(handles.stuff, 'DATA')
     rmappdata(handles.stuff, 'DATA'); % hard to say whether the data was invalidated, so... assume it was
 end
+populate_joint_panel(handles, 'Design');
 
 function reset_tree(handles)
 
 change_tree(handles, struct('a', {1}, 'b', {2}, 'joint', {'rigid'}, 'params', {{T(1:getappdata(handles.stuff, 'dims'))}}, 'state', {0}, 'bounds', {[0;0]}));
-select_joint(handles, 1);
+select_joint(handles, 1, 'Design');
 
 % --- Executes just before gui is made visible.
 function gui_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -496,7 +497,7 @@ else
     end
 
     change_tree(handles, S);
-    select_joint(handles, 1);
+    select_joint(handles, 1, 'Design');
 end
 
 
@@ -517,19 +518,28 @@ S(joint).state = state;
 change_tree(handles, S);
 
 
-function select_joint(handles, i)
+function select_joint(handles, i, mode)
 
-S = getappdata(handles.stuff, 'TREE');
-setappdata(handles.stuff, 'joint', i);
-set(handles.jointsel, 'String', sprintf('Joint %d-%d', S(i).a, S(i).b));
-draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
+switch mode
+    case 'Design'
+        S = getappdata(handles.stuff, 'TREE');
+        jointsel = handles.in_jointsel;
+        tree = handles.tree_in;
+        joint = 'joint';
+    case 'Learned'
+        S = getappdata(handles.stuff, 'GUESS');
+        jointsel = handles.out_jointsel;
+        tree = handles.tree_out;
+        joint = 'ljoint';
+end
+
+setappdata(handles.stuff, joint, i);
+set(jointsel, 'String', sprintf('%s joint %d-%d', mode, S(i).a, S(i).b));
+draw_tree(tree, S, getappdata(handles.stuff, joint));
+populate_joint_panel(handles, mode);
 
 
-% --- Executes on mouse press over axes background.
-function tree_in_ButtonDownFcn(hObject, eventdata, handles)
-% hObject    handle to tree_in (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function cursor_to_joint(this, S, mode, handles)
 
 % find nearest node or joint (if within a radius) and set selected
 if (gco == gca)
@@ -537,9 +547,8 @@ if (gco == gca)
 else
     point = get(get(gco, 'Parent'), 'CurrentPoint');
 end
-p = subsref(point, substruct('()', {1, 1:2}));
-S = getappdata(handles.stuff, 'TREE');
-[x,y] = draw_tree(handles.tree_in, S, -1);
+p = point(1, 1:2);
+[x,y] = draw_tree(this, S, -1);
 min_ratio = 1.1;
 min_i = 0;
 for i=1:length(S)
@@ -557,8 +566,17 @@ for i=1:length(S)
 end
 
 if min_i ~= 0
-    select_joint(handles, min_i);
+    select_joint(handles, min_i, mode);
 end
+
+
+% --- Executes on mouse press over axes background.
+function tree_in_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to tree_in (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+cursor_to_joint(handles.tree_in, getappdata(handles.stuff, 'TREE'), 'Design', handles);
 
 
 % --- Executes on button press in changejoint.
@@ -604,7 +622,7 @@ if ~isempty(past)
     setappdata(handles.stuff, 'TREE_future', future);
     setappdata(handles.stuff, 'TREE', S);
 end
-select_joint(handles, 1);
+select_joint(handles, 1, 'Design');
 
 
 % --- Executes on button press in redo.
@@ -624,7 +642,7 @@ if ~isempty(future)
     setappdata(handles.stuff, 'TREE_future', future);
     setappdata(handles.stuff, 'TREE', S);
 end
-select_joint(handles, 1);
+select_joint(handles, 1, 'Design');
 
 
 % --- Executes on button press in save.
@@ -649,7 +667,9 @@ function load_Callback(hObject, eventdata, handles)
 vars = load([path filename]);
 change_dims(handles, vars.DIMS);
 change_tree(handles, vars.TREE);
-select_joint(handles, vars.SELJ);
+if isfield(vars, 'SELJ')
+    select_joint(handles, vars.SELJ, 'Design');
+end
 
 
 % --- Executes on button press in debug.
@@ -709,3 +729,369 @@ end
 
 change_tree(handles, S);
 draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
+
+
+function tag = decode_prop(tag)
+
+tag = tag(7:end);
+if strcmp(tag(1:5), 'param')
+    tag = ['params{' tag(6:end) '}'];
+end
+
+
+function populate_joint_panel(handles, mode)
+
+switch mode
+    case 'Design'
+        prefix = 'in_';
+        S = getappdata(handles.stuff, 'TREE');
+        jointdata = 'joint';
+    case 'Learned'
+        prefix = 'out_';
+        S = getappdata(handles.stuff, 'GUESS');
+        jointdata = 'ljoint';
+end
+
+contents = lower(get(handles.([prefix 'joint_type']), 'String'));
+
+set(handles.([prefix 'rigid_panel']), 'Visible', 'off');
+set(handles.([prefix 'prismatic_panel']), 'Visible', 'off');
+set(handles.([prefix 'revolute_panel']), 'Visible', 'off');
+
+i = getappdata(handles.stuff, jointdata);
+joint = S(i).joint;
+set(handles.([prefix 'joint_type']), 'Value', find(strcmp(contents, joint)));
+controls = get(handles.([prefix joint '_panel']), 'Children');
+for c = controls(strcmp(get(controls, 'Style'), 'edit'))'
+    try
+        val = eval(['S(i).' decode_prop(get(c, 'Tag'))]);
+    catch err
+        if strcmp(err.identifier, 'MATLAB:badsubscript')
+            val = verifier('', get(c, 'TooltipString'), getappdata(handles.stuff, 'dims'));
+        else
+            rethrow(err);
+        end
+    end
+    set(c, 'String', verifier(val, get(c, 'TooltipString'), getappdata(handles.stuff, 'dims')));
+    set(c, 'BackgroundColor', [1 1 1]);
+end
+
+set(handles.([prefix joint '_panel']), 'Visible', 'on');
+
+
+% --- Executes on selection change in in_joint_type.
+function in_joint_type_Callback(hObject, eventdata, handles)
+% hObject    handle to in_joint_type (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns in_joint_type contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from in_joint_type
+
+S = getappdata(handles.stuff, 'TREE');
+dims = getappdata(handles.stuff, 'dims');
+i = getappdata(handles.stuff, 'joint');
+old_joint = S(i).joint;
+new_joint = lower(subsref(get(hObject, 'String'), substruct('{}', {get(hObject, 'Value')})));
+old_controls = get(handles.(['in_' old_joint '_panel']), 'Children');
+new_controls = get(handles.(['in_' new_joint '_panel']), 'Children');
+for c = new_controls(strcmp(get(new_controls, 'Style'), 'edit'))' % transfer over the parameters, if possible
+    old_value = get(old_controls(strcmp(get(old_controls, 'Tag'), get(c, 'Tag'))), 'String');
+    try
+        verifier(old_value, get(c, 'TooltipString'), dims); % if the param verifies, we can keep it
+    catch err
+        if strcmp(err.identifier, 'KA:type') % otherwise, use the default value
+            eval(['S(i).' decode_prop(get(c, 'Tag')) ' = verifier('''', get(c, ''TooltipString''), dims);']);
+        else
+            rethrow(err);
+        end
+    end
+end
+
+% now update the GUI
+S(i).joint = new_joint;
+change_tree(handles, S);
+
+
+function joint_prop_callback(hObject, eventdata, handles)
+
+string = get(hObject, 'String');
+try
+    value = verifier(string, get(hObject, 'TooltipString'), getappdata(handles.stuff, 'dims'));
+    
+    S = getappdata(handles.stuff, 'TREE');
+    i = getappdata(handles.stuff, 'joint');
+    eval(['S(i).' decode_prop(get(hObject, 'Tag')) ' = value;']);
+    change_tree(handles, S);
+    set(hObject, 'BackgroundColor', [0 1 0]); % happy green background == prop updated
+catch err
+    if strcmp(err.identifier, 'KA:type')
+        set(hObject, 'BackgroundColor', [1 0 0]); % angry red background == prop not updated
+    else
+        rethrow(err);
+    end
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function in_joint_type_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to in_joint_type (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function rigid_offset_Callback(hObject, eventdata, handles)
+% hObject    handle to rigid_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of rigid_offset as text
+%        str2double(get(hObject,'String')) returns contents of rigid_offset as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function rigid_offset_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to rigid_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function joint_param1_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_param1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_param1 as text
+%        str2double(get(hObject,'String')) returns contents of joint_param1 as a double
+
+joint_prop_callback(hObject, eventdata, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function joint_param1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_param1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on key press with focus on joint_param1 and none of its controls.
+function joint_param1_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to joint_param1 (see GCBO)
+% eventdata  structure with the following fields (see UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function joint_bounds_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_bounds (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_bounds as text
+%        str2double(get(hObject,'String')) returns contents of joint_bounds as a double
+joint_prop_callback(hObject, eventdata, handles);
+
+% --- Executes during object creation, after setting all properties.
+function joint_bounds_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_bounds (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function joint_state_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_state (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_state as text
+%        str2double(get(hObject,'String')) returns contents of joint_state as a double
+joint_prop_callback(hObject, eventdata, handles);
+
+% --- Executes during object creation, after setting all properties.
+function joint_state_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_state (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function joint_param2_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_param2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_param2 as text
+%        str2double(get(hObject,'String')) returns contents of joint_param2 as a double
+joint_prop_callback(hObject, eventdata, handles);
+
+% --- Executes during object creation, after setting all properties.
+function joint_param2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_param2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit18_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_param1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_param1 as text
+%        str2double(get(hObject,'String')) returns contents of joint_param1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit18_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_param1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function prismatic_vector_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_param2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_param2 as text
+%        str2double(get(hObject,'String')) returns contents of joint_param2 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function prismatic_vector_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_param2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function prismatic_state_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_state (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_state as text
+%        str2double(get(hObject,'String')) returns contents of joint_state as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function prismatic_state_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_state (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function prismatic_bounds_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_bounds (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_bounds as text
+%        str2double(get(hObject,'String')) returns contents of joint_bounds as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function prismatic_bounds_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_bounds (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in out_joint_type.
+function out_joint_type_Callback(hObject, eventdata, handles)
+% hObject    handle to out_joint_type (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns out_joint_type contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from out_joint_type
+
+
+% --- Executes during object creation, after setting all properties.
+function out_joint_type_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to out_joint_type (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on mouse press over axes background.
+function tree_out_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to tree_out (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+cursor_to_joint(handles.tree_out, getappdata(handles.stuff, 'GUESS'), 'Learned', handles);
