@@ -1,30 +1,340 @@
 
 <!-- saved from url=(0083)http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><script type="text/javascript" async="" src="./AR_mediaStream_files/ga.js"></script><script type="text/javascript">(function(){new Image().src="http://1-ps.googleusercontent.com/x/s.html5rocks-hrd.appspot.com/www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/JSARToolKit.js.pagespeed.jm.GFNH6_jM_x.js";new Image().src="http://1-ps.googleusercontent.com/x/s.html5rocks-hrd.appspot.com/www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/magi.js.pagespeed.jm.AJxVGUpjxP.js";new Image().src="http://1-ps.googleusercontent.com/x/s.html5rocks-hrd.appspot.com/www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/utils.js.pagespeed.jm.TXVjeF_BBR.js";new Image().src="http://1-ps.googleusercontent.com/x/s.html5rocks-hrd.appspot.com/www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/photos.js.pagespeed.jm.5APXXL9PLR.js";})()</script><link rel="dns-prefetch" href="http://1-ps.googleusercontent.com/"><script type="text/javascript">window.mod_pagespeed_prefetch_start = Number(new Date());window.mod_pagespeed_num_resources_prefetched = 4</script>
-<script type="text/javascript">window.mod_pagespeed_start = Number(new Date());</script><script src="./AR_mediaStream_files/JSARToolKit.js.pagespeed.jm.GFNH6_jM_x.js"></script><style type="text/css"></style>
-<script src="./AR_mediaStream_files/magi.js.pagespeed.jm.AJxVGUpjxP.js"></script>
-<script src="./AR_mediaStream_files/utils.js.pagespeed.jm.TXVjeF_BBR.js"></script>
-<script src="./AR_mediaStream_files/photos.js.pagespeed.jm.5APXXL9PLR.js"></script>
-<script>threshold=128;DEBUG=false;photos=Photos.map(Image.load);var video=document.createElement('video');video.width=640;video.height=480;video.loop=true;video.volume=0;video.autoplay=true;video.style.display='none';video.controls=true;var getUserMedia=function(t,onsuccess,onerror){if(navigator.getUserMedia){return navigator.getUserMedia(t,onsuccess,onerror);}else if(navigator.webkitGetUserMedia){return navigator.webkitGetUserMedia(t,onsuccess,onerror);}else if(navigator.mozGetUserMedia){return navigator.mozGetUserMedia(t,onsuccess,onerror);}else if(navigator.msGetUserMedia){return navigator.msGetUserMedia(t,onsuccess,onerror);}else{onerror(new Error("No getUserMedia implementation found."));}};var URL=window.URL||window.webkitURL;var createObjectURL=URL.createObjectURL||webkitURL.createObjectURL;if(!createObjectURL){throw new Error("URL.createObjectURL not found.");}
-getUserMedia({'video':true},function(stream){var url=createObjectURL(stream);video.src=url;},function(error){alert("Couldn't access webcam.");});window.onload=function(){byId('loading').style.display='none';document.body.appendChild(video);var canvas=document.createElement('canvas');canvas.width=320;canvas.height=240;canvas.style.display='block';var videoCanvas=document.createElement('canvas');videoCanvas.width=video.width;videoCanvas.height=video.height;var raster=new NyARRgbRaster_Canvas2D(canvas);var param=new FLARParam(320,240);var resultMat=new NyARTransMatResult();var detector=new FLARMultiIdMarkerDetector(param,120);detector.setContinueMode(true);var ctx=canvas.getContext('2d');ctx.font="24px URW Gothic L, Arial, Sans-serif";var glCanvas=document.createElement('canvas');glCanvas.style.webkitTransform='scale(-1.0, 1.0)';glCanvas.width=960;glCanvas.height=720;var s=glCanvas.style;document.body.appendChild(glCanvas);display=new Magi.Scene(glCanvas);display.drawOnlyWhenChanged=true;param.copyCameraMatrix(display.camera.perspectiveMatrix,10,10000);display.camera.useProjectionMatrix=true;var videoTex=new Magi.FlipFilterQuad();videoTex.material.textures.Texture0=new Magi.Texture();videoTex.material.textures.Texture0.image=videoCanvas;videoTex.material.textures.Texture0.generateMipmaps=false;display.scene.appendChild(videoTex);var times=[];var pastResults={};var lastTime=0;var cubes={};var images=[];window.updateImage=function(){display.changed=true;}
-window.addEventListener('keydown',function(ev){if(Key.match(ev,Key.LEFT)){images.forEach(function(e){e.setImage(photos.rotate(true));});}else if(Key.match(ev,Key.RIGHT)){images.forEach(function(e){e.setImage(photos.rotate(false));});}},false);setInterval(function(){if(video.ended)video.play();if(video.paused)return;if(window.paused)return;if(video.currentTime==video.duration){video.currentTime=0;}
-if(video.currentTime==lastTime)return;lastTime=video.currentTime;videoCanvas.getContext('2d').drawImage(video,0,0);ctx.drawImage(videoCanvas,0,0,320,240);var dt=new Date().getTime();videoTex.material.textures.Texture0.changed=true;canvas.changed=true;display.changed=true;var t=new Date();var detected=detector.detectMarkerLite(raster,threshold);for(var idx=0;idx<detected;idx++){var id=detector.getIdMarkerData(idx);var currId;if(id.packetLength>4){currId=-1;}else{currId=0;for(var i=0;i<id.packetLength;i++){currId=(currId<<8)|id.getPacketData(i);}}
-if(!pastResults[currId]){pastResults[currId]={};}
-detector.getTransformMatrix(idx,resultMat);pastResults[currId].age=0;pastResults[currId].transform=Object.asCopy(resultMat);}
-for(var i in pastResults){var r=pastResults[i];if(r.age>1){delete pastResults[i];cubes[i].image.setImage(photos.rotate());}
-r.age++;}
-for(var i in cubes)cubes[i].display=false;for(var i in pastResults){if(!cubes[i]){var pivot=new Magi.Node();pivot.transform=mat4.identity();pivot.setScale(80);var image=new Magi.Image();image.setAlign(image.centerAlign,image.centerAlign).setPosition(0,0,0).setAxis(0,0,1).setAngle(Math.PI).setSize(1.5);image.setImage=function(src){var img=E.canvas(640,640);Magi.Image.setImage.call(this,img);this.texture.generateMipmaps=false;var self=this;src.onload=function(){var w=this.width,h=this.height;var f=Math.min(640/w,640/h);w=(w*f);h=(h*f);img.getContext('2d').drawImage(this,(640-w)/2,(640-h)/2,w,h);self.texture.changed=true;self.setSize(1.1*Math.max(w/h,h/w));};if(Object.isImageLoaded(src)){src.onload();}};image.setImage(photos.rotate());images.push(image);pivot.image=image;pivot.appendChild(image);display.scene.appendChild(pivot);cubes[i]=pivot;}
-cubes[i].display=true;var mat=pastResults[i].transform;var cm=cubes[i].transform;cm[0]=mat.m00;cm[1]=-mat.m10;cm[2]=mat.m20;cm[3]=0;cm[4]=mat.m01;cm[5]=-mat.m11;cm[6]=mat.m21;cm[7]=0;cm[8]=-mat.m02;cm[9]=mat.m12;cm[10]=-mat.m22;cm[11]=0;cm[12]=mat.m03;cm[13]=-mat.m13;cm[14]=mat.m23;cm[15]=1;}},15);}</script>
-<style>html{background:#000;color:#fff}body{margin:0;padding:0;margin-top:20px;text-align:center}#loading{font-size:80px;font-weight:bold;font-family:Times}</style>
-</head>
-<body><div id="StayFocusd-infobar" style="display:none;"><img src="chrome-extension://laankejkbhbdhmipfmgcngdelahlfoji/img/eye_19x19_red.png"><span id="StayFocusd-infobar-msg"></span><span id="StayFocusd-infobar-links"><a href="http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html#" id="StayFocusd-infobar-never-show">hide forever</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html#" id="StayFocusd-infobar-hide">hide once</a></span></div><noscript>&lt;meta HTTP-EQUIV="refresh" content="0;url='http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html?ModPagespeed=noscript'" /&gt;&lt;style&gt;&lt;!--table,div,span,font,p{display:none} --&gt;&lt;/style&gt;&lt;div style="display:block"&gt;Please click &lt;a href="http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html?ModPagespeed=noscript"&gt;here&lt;/a&gt; if you are not redirected within a few seconds.&lt;/div&gt;</noscript>
-<div id="loading" style="display: none;">Hang on, I'm loading stuff...</div>
-<script type="text/javascript">var _gaq=_gaq||[];_gaq.push(['_setAccount','UA-1485935-6']);_gaq.push(['_trackPageview']);(function(){var ga=document.createElement('script');ga.type='text/javascript';ga.async=true;ga.src=('https:'==document.location.protocol?'https://ssl':'http://www')+'.google-analytics.com/ga.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(ga,s);})();</script>
-<script type="text/javascript">(function(){var c=window,e="",f="&",j="&b_cdr=",k="&b_cihrl=",l="&b_cii=",n="&b_cilrl=",p="&b_ncdl=",q="&b_ncii=",r="&b_ncini=",s="&b_ncl=",t="&exptid=",u="&ft=",v="&hft=",w="&htmlAt=",x="&ifr=0",y="&ifr=1",z="&nrp=",A="&r",B="&url=",C="=",D="?",E="beforeunload",F="ets=",G="load",H="load:",I="on",J="unload:";c.pagespeed=c.pagespeed||{};var K=c.pagespeed,L=function(a,b,d,g,h,i){this.f=a;this.a=b;this.c=d;this.d=g;this.b=h;this.g=i;this.h=e};K.beaconUrl=K.h;
-L.prototype.e=function(){var a=this.f,b=c.mod_pagespeed_start,d=Number(new Date)-b,a=a+(-1==a.indexOf(D)?D:f),a=a+F+(this.a==G?H:J),a=a+d,a=a+(A+this.a+C);c.performance?(d=c.performance.timing,b=d.navigationStart,a+=d.loadEventStart-b):a+=d;this.a==E&&c.mod_pagespeed_loaded||(a+=c.parent!=c?y:x,this.a==G&&(c.mod_pagespeed_loaded=!0,(d=c.mod_pagespeed_num_resources_prefetched)&&(a+=z+d),(d=c.mod_pagespeed_prefetch_start)&&(a+=w+(b-d))),K.panelLoader&&(b=K.panelLoader.getCsiTimings().time,a+=j+b.CRITICAL_DATA_RECEIVED+
-l+b.CRITICAL_IMAGES_INLINED+n+b.CRITICAL_IMAGES_LOW_RES_LOADED+k+b.CRITICAL_IMAGES_HIGH_RES_LOADED+p+b.NON_CACHEABLE_DATA_LOADED+s+b.NON_CRITICAL_LOADED,b=K.panelLoader.getCriticalImagesInfo(),a+=q+b.NUM_CRITICAL_IMAGES_INLINED+r+b.NUM_CRITICAL_IMAGES_NOT_INLINED),this.c!=e&&(a+=v+this.c),this.d!=e&&(a+=u+this.d),this.b!=e&&(a+=t+this.b),a+=B+encodeURIComponent(this.g),K.beaconUrl=a,(new Image).src=a)};
-K.i=function(a,b,d,g,h,i){var m=new L(a,b,d,g,h,i);c.addEventListener?c.addEventListener(b,function(){m.e()},!1):c.attachEvent(I+b,function(){m.e()})};K.addInstrumentationInit=K.i;})();
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <script type="text/javascript" async="" src="./AR_mediaStream_files/ga.js"></script>
+        <script type="text/javascript">
+            (function () {
+        new Image().src = "http://1-ps.googleusercontent.com/x/s.html5rocks-hrd.appspot.com/www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/JSARToolKit.js.pagespeed.jm.GFNH6_jM_x.js";
+        new Image().src = "http://1-ps.googleusercontent.com/x/s.html5rocks-hrd.appspot.com/www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/magi.js.pagespeed.jm.AJxVGUpjxP.js";
+        new Image().src = "http://1-ps.googleusercontent.com/x/s.html5rocks-hrd.appspot.com/www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/utils.js.pagespeed.jm.TXVjeF_BBR.js";
+        new Image().src = "http://1-ps.googleusercontent.com/x/s.html5rocks-hrd.appspot.com/www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/photos.js.pagespeed.jm.5APXXL9PLR.js";
+        })()
+        </script>
+        <link rel="dns-prefetch" href="http://1-ps.googleusercontent.com/">
+        <script type="text/javascript">
+            window.mod_pagespeed_prefetch_start = Number(new Date());
+            window.mod_pagespeed_num_resources_prefetched = 4
+        </script>
+        <script type="text/javascript">
+            window.mod_pagespeed_start = Number(new Date());
+        </script>
+        <script src="./AR_mediaStream_files/JSARToolKit.js.pagespeed.jm.GFNH6_jM_x.js"></script>
+        <script src="./AR_mediaStream_files/magi.js.pagespeed.jm.AJxVGUpjxP.js"></script>
+        <script src="./AR_mediaStream_files/utils.js.pagespeed.jm.TXVjeF_BBR.js"></script>
+        <script src="./AR_mediaStream_files/photos.js.pagespeed.jm.5APXXL9PLR.js"></script>
+        <script>
+            threshold = 128;
+            DEBUG = false;
+            photos = Photos.map(Image.load);
+            var video = document.createElement('video');
+            video.width = 640;
+            video.height = 480;
+            video.loop = true;
+            video.volume = 0;
+            video.autoplay = true;
+            video.style.display = 'none';
+            video.controls = true;
+            var getUserMedia = function (t, onsuccess, onerror) {
+                if (navigator.getUserMedia) {
+                    return navigator.getUserMedia(t, onsuccess, onerror);
+                } else if (navigator.webkitGetUserMedia) {
+                    return navigator.webkitGetUserMedia(t, onsuccess, onerror);
+                } else if (navigator.mozGetUserMedia) {
+                    return navigator.mozGetUserMedia(t, onsuccess, onerror);
+                } else if (navigator.msGetUserMedia) {
+                    return navigator.msGetUserMedia(t, onsuccess, onerror);
+                } else {
+                    onerror(new Error("No getUserMedia implementation found."));
+                }
+            };
+            var URL = window.URL || window.webkitURL;
+            var createObjectURL = URL.createObjectURL || webkitURL.createObjectURL;
+            if (!createObjectURL) {
+                throw new Error("URL.createObjectURL not found.");
+            }
+            getUserMedia({
+                'video': true
+            }, function (stream) {
+                var url = createObjectURL(stream);
+                video.src = url;
+            }, function (error) {
+                alert("Couldn't access webcam.");
+            });
+            window.onload = function () {
+                byId('loading').style.display = 'none';
+                document.body.appendChild(video);
+                var canvas = document.createElement('canvas');
+                canvas.width = 320;
+                canvas.height = 240;
+                canvas.style.display = 'block';
+                var videoCanvas = document.createElement('canvas');
+                videoCanvas.width = video.width;
+                videoCanvas.height = video.height;
+                var raster = new NyARRgbRaster_Canvas2D(canvas);
+                var param = new FLARParam(320, 240);
+                var resultMat = new NyARTransMatResult();
+                var detector = new FLARMultiIdMarkerDetector(param, 120);
+                detector.setContinueMode(true);
+                var ctx = canvas.getContext('2d');
+                ctx.font = "24px URW Gothic L, Arial, Sans-serif";
+                var glCanvas = document.createElement('canvas');
+                glCanvas.style.webkitTransform = 'scale(-1.0, 1.0)';
+                glCanvas.width = 960;
+                glCanvas.height = 720;
+                var s = glCanvas.style;
+                document.body.appendChild(glCanvas);
+                display = new Magi.Scene(glCanvas);
+                display.drawOnlyWhenChanged = true;
+                param.copyCameraMatrix(display.camera.perspectiveMatrix, 10, 10000);
+                display.camera.useProjectionMatrix = true;
+                var videoTex = new Magi.FlipFilterQuad();
+                videoTex.material.textures.Texture0 = new Magi.Texture();
+                videoTex.material.textures.Texture0.image = videoCanvas;
+                videoTex.material.textures.Texture0.generateMipmaps = false;
+                display.scene.appendChild(videoTex);
+                var times = [];
+                var pastResults = {};
+                var lastTime = 0;
+                var cubes = {};
+                var images = [];
+                window.updateImage = function () {
+                    display.changed = true;
+                }
+                window.addEventListener('keydown', function (ev) {
+                    if (Key.match(ev, Key.LEFT)) {
+                        images.forEach(function (e) {
+                            e.setImage(photos.rotate(true));
+                        });
+                    } else if (Key.match(ev, Key.RIGHT)) {
+                        images.forEach(function (e) {
+                            e.setImage(photos.rotate(false));
+                        });
+                    }
+                }, false);
+                setInterval(function () {
+                    if (video.ended) video.play();
+                    if (video.paused) return;
+                    if (window.paused) return;
+                    if (video.currentTime == video.duration) {
+                        video.currentTime = 0;
+                    }
+                    if (video.currentTime == lastTime) return;
+                    lastTime = video.currentTime;
+                    videoCanvas.getContext('2d').drawImage(video, 0, 0);
+                    ctx.drawImage(videoCanvas, 0, 0, 320, 240);
+                    var dt = new Date().getTime();
+                    videoTex.material.textures.Texture0.changed = true;
+                    canvas.changed = true;
+                    display.changed = true;
+                    var t = new Date();
+                    var detected = detector.detectMarkerLite(raster, threshold);
+                    for (var idx = 0; idx < detected; idx++) {
+                        var id = detector.getIdMarkerData(idx);
+                        var currId;
+                        if (id.packetLength > 4) {
+                            currId = -1;
+                        } else {
+                            currId = 0;
+                            for (var i = 0; i < id.packetLength; i++) {
+                                currId = (currId << 8) | id.getPacketData(i);
+                            }
+                        }
+                        if (!pastResults[currId]) {
+                            pastResults[currId] = {};
+                        }
+                        detector.getTransformMatrix(idx, resultMat);
+                        pastResults[currId].age = 0;
+                        pastResults[currId].transform = Object.asCopy(resultMat);
+                    }
+                    for (var i in pastResults) {
+                        var r = pastResults[i];
+                        if (r.age > 1) {
+                            delete pastResults[i];
+                            cubes[i].image.setImage(photos.rotate());
+                        }
+                        r.age++;
+                    }
+                    for (var i in cubes) cubes[i].display = false;
+                    for (var i in pastResults) {
+                        if (!cubes[i]) {
+                            var pivot = new Magi.Node();
+                            pivot.transform = mat4.identity();
+                            pivot.setScale(80);
+                            var image = new Magi.Image();
+                            image.setAlign(image.centerAlign, image.centerAlign).setPosition(0, 0, 0).setAxis(0, 0, 1).setAngle(Math.PI).setSize(1.5);
+                            image.setImage = function (src) {
+                                var img = E.canvas(640, 640);
+                                Magi.Image.setImage.call(this, img);
+                                this.texture.generateMipmaps = false;
+                                var self = this;
+                                src.onload = function () {
+                                    var w = this.width,
+                                        h = this.height;
+                                    var f = Math.min(640 / w, 640 / h);
+                                    w = (w * f);
+                                    h = (h * f);
+                                    img.getContext('2d').drawImage(this, (640 - w) / 2, (640 - h) / 2, w, h);
+                                    self.texture.changed = true;
+                                    self.setSize(1.1 * Math.max(w / h, h / w));
+                                };
+                                if (Object.isImageLoaded(src)) {
+                                    src.onload();
+                                }
+                            };
+                            image.setImage(photos.rotate());
+                            images.push(image);
+                            pivot.image = image;
+                            pivot.appendChild(image);
+                            display.scene.appendChild(pivot);
+                            cubes[i] = pivot;
+                        }
+                        cubes[i].display = true;
+                        var mat = pastResults[i].transform;
+                        var cm = cubes[i].transform;
+                        cm[0] = mat.m00;
+                        cm[1] = -mat.m10;
+                        cm[2] = mat.m20;
+                        cm[3] = 0;
+                        cm[4] = mat.m01;
+                        cm[5] = -mat.m11;
+                        cm[6] = mat.m21;
+                        cm[7] = 0;
+                        cm[8] = -mat.m02;
+                        cm[9] = mat.m12;
+                        cm[10] = -mat.m22;
+                        cm[11] = 0;
+                        cm[12] = mat.m03;
+                        cm[13] = -mat.m13;
+                        cm[14] = mat.m23;
+                        cm[15] = 1;
+                    }
+                }, 15);
+            }
+        </script>
+        <style>
+            html {
+                background:#000;
+                color:#fff;
+            }
 
-pagespeed.addInstrumentationInit('http://1-ps.googleusercontent.com/beacon?org=67_1_dp', 'load', '', '', '', 'http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html');</script>
+            body {
+                text-align:center;
+                margin:20px 0 0;
+                padding:0;
+            }
 
-<video width="640" height="480" loop="" autoplay="" style="display: none;" controls=""></video><canvas style="-webkit-transform: scale(-1, 1);" width="960" height="720"></canvas></body></html>
+            #loading {
+                font-size:80px;
+                font-weight:bold;
+                font-family:Times;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="StayFocusd-infobar" style="display:none;">
+            <img src="chrome-extension://laankejkbhbdhmipfmgcngdelahlfoji/img/eye_19x19_red.png">
+            <span id="StayFocusd-infobar-msg"></span>
+            <span id="StayFocusd-infobar-links">
+                <a href="http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html#" id="StayFocusd-infobar-never-show">hide forever</a>
+                &nbsp;&nbsp;|&nbsp;&nbsp;
+                <a href="http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html#" id="StayFocusd-infobar-hide">hide once</a>
+            </span>
+        </div>
+        <noscript>
+            &lt;meta HTTP-EQUIV="refresh" content="0;url='http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html?ModPagespeed=noscript'" /&gt;&lt;style&gt;&lt;!--table,div,span,font,p{display:none} --&gt;&lt;/style&gt;&lt;div style="display:block"&gt;Please click &lt;a href="http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html?ModPagespeed=noscript"&gt;here&lt;/a&gt; if you are not redirected within a few seconds.&lt;/div&gt;
+        </noscript>
+        <div id="loading" style="display: none;">Hang on, I'm loading stuff...</div>
+        <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-1485935-6']);
+            _gaq.push(['_trackPageview']);
+            (function () {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
+        <script type="text/javascript">
+            (function () {
+                var c = window,
+                    e = "",
+                    f = "&",
+                    j = "&b_cdr=",
+                    k = "&b_cihrl=",
+                    l = "&b_cii=",
+                    n = "&b_cilrl=",
+                    p = "&b_ncdl=",
+                    q = "&b_ncii=",
+                    r = "&b_ncini=",
+                    s = "&b_ncl=",
+                    t = "&exptid=",
+                    u = "&ft=",
+                    v = "&hft=",
+                    w = "&htmlAt=",
+                    x = "&ifr=0",
+                    y = "&ifr=1",
+                    z = "&nrp=",
+                    A = "&r",
+                    B = "&url=",
+                    C = "=",
+                    D = "?",
+                    E = "beforeunload",
+                    F = "ets=",
+                    G = "load",
+                    H = "load:",
+                    I = "on",
+                    J = "unload:";
+                c.pagespeed = c.pagespeed || {};
+                var K = c.pagespeed,
+                    L = function (a, b, d, g, h, i) {
+                        this.f = a;
+                        this.a = b;
+                        this.c = d;
+                        this.d = g;
+                        this.b = h;
+                        this.g = i;
+                        this.h = e
+                    };
+                K.beaconUrl = K.h;
+                L.prototype.e = function () {
+                    var a = this.f,
+                        b = c.mod_pagespeed_start,
+                        d = Number(new Date) - b,
+                        a = a + (-1 == a.indexOf(D) ? D : f),
+                        a = a + F + (this.a == G ? H : J),
+                        a = a + d,
+                        a = a + (A + this.a + C);
+                    c.performance ? (d = c.performance.timing, b = d.navigationStart, a += d.loadEventStart - b) : a += d;
+                    this.a == E && c.mod_pagespeed_loaded || (a += c.parent != c ? y : x, this.a == G && (c.mod_pagespeed_loaded = !0, (d = c.mod_pagespeed_num_resources_prefetched) && (a += z + d), (d = c.mod_pagespeed_prefetch_start) && (a += w + (b - d))), K.panelLoader && (b = K.panelLoader.getCsiTimings().time, a += j + b.CRITICAL_DATA_RECEIVED + l + b.CRITICAL_IMAGES_INLINED + n + b.CRITICAL_IMAGES_LOW_RES_LOADED + k + b.CRITICAL_IMAGES_HIGH_RES_LOADED + p + b.NON_CACHEABLE_DATA_LOADED + s + b.NON_CRITICAL_LOADED, b = K.panelLoader.getCriticalImagesInfo(), a += q + b.NUM_CRITICAL_IMAGES_INLINED + r + b.NUM_CRITICAL_IMAGES_NOT_INLINED), this.c != e && (a += v + this.c), this.d != e && (a += u + this.d), this.b != e && (a += t + this.b), a += B + encodeURIComponent(this.g), K.beaconUrl = a, (new Image).src = a)
+                };
+                K.i = function (a, b, d, g, h, i) {
+                    var m = new L(a, b, d, g, h, i);
+                    c.addEventListener ? c.addEventListener(b, function () {
+                        m.e()
+                    }, !1) : c.attachEvent(I + b, function () {
+                        m.e()
+                    })
+                };
+                K.addInstrumentationInit = K.i;
+            })();
+
+            pagespeed.addInstrumentationInit('http://1-ps.googleusercontent.com/beacon?org=67_1_dp', 'load', '', '', '', 'http://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/AR_mediaStream.html');
+        </script>
+
+        <video width="640"
+               height="480"
+               loop=""
+               autoplay=""
+               style="display: none;"
+               controls=""></video>
+        <canvas style="-webkit-transform: scale(-1, 1);"
+                width="960"
+                height="720"></canvas>
+    </body>
+</html>
+
