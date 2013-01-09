@@ -73,8 +73,8 @@
 
                 // create canvas element
                 var canvas = document.createElement('canvas');
-                canvas.width = 320;
-                canvas.height = 240;
+                canvas.width = 640;
+                canvas.height = 480;
                 canvas.style.display = 'block';
 
                 // create video canvas
@@ -87,8 +87,8 @@
                 // Note that you need to set canvas.changed = true on every frame.
                 var raster = new NyARRgbRaster_Canvas2D(canvas);
                 // FLARParam is the thing used by FLARToolKit to set camera parameters.
-                // Here we create a FLARParam for images with 320x240 pixel dimensions.
-                var param = new FLARParam(320, 240);
+                // Here we create a FLARParam for images with 640x480 pixel dimensions.
+                var param = new FLARParam(640, 480);
                 // Create a NyARTransMatResult object for getting the marker translation matrices.
                 var resultMat = new NyARTransMatResult();
                 // The FLARMultiIdMarkerDetector is the actual detection engine for marker detection.
@@ -151,9 +151,9 @@
                     if (video.currentTime == lastTime) return;
                     lastTime = video.currentTime;
 
-                    // Draw the video frame to the raster canvas, scaled to 320x240.
+                    // Draw the video frame to the raster canvas, scaled to 640x480.
                     videoCanvas.getContext('2d').drawImage(video, 0, 0);
-                    ctx.drawImage(videoCanvas, 0, 0, 320, 240);
+                    ctx.drawImage(videoCanvas, 0, 0, 640, 480);
                     var dt = new Date().getTime();
                     videoTex.material.textures.Texture0.changed = true;
 
