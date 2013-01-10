@@ -30,8 +30,8 @@
             DEBUG = false;
             photos = Photos.map(Image.load);
             var video = document.createElement('video');
-            video.width = 640;
-            video.height = 480;
+            video.width = 1280;
+            video.height = 960;
             video.loop = true;
             video.volume = 0;
             video.autoplay = true;
@@ -73,8 +73,8 @@
 
                 // create canvas element
                 var canvas = document.createElement('canvas');
-                canvas.width = 640;
-                canvas.height = 480;
+                canvas.width = 1280;
+                canvas.height = 960;
                 canvas.style.display = 'block';
 
                 // create video canvas
@@ -87,8 +87,8 @@
                 // Note that you need to set canvas.changed = true on every frame.
                 var raster = new NyARRgbRaster_Canvas2D(canvas);
                 // FLARParam is the thing used by FLARToolKit to set camera parameters.
-                // Here we create a FLARParam for images with 640x480 pixel dimensions.
-                var param = new FLARParam(640, 480);
+                // Here we create a FLARParam for images with 1280x960 pixel dimensions.
+                var param = new FLARParam(1280, 960);
                 // Create a NyARTransMatResult object for getting the marker translation matrices.
                 var resultMat = new NyARTransMatResult();
                 // The FLARMultiIdMarkerDetector is the actual detection engine for marker detection.
@@ -151,9 +151,9 @@
                     if (video.currentTime == lastTime) return;
                     lastTime = video.currentTime;
 
-                    // Draw the video frame to the raster canvas, scaled to 640x480.
+                    // Draw the video frame to the raster canvas, scaled to 1280x960.
                     videoCanvas.getContext('2d').drawImage(video, 0, 0);
-                    ctx.drawImage(videoCanvas, 0, 0, 640, 480);
+                    ctx.drawImage(videoCanvas, 0, 0, 1280, 960);
                     var dt = new Date().getTime();
                     videoTex.material.textures.Texture0.changed = true;
 
@@ -214,17 +214,17 @@
                             var image = new Magi.Image();
                             image.setAlign(image.centerAlign, image.centerAlign).setPosition(0, 0, 0).setAxis(0, 0, 1).setAngle(Math.PI).setSize(1.5);
                             image.setImage = function (src) {
-                                var img = E.canvas(640, 640);
+                                var img = E.canvas(1280, 1280);
                                 Magi.Image.setImage.call(this, img);
                                 this.texture.generateMipmaps = false;
                                 var self = this;
                                 src.onload = function () {
                                     var w = this.width,
                                         h = this.height;
-                                    var f = Math.min(640 / w, 640 / h);
+                                    var f = Math.min(1280 / w, 1280 / h);
                                     w = (w * f);
                                     h = (h * f);
-                                    img.getContext('2d').drawImage(this, (640 - w) / 2, (640 - h) / 2, w, h);
+                                    img.getContext('2d').drawImage(this, (1280 - w) / 2, (1280 - h) / 2, w, h);
                                     self.texture.changed = true;
                                     self.setSize(1.1 * Math.max(w / h, h / w));
                                 };
