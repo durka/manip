@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
             CvDrawingUtils::draw3dAxis(image, *i, intrinsics);
             
             if (data.is_open()) {
-                data << getTickCount() << " " << i->id << " ";
+                data << index << " " << i->id << " ";
                 for (int j = 0; j < 3; ++j) {
                     data << i->Tvec.ptr<float>(0)[j] << " ";
                 }
