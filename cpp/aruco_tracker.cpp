@@ -77,8 +77,8 @@ class FlexVideoCapture
         {
             if (grab()) {
                 retrieve(image);
-                return *this;
             }
+            return *this;
         }
 
     private:
@@ -91,9 +91,9 @@ class FlexVideoCapture
 
 int main(int argc, char *argv[])
 {
-    if (argc != 6) {
+    if (argc != 7) {
         cerr << "Invalid number of arguments" << endl;
-        cerr << "Usage: " << argv[0] << " (in.avi|live) out_clean_%d.jpg out_dirty_%d.jpg intrinsics.yml marker_size" << endl;
+        cerr << "Usage: " << argv[0] << " (in.avi|live) out_clean_%d.jpg out_dirty_%d.jpg out.txt intrinsics.yml marker_size" << endl;
         return 1;
     }
 
@@ -106,22 +106,34 @@ int main(int argc, char *argv[])
     }
     if (!captor.isOpened()) {
         cerr << "Failed to open video capture " << argv[1] << "!" << endl;
-        return 1;
+        return 2;
     }
 
     // open video outputs
     string clean_fmt = argv[2], dirty_fmt = argv[3];
+    if (!strstr(argv[2], "%d")) clean_fmt = "";
+    if (!strstr(argv[3], "%d")) dirty_fmt = "";
     // here we trust the user to give good format strings
     // this is obviously a security vulnerability
+
+    // open text output
+    ofstream data;
+    if (strlen(argv[4]) > 0) {
+        data.open(argv[4]);
+    }
+    if (!data.is_open()) {
+        cerr << "Failed to open text output " << argv[4] << "!" << endl;
+        return 3;
+    }
     
     // capture first image and get dimensions
     Mat image;
     captor >> image;
-    float marker_size = atof(argv[5]);
+    float marker_size = atof(argv[6]);
 
     // read camera intrinsics
     CameraParameters intrinsics;
-    intrinsics.readFromXMLFile(argv[4]); // notwithstanding it's actually YAML ...?
+    intrinsics.readFromXMLFile(argv[5]); // notwithstanding it's actually YAML ...?
     intrinsics.resize(image.size());
 
     // GUI GUI GUI GUI
@@ -140,30 +152,48 @@ int main(int argc, char *argv[])
         ++index;
 
         // write clean image
-        asprintf(&filename, clean_fmt.c_str(), index);
-        imwrite(filename, image);
-        free(filename);
+        if (clean_fmt.length() > 0) {
+            asprintf(&filename, clean_fmt.c_str(), index);
+            imwrite(filename, image);
+            free(filename);
+        }
 
         // detect markers
         detective.detect(image, markers, intrinsics, marker_size);
         cout << "Detected " << markers.size() << " markers!" << endl;
 
-        // draw markers
-        for (int i=0; i < markers.size(); i++) {
-            CvDrawingUtils::draw3dCube(image, markers[i], intrinsics);
-            CvDrawingUtils::draw3dAxis(image, markers[i], intrinsics);
+        // draw markers and write data
+        for (vector<Marker>::iterator i = markers.begin(); i != markers.end(); ++i) {
+            CvDrawingUtils::draw3dCube(image, *i, intrinsics);
+            CvDrawingUtils::draw3dAxis(image, *i, intrinsics);
+            
+            if (data.is_open()) {
+                data << getTickCount() << " " << i->id << " ";
+                for (int j = 0; j < 3; ++j) {
+                    data << i->Tvec.ptr<float>(0)[j] << " ";
+                }
+                for (int j = 0; j < 3; ++j) {
+                    data << i->Rvec.ptr<float>(0)[j] << " ";
+                }
+                data << endl;
+            }
         }
+        if (data.is_open()) data << endl;
         
         // write marked-up image
-        asprintf(&filename, dirty_fmt.c_str(), index);
-        imwrite(filename, image);
-        free(filename);
+        if (dirty_fmt.length() > 0) {
+            asprintf(&filename, dirty_fmt.c_str(), index);
+            imwrite(filename, image);
+            free(filename);
+        }
 
         // show image
         imshow("aruco_tracker", image);
 
         key = waitKey(10);
     }
+    
+    data.close();
 
     return 0;
 }
