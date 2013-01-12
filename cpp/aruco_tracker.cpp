@@ -120,10 +120,10 @@ int main(int argc, char *argv[])
     ofstream data;
     if (strlen(argv[4]) > 0) {
         data.open(argv[4]);
-    }
-    if (!data.is_open()) {
-        cerr << "Failed to open text output " << argv[4] << "!" << endl;
-        return 3;
+        if (!data.is_open()) {
+            cerr << "Failed to open text output " << argv[4] << "!" << endl;
+            return 3;
+        }
     }
     
     // capture first image and get dimensions
