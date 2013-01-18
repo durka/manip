@@ -145,7 +145,8 @@ int main(int argc, char *argv[])
     int index = 0; // frame count
     char *filename;
     MarkerDetector detective;
-    detective.setCornerRefinementMethod(MarkerDetector::LINES);
+    detective.setCornerRefinementMethod(MarkerDetector::SUBPIX);
+    detective.setThresholdParams(7, 7);
     while (key != 27 && captor.grab()) { // capture until ESC or end of video
         // get image
         captor.retrieve(image);
@@ -160,6 +161,7 @@ int main(int argc, char *argv[])
 
         // detect markers
         detective.detect(image, markers, intrinsics, marker_size);
+        //cvtColor(detective.getThresholdedImage(), image, CV_GRAY2RGB);
         cout << "Detected " << markers.size() << " markers!" << endl;
 
         // draw markers and write data
