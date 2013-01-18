@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 07-Jan-2013 23:11:04
+% Last Modified by GUIDE v2.5 18-Jan-2013 00:56:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -297,7 +297,16 @@ else
     was_running = false;
 end
 
-X = manip_simulate(dims, max([S.a S.b]), frames, S);
+try
+    noise = eval(get(handles.noise, 'String'));
+catch
+    noise = [0.025 0.05];
+end
+if ~isreal(noise) || all(size(noise) ~= [1 2])
+    noise = [0.025 0.05];
+end
+
+X = manip_simulate(dims, max([S.a S.b]), frames, S, noise);
 setappdata(handles.stuff, 'DATA', X);
 setappdata(handles.stuff, 'simulating', false);
 update_sim_plot(handles);
@@ -1095,3 +1104,37 @@ function tree_out_ButtonDownFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 cursor_to_joint(handles.tree_out, getappdata(handles.stuff, 'GUESS'), 'Learned', handles);
+
+
+
+function noise_Callback(hObject, eventdata, handles)
+% hObject    handle to noise (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of noise as text
+%        str2double(get(hObject,'String')) returns contents of noise as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function noise_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to noise (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in export.
+function export_Callback(hObject, eventdata, handles)
+% hObject    handle to export (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+assignin('base', 'S', getappdata(handles.stuff, 'TREE'));
+assignin('base', 'X', getappdata(handles.stuff, 'DATA'));
+assignin('base', 'dims', getappdata(handles.stuff, 'dims'));

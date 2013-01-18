@@ -5,7 +5,7 @@
 % 2D:   FRAME_INDEX OBJECT_ID Tx Ty R
 % 3D:   FRAME_INDEX OBJECT_ID Tx Ty Tz Rx Ry Rz
 
-function X = manip_read(data)
+function X = manip_read(data, filtB, filtA)
     switch size(data,2)
         case 5
             dims = 2;
@@ -21,10 +21,16 @@ function X = manip_read(data)
     X = zeros(f, n, dims+1, dims+1);
     interp = zeros(f, n);
     
+    % sort data
+    points = arrayfun(@(n) data(data(:,2)==n, :), ids, 'UniformOutput',false);
+    
     % parse data
-    for frame = 1:f
-        for obj = 1:n
-            coords = data(data(:,1) == frame & data(:,2) == ids(obj), 3:end);
+    for obj = 1:n
+        if nargin == 3
+            points{obj}(:, 3:end) = filter(filtB, filtA, points{obj}(:, 3:end), mean(points{obj}(1:round(length(points{obj})/50), 3:end)));
+        end
+        for frame = 1:f
+            coords = points{obj}(points{obj}(:,1)==frame, :);
             if isempty(coords)
                 % uh oh, we have some interpolation to do
                 interp(frame, obj) = 1;

@@ -22,7 +22,11 @@
 % outputs:
 %   X:         motion over time, f x n x dims+1 x dims+1 matrix (i.e. f x n array of homogeneous transformation matrices)
 
-function X = manip_simulate(dims, n, f, S)
+function X = manip_simulate(dims, n, f, S, noise)
+    if nargin == 4
+        noise = [0.025 0.05];
+    end
+
     X = zeros(f, n, dims+1, dims+1);
     X(1,1, :,:) = T(unifrnd(-5, 5, [dims 1])) * R(unifrnd(-2*pi, 2*pi, [1*(dims==2)+3*(dims==3) 1])); % randomly initialize root
     
@@ -55,7 +59,7 @@ function X = manip_simulate(dims, n, f, S)
     for frame = 1:f
         origin = squeeze(X(frame,1, :,:));
         for i = 1:n
-            dX = T(unifrnd(-.025, .025, [dims 1])) * R(unifrnd(-.05, .05, [dims*(dims-1)/2 1]));
+            dX = T(unifrnd(-noise(1), noise(1), [dims 1])) * R(unifrnd(-noise(2), noise(2), [dims*(dims-1)/2 1]));
             X(frame,i, :,:) = origin * dX / origin * squeeze(X(frame,i, :,:));
         end
     end
