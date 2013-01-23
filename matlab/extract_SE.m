@@ -13,8 +13,8 @@ function [t, r] = extract_SE(se)
         
         % extract rotation
         % 3-1-3 Euler Angles http://en.wikipedia.org/wiki/Rotation_formalisms_in_three_dimensions#Conversion_formulae_between_formalisms
-        if se(3,3) == 1 % i.e. sin(b) = 0
-            r = [0 0 atan2(se(1,2), se(1,1))];
+        if abs(se(3,3) - 1) <= eps % i.e. sin(b) = 0
+            r = [0 0 atan2(-se(1,2), se(1,1))];
         else
             r = [0 0 0];
             r(2) = atan2(sqrt(se(1,3)^2+se(2,3)^2), se(3,3))*1;
