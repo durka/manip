@@ -2,7 +2,7 @@
 %   leave out figure_handle and I will create one
 %   leave out a and b and I will default to 1 and 2
 
-function [H, params, se] = manip_visualize(X, joint, a, b, f)
+function [H, before, after, se] = manip_visualize(X, joint, a, b, f)
 
     switch nargin
         case 2
@@ -21,6 +21,7 @@ function [H, params, se] = manip_visualize(X, joint, a, b, f)
             error('Need to pass at least X and joint. Then a+b, f or both');
     end
     
+    % calculate the deltas
     [deltas, t1, r1, t2, r2, t3, r3] = calc_deltas(X, a, b);
     se = {{t1, r1}, {t2, r2}, {t3, r3}};
     
@@ -28,10 +29,52 @@ function [H, params, se] = manip_visualize(X, joint, a, b, f)
     clf;
     H = {f};
     
+    switch joint
+        case 'rigid'
+            lims = [ inf(size(t1))  pi*ones(size(r1))];
+        case 'prismatic'
+            lims = [ inf(size(t1))  pi*ones(size(r1))  ones(1,3)];
+        case 'revolute'
+            lims = [ inf(size(t1))  pi*ones(size(r1))  inf(size(t1))  pi*ones(size(r1))];
+    end
+    
+    options = optimset('fmincon');
+    options = optimset(options, 'Algorithm', 'sqp');
+    options = optimset(options, 'GradObj', 'on');
+    options = optimset(options, 'GradConstr', 'on');
+    options = optimset(options, 'MaxFunEvals', 1e10);
+    options = optimset(options, 'MaxIter', 1e10);
+    options = optimset(options, 'Display', 'off');
+    options = optimset(options, 'Diagnostics', 'off');
+    
+    before = feval(['guess_' joint], deltas, t1, r1, t2, r2, t3, r3);
+    [after, err] = fmincon(...
+                         @(p) jointfit(deltas, ...
+                                       p, ...
+                                       eval(['@mex_forward_' joint]), eval(['@mex_inverse_' joint]), ...
+                                       eval(['@(p) unpack_' joint '(p, 3)']), ...
+                                       @gen_jacobians, @gen_jacobians), ...
+                         before, ...
+                         [], [], [], [], ... % no linear constraints
+                         -lims, ...
+                          lims, ...
+                         [], ... % no nonlinear constraints
+                         options);
+    
+    subplot(2,1,1);
+    Hb = visualize('GUESSED', joint, a, b, deltas, se, feval(['unpack_' joint], before, 3));
+    subplot(2,1,2);
+    Ha = visualize(sprintf('LEARNED (%g)', err), joint, a, b, deltas, se, feval(['unpack_' joint], after, 3));
+    
+    H = {H Hb Ha};
+end
+
+function H = visualize(tag, joint, a, b, deltas, se, p)
+    
     cellind = @(c,s) cellfun(@(d) subsref(d, substruct('()', s)), c);
     
     % plot the data
-    H = {H quiver3(cellind(deltas, {1,4}), cellind(deltas, {2,4}), cellind(deltas, {3,4}), ...
+    H = {  quiver3(cellind(deltas, {1,4}), cellind(deltas, {2,4}), cellind(deltas, {3,4}), ...
                    cellind(deltas, {1,1}), cellind(deltas, {2,1}), cellind(deltas, {3,1}), 0, 'b')};
     hold on;
     
@@ -48,34 +91,50 @@ function [H, params, se] = manip_visualize(X, joint, a, b, f)
     
     switch joint
         case 'rigid'
-            params = guess_rigid(t1, r1, t2, r2, t3, r3);
+            
+            H = {H plot_se(p{1})}; % anchor point
             
         case 'prismatic'
-            params = guess_prismatic(t1, r1, t2, r2, t3, r3);
+            
+            [Hap, t, ~] = plot_se(p{1}); % anchor point
+            u = p{2};
+            
+            H = {H Hap ...
+                   quiver3(t(1), t(2), t(3), u(1), u(2), u(3), 'c')}; % unit vector
             
         case 'revolute'
-            [params, plane] = guess_revolute(t1, r1, t2, r2, t3, r3);
             
-            ct = params(1:3);
-            cr = params(4:6);
-            Rcr = R(cr);
+            [~, plane] = guess_revolute(deltas, se{1}{1}, se{1}{2}, se{2}{1}, se{2}{2}, se{3}{1}, se{3}{2});
             
-            % plane
-            H = {H quiver3(plane([1 1]), plane([2 2]), plane([3 3]), ...
-                           plane([4 7]), plane([5 8]), plane([6 9]), 'c')};
+            H = {H quiver3(plane(1), plane(2), plane(3),      ... % plane
+                           plane(4), plane(5), plane(6), 'c') ...
+                   quiver3(plane(1), plane(2), plane(3),      ...
+                           plane(7), plane(8), plane(9), 'b') ...
+                                                              ...
+                   plot_se(p{1})}; % circumcenter and rotation axes
             
-            % circumcenter and rotation axes
-            H = {H plot3(ct(1), ct(2), ct(3), '.', 'MarkerSize', 20) ...
-                   quiver3(ct(1), ct(2), ct(3), Rcr(1,1), Rcr(2,1), Rcr(3,1), 'r') ...
-                   quiver3(ct(1), ct(2), ct(3), Rcr(1,2), Rcr(2,2), Rcr(3,2), 'g') ...
-                   quiver3(ct(1), ct(2), ct(3), Rcr(1,3), Rcr(2,3), Rcr(3,3), 'b')};
+            % TODO how to show p{2}
+            
     end
     
     axis equal;
     hold off;
-    title(sprintf('%s joint model for %d-%d', joint, a, b));
+    title(sprintf('%s %s joint model for %d-%d', tag, joint, a, b));
     xlabel('X');
     ylabel('Y');
     zlabel('Z');
 
+end
+
+function [H, t, r] = plot_se(se)
+
+    d = size(se,1) - 1;
+    t = se(1:d, d+1);
+    r = se(1:d, 1:d);
+
+    H = {plot3(t(1), t(2), t(3), '.', 'MarkerSize', 20) ...
+         quiver3(t(1), t(2), t(3), r(1,1), r(2,1), r(3,1), 'r') ...
+         quiver3(t(1), t(2), t(3), r(1,2), r(2,2), r(3,2), 'g') ...
+         quiver3(t(1), t(2), t(3), r(1,3), r(2,3), r(3,3), 'b')};
+               
 end
