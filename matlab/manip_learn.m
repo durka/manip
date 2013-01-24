@@ -7,7 +7,7 @@ function S = manip_learn(X, dbg, pairs)
     
     dbg('Begin learning\n');
     tic;
-    profile on;
+    %profile on;
     
     S = struct('a', {}, 'b', {}, 'joint', {}, 'params', {}, 'state', {}, 'bounds', {}, 'cost', {});
 
@@ -27,6 +27,31 @@ function S = manip_learn(X, dbg, pairs)
             parfor b = a+1:n
                 S = [S, learn_joint(X,f,dims,dbg, a,b)];
             end
+        end
+    end
+    
+    dbg('Fixing up the indices...\n');
+    for i = 1:max([S.a S.b])
+        j = i;
+        
+        if j > [S.a S.b]
+            break
+        end
+        
+        while j ~= [S.a S.b]
+            j = j + 1;
+        end
+        
+        if j ~= i
+            dbg('\t%d >= %d\n', j, i);
+            dbg('\t\t%s\n\t\t%s\n', mat2str([S.a]), mat2str([S.b]));
+            for k = find([S.a] == j)
+                S(k).a = i;
+            end
+            for k = find([S.b] == j)
+                S(k).b = i;
+            end
+            dbg('\t\t%s\n\t\t%s\n', mat2str([S.a]), mat2str([S.b]));
         end
     end
     
@@ -77,7 +102,7 @@ function S = manip_learn(X, dbg, pairs)
         end
     end
     
-    dbg('Fixing up the indices...\n');
+    dbg('Fixing up the indices again...\n');
     for i = 1:max([S.a S.b])
         j = i;
         
@@ -103,7 +128,7 @@ function S = manip_learn(X, dbg, pairs)
     end
     
     dbg('Done learning (%g sec)\n\n', toc);
-    profile viewer;
+    %profile viewer;
 end
 
 function s = learn_joint(X,f,dims,dbg, a,b)
@@ -124,9 +149,9 @@ function s = learn_joint(X,f,dims,dbg, a,b)
                          @(p) jointfit(deltas, ...
                                        p, ...
                                        @mex_forward_rigid, @mex_inverse_rigid, ...
-                                       @(p) {Tmex(p(1:dims))*Rmex(p(dims+1:end))}, ...
+                                       @(p) unpack_rigid(p, dims), ...
                                        @gen_jacobians, @gen_jacobians), ...
-                         guess_rigid(t1, r1, t2, r2, t3, r3), ...
+                         guess_rigid(deltas, t1, r1, t2, r2, t3, r3), ...
                          [], [], [], [], ... % no linear constraints
                          [-inf(size(t1)) -pi*ones(size(r1))], ...
                          [ inf(size(t1))  pi*ones(size(r1))], ...
@@ -143,7 +168,7 @@ function s = learn_joint(X,f,dims,dbg, a,b)
                                        @mex_forward_prismatic, @mex_inverse_prismatic, ...
                                        @(p) unpack_prismatic(p, dims), ...
                                        @gen_jacobians, @gen_jacobians), ...
-                         guess_prismatic(t1, r1, t2, r2, t3, r3), ...
+                         guess_prismatic(deltas, t1, r1, t2, r2, t3, r3), ...
                          [], [], [], [], ... % no linear constraints
                          [-inf(size(t1)) -pi*ones(size(r1)) -ones(1,dims)], ...
                          [ inf(size(t1))  pi*ones(size(r1))  ones(1,dims)], ...
@@ -158,7 +183,7 @@ function s = learn_joint(X,f,dims,dbg, a,b)
                                        @mex_forward_revolute, @mex_inverse_revolute, ...
                                        @(p) unpack_revolute(p, dims), ...
                                        @gen_jacobians, @gen_jacobians), ...
-                         guess_revolute(t1, r1, t2, r2, t3, r3), ...
+                         guess_revolute(deltas, t1, r1, t2, r2, t3, r3), ...
                          [], [], [], [], ... % no linear constraints
                          [-inf(size(t1)) -pi*ones(size(r1)) -inf(size(t1)) -pi*ones(size(r1))], ...
                          [ inf(size(t1))  pi*ones(size(r1))  inf(size(t1))  pi*ones(size(r1))], ...
