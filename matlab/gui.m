@@ -781,7 +781,7 @@ for c = controls(strcmp(get(controls, 'Style'), 'edit'))'
             rethrow(err);
         end
     end
-    set(c, 'String', verifier(val, get(c, 'TooltipString'), getappdata(handles.stuff, 'dims')));
+    set(c, 'String', verifier(val, get(c, 'TooltipString'), getappdata(handles.stuff, 'dims'), true));
     set(c, 'BackgroundColor', [1 1 1]);
 end
 

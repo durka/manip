@@ -4,9 +4,13 @@
 %    if 'in' is a string, it will be evaluated, verified and returned
 %    if 'in' is an empty string, a default value for the type will be returned
 %    if 'in' is a not a string, it will be verified, converted to a string, and returned
+%    if 'escapehatch' is true (defaults to false), then the verification will not really be done
 
-function ret = verifier(in, type, dims)
+function ret = verifier(in, type, dims, escapehatch)
     TOL = 1e-3;
+    if nargin == 3
+        escapehatch = false;
+    end
 
     types = struct('name',     { 'SE'                    'R'                             'U'                            }, ...
                    'regex',    { '^SE\((?<i>n|\d+)\)$'   '^R(?<i>)$|^R\[(?<i>n|\d+)\]$'  '^U(?<i>)$|^U\[(?<i>n|\d+)\]$' }, ...
@@ -47,7 +51,7 @@ function ret = verifier(in, type, dims)
                         ret = types(i).default(t);
                     else
                         thing = eval(in);
-                        if types(i).verifier(thing, t)
+                        if escapehatch || types(i).verifier(thing, t)
                             ret = thing;
                         else
                             error('KA:type', 'Type error: input not %s', type);
@@ -55,7 +59,7 @@ function ret = verifier(in, type, dims)
                     end
                 otherwise
                     thing = in;
-                    if types(i).verifier(thing, t)
+                    if escapehatch || types(i).verifier(thing, t)
                         ret = types(i).tostring(thing);
                     else
                         error('KA:type', 'Type error: input not %s', type);
