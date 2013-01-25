@@ -1,0 +1,194 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
+                                                          % if you need a4paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
+                                                          % paper
+
+\IEEEoverridecommandlockouts                              % This command is only
+                                                          % needed if you want to
+                                                          % use the \thanks command
+\overrideIEEEmargins
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+
+
+% The following packages can be found on http:\\www.ctan.org
+\usepackage{graphics} % for pdf, bitmapped graphics files
+%\usepackage{epsfig} % for postscript graphics files
+%\usepackage{mathptmx} % assumes new font selection scheme installed
+%\usepackage{times} % assumes new font selection scheme installed
+\usepackage{amsmath} % assumes amsmath package installed
+\usepackage{amssymb}  % assumes amsmath package installed
+
+\title{\LARGE \bf
+Preparation of Papers for IEEE Sponsored Conferences \& Symposia*
+}
+
+%\author{ \parbox{3 in}{\centering Huibert Kwakernaak*
+%         \thanks{*Use the $\backslash$thanks command to put information here}\\
+%         Faculty of Electrical Engineering, Mathematics and Computer Science\\
+%         University of Twente\\
+%         7500 AE Enschede, The Netherlands\\
+%         {\tt\small h.kwakernaak@autsubmit.com}}
+%         \hspace*{ 0.5 in}
+%         \parbox{3 in}{ \centering Pradeep Misra**
+%         \thanks{**The footnote marks may be inserted manually}\\
+%        Department of Electrical Engineering \\
+%         Wright State University\\
+%         Dayton, OH 45435, USA\\
+%         {\tt\small pmisra@cs.wright.edu}}
+%}
+
+\author{Alex Burka$^{1}$ and Daniel D. Lee$^{2}$% <-this % stops a space
+\thanks{*This work was supported by NSF IGERT and DARPA grants.}% <-this % stops a space
+\thanks{$^{1}$A. Burka is a graduate student with the Department of Electrical and Systems Engineering, University of Pennsylvania, Philadelphia, PA 19104, USA
+        {\tt\small aburka at ieee.org}}%
+\thanks{$^{2}$D. Lee is a professor in the same department.
+        {\tt\small ddlee at seas.upenn.edu}}%
+}
+
+
+\begin{document}
+
+
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+
+  We demonstrate a probabilistic approach for automatically discovering the latent kinematic structure of an articulated object from three-dimensional input (e.g. stereo vision, structured light, LIDAR or some other source of point cloud data conducive to object tracking).  The key thrust is using standard function optimization algorithms to find the low-dimensional manifolds (nonlinearly embedded in $SE(3)$) which describe the relative motion of two parts of an articulated object. We review the mathematical techniques necessary to develop this optimization, and evaluate the resulting learner in simulation and using video captured using augmented reality (AR) markers for tracking.
+
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{INTRODUCTION}
+
+\begin{itemize}
+    \item Motivation
+      \begin{itemize}
+        \item Articulated objects: humans, kitchens, office environments
+        \item Disaster scenarios (kinematics change suddenly, broken objects, broken humans)
+      \end{itemize}
+    \item Literature Review
+      \begin{itemize}
+        \item Sturm, 2009 and 2011 \cite{Sturm2009} \cite{Sturm2011}
+        \item Katz \cite{Katz2012}
+        \item Yan/Pollefreys \cite{Yan2006}
+        \item New (?) things that I am bringing to the table
+          \begin{itemize}
+            \item Group theoretical backing
+            \item Generic framework for adding more joints
+          \end{itemize}
+      \end{itemize}
+    \item Outline for the rest of the paper
+      \begin{itemize}
+        \item Code available (?)
+      \end{itemize}
+\end{itemize}
+
+\section{MATH}
+
+\subsection{Kinematics of Articulated Objects}
+    \begin{itemize}
+      \item Objects are organized into graphs, we pretend they are trees (FIGURE)
+      \item Joints can be parametrized by a low-dimensional manifold (in this work, one-dimensional) nonlinearly embedded in $SE(3)$
+    \end{itemize}
+\subsection{Probabilistic Formulation of the Problem}
+    \begin{itemize}
+      \item This part draws HEAVILY from Sturm2011
+      \item Maximum likelihood
+        \begin{enumerate}
+          \item Problem definition: joint from $a$ to $b$, parameters $\theta$, state $\sigma_t$, input relative transformations $\Delta_t \in SE(3)$
+          \item Objective (trajectory distance metric) and gradient (as a product of Jacobians)
+        \end{enumerate}
+    \end{itemize}
+\subsection{A pseudo-Riemannian Distance Metric on $SE(3)$}
+    \begin{itemize}
+      \item From the presentation I gave at that group meeting (see ../../presentations/metric\_se3/metric\_se3.pdf)
+      \item Also derive the Jacobian
+    \end{itemize}
+\subsection{Joint Types}
+    \begin{itemize}
+      \item FIGURE showing all three
+      \item Rigid
+      \item Prismatic
+      \item Revolute
+    \end{itemize}
+
+\section{IMPLEMENTATION}
+
+\subsection{Algorithm Overview}
+    \begin{itemize}
+      \item Block diagram (FIGURE)
+      \item Input/output of various stages (simulator, tracker, learner, fitting)
+    \end{itemize}
+\subsection{Joint Definitions}
+    \begin{enumerate}
+      \item Forward kinematics (w/ Jacobian)
+      \item Inverse kinematics (w/ Jacobian)
+      \item Unpack
+      \item Guess
+      \item Move/reverse
+    \end{enumerate}
+
+\section{EVALUATION}
+
+\subsection{Simulation Harness}
+\subsection{Input from Augmented Reality Markers}
+\subsection{Performance}
+
+\section{CONCLUSIONS AND FUTURE WORK}
+
+\subsection{Conclusions}
+    \begin{itemize}
+      \item It works! (in simulation and with AR markers) (TODO)
+      \item Generic framework with pluggable input and pluggable joint types
+    \end{itemize}
+\subsection{Future Directions}
+    \begin{itemize}
+      \item Methods for object tracking without modifying the environment
+        \begin{itemize}
+          \item Extracting features from point clouds (sharp corners, \ldots)
+          \item Motion segmentation (segment objects from background)
+        \end{itemize}
+      \item Approach from SLAM
+        \begin{enumerate}
+          \item Use tracking to build a tree on the fly
+          \item Use putative tree to update the motion model of a Kalman filter
+          \item Use Kalman filter to improve tracking
+          \item Rinse, lather, repeat
+        \end{enumerate}
+      \item Interactive perception
+        \begin{itemize}
+          \item Instead of watching, poke/kick/throw/drop an object in order to exercise its degrees of freedom
+          \item Use an information-gain measure to decide how to move the object
+        \end{itemize}
+    \end{itemize}
+
+\section*{APPENDIX}
+
+Appendixes should appear before the acknowledgment.
+
+\section*{ACKNOWLEDGMENTS}
+
+\begin{enumerate}
+  \item Prof. Thomas Hunter (Swarthmore)
+\end{enumerate}
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,research}
+
+
+
+
+\end{document}
