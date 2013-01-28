@@ -115,13 +115,36 @@ Preparation of Papers for IEEE Sponsored Conferences \& Symposia*
     \begin{itemize}
       \item From the presentation I gave at that group meeting (see ../../presentations/metric\_se3/metric\_se3.pdf)
       \item Also derive the Jacobian
+      \item Frank's paper \cite{Park1995}
     \end{itemize}
+    \begin{align}
+      l&(u,v) : SE(3) \times SE(3) \longrightarrow \mathbb{R} \\
+      l&(u,v) = \sqrt{c ||\log(u_R^T v_R)||_F^2 + d ||u_T - v_T||^2} \nonumber
+    \end{align}
 \subsection{Joint Types}
     \begin{itemize}
       \item FIGURE showing all three
       \item Rigid
+        \begin{align}
+          fk&(\theta, \sigma) : SE(3) \times \mathbb{R} \longrightarrow SE(3) \\
+          fk&(\langle o \rangle, \sigma) = o \nonumber\\
+          ik&(x, \theta) : SE(3) \times SE(3) \longrightarrow \mathbb{R} \\
+          ik&(x, \langle o \rangle) = 0 \nonumber
+        \end{align}
       \item Prismatic
+        \begin{align}
+          fk&(\theta, \sigma) : SE(3) \times \mathbb{U}^3 \times \mathbb{R} \longrightarrow SE(3) \\
+          fk&(\langle o, u \rangle, \sigma) = T(\sigma u)o \nonumber\\
+          ik&(x, \theta) : SE(3) \times SE(3) \times \mathbb{U}^3 \longrightarrow \mathbb{R} \\
+          ik&(x, \langle o, u \rangle) = T^{-1}(xo^{-1}) \cdot u \nonumber
+        \end{align}
       \item Revolute
+        \begin{align}
+          fk&(\theta, \sigma) : SE(3) \times SE(3) \times \mathbb{R} \longrightarrow SE(3) \\
+          fk&(\langle c, r \rangle, \sigma) = r R_z(\sigma) c \nonumber\\
+          ik&(x, \theta) : SE(3) \times SE(3) \times SE(3) \longrightarrow \mathbb{R} \\
+          ik&(x, \langle c, r \rangle) = R_z^{-1}(r^{-1}xc^{-1}) \nonumber
+        \end{align}
     \end{itemize}
 
 \section{IMPLEMENTATION}
