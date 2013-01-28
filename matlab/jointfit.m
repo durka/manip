@@ -26,5 +26,8 @@ function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr)
     grad = real(grad);
     err = real(err);
     
+    %fprintf('JOINTFIT %s => %g, %s\n', mat2str(p, 3), err, mat2str(grad, 3));
+    %assignin('base', 'p', p);
+    
     %dbclear if infnan
 end

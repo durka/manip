@@ -41,11 +41,12 @@ function [H, before, after, se] = manip_visualize(X, joint, a, b, f)
     options = optimset('fmincon');
     options = optimset(options, 'Algorithm', 'sqp');
     options = optimset(options, 'GradObj', 'on');
-    options = optimset(options, 'GradConstr', 'on');
+    %options = optimset(options, 'GradConstr', 'on');
+    %options = optimset(options, 'DerivativeCheck', 'on');
     options = optimset(options, 'MaxFunEvals', 1e10);
     options = optimset(options, 'MaxIter', 1e10);
     options = optimset(options, 'Display', 'off');
-    options = optimset(options, 'Diagnostics', 'off');
+    options = optimset(options, 'Diagnostics', 'on');
     
     before = feval(['guess_' joint], deltas, t1, r1, t2, r2, t3, r3);
     [after, err] = fmincon(...

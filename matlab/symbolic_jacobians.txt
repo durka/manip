@@ -10,16 +10,16 @@ note: code in this document is not tested
 
 step 1: check that inverse() is correct
 
->> x = forward(p, s)
->> inverse(x, p) % check that it's equal to s
+>> x = forward(unpack(p), s)
+>> inverse(x, unpack(p)) % check that it's equal to s
 
 step 2: calculate jacobians for forward()
 
 if you can do it on paper, do that (probably only practical for 2D)
 otherwise, use the symbolic toolbox:
 >> syms ALL THE THINGS real
->> dr = subsref(jacobian(forward(pre(p), s), [p s]), substruct('()', {1:d,1:d}))
->> dt = subsref(jacobian(forward(pre(p), s), [p s]), substruct('()', {1:d,d+1}))
+>> dr = jacobian(subsref(forward(unpack(p), s), substruct('()', {1:d,1:d})), [p s])
+>> dt = jacobian(subsref(forward(unpack(p), s), substruct('()', {1:d,d+1})), [p s])
     % of course p and s are symbolic here, not the sample numbers
 
 now copy and paste the jacobians (see footnote)

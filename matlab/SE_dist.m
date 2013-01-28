@@ -21,7 +21,7 @@ function [dist, grad] = SE_dist(u, v, Dkr, Dkt, Dki, Dq, Dr)
     else
         tr = (ur(1,1)*vr(2,2) - ur(1,2)*vr(2,1) - ur(2,1)*vr(1,2) + ur(2,2)*vr(1,1))/(ur(1,1)*ur(2,2) - ur(1,2)*ur(2,1));
     end
-    C = c*2*acos((tr-1)/2); % from http://en.wikipedia.org/wiki/Axis-angle_representation#Log_map_from_SO.283.29_to_so.283.29
+    C = c*2*acos((tr-1)/2)^2; % from http://en.wikipedia.org/wiki/Axis-angle_representation#Log_map_from_SO.283.29_to_so.283.29
     D = d*norm(dt)^2;
     dist = C + D;
 
