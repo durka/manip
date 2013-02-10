@@ -138,8 +138,8 @@ function s = learn_joint(X,f,dims,dbg, a,b)
 
     options = optimset('fmincon');
     options = optimset(options, 'Algorithm', 'sqp');
-    options = optimset(options, 'GradObj', 'on');
-    options = optimset(options, 'GradConstr', 'on');
+    %options = optimset(options, 'GradObj', 'on');
+    %options = optimset(options, 'GradConstr', 'on');
     options = optimset(options, 'MaxFunEvals', 1e10);
     options = optimset(options, 'MaxIter', 1e10);
     options = optimset(options, 'Display', 'off');

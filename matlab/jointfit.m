@@ -1,4 +1,4 @@
-function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr)
+function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr, check)
     %dbstop if infnan
 
     err = 0;
@@ -14,6 +14,15 @@ function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr)
         [e, Dd] = SE_dist(estimate, deltas{frame}, Dkr, Dkt, Dki, Dq, Dr);
         err = err + e;
         grad = grad + Dd;
+        
+        % check gradient
+        if nargin == 8 && check
+            gradcheck = jacobianest(@(p) SE_dist(forward(unpack(p), inverse(deltas{frame}, unpack(p))), deltas{frame}), p);
+            if any(abs(gradcheck - Dd) > 1e-3)
+                disp('GRADIENT FAULT');
+                keyboard;
+            end
+        end
     end
     
     
