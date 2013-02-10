@@ -22,13 +22,19 @@
 % outputs:
 %   X:         motion over time, f x n x dims+1 x dims+1 matrix (i.e. f x n array of homogeneous transformation matrices)
 
-function X = manip_simulate(dims, n, f, S, noise)
-    if nargin == 4
+function X = manip_simulate(dims, n, f, S, noise, initial, random)
+    if ~exist('noise', 'var')
         noise = [0.025 0.05];
+    end
+    if ~exist('initial', 'var')
+        initial = T(unifrnd(-5, 5, [dims 1])) * R(unifrnd(-2*pi, 2*pi, [1*(dims==2)+3*(dims==3) 1])); % randomly initialize root
+    end
+    if ~exist('random', 'var')
+        random = true;
     end
 
     X = zeros(f, n, dims+1, dims+1);
-    X(1,1, :,:) = T(unifrnd(-5, 5, [dims 1])) * R(unifrnd(-2*pi, 2*pi, [1*(dims==2)+3*(dims==3) 1])); % randomly initialize root
+    X(1,1, :,:) = initial;
     
     % turn the joint types into function pointers
     for j = 1:length(S)
@@ -40,17 +46,25 @@ function X = manip_simulate(dims, n, f, S, noise)
         X(frame,:, :,:) = place_objects(squeeze(X(frame,:, :,:)), S, 1, squeeze(X(frame,1, :,:)));
         
         if frame < f
-            % nudge parameters randomly
-            dX = T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [dims*(dims-1)/2 1]));
-            origin = squeeze(X(frame,1, :,:));
-            X(frame+1,1, :,:) = origin * dX / origin * squeeze(X(frame,1, :,:));  % randomly nudge root
-                
-            for j = 1:length(S)
-                bit = diff(S(j).bounds)/10;
-                S(j).state = S(j).state + unifrnd(-bit, bit);
-                S(j).state = max(min(S(j).state, ...
-                                     S(j).bounds(2,:)), ...
-                                 S(j).bounds(1,:));
+            if random
+                % nudge parameters randomly
+                dX = T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [dims*(dims-1)/2 1]));
+                origin = squeeze(X(frame,1, :,:));
+                X(frame+1,1, :,:) = origin * dX / origin * squeeze(X(frame,1, :,:));  % randomly nudge root
+
+                for j = 1:length(S)
+                    bit = diff(S(j).bounds)/10;
+                    S(j).state = S(j).state + unifrnd(-bit, bit);
+                    S(j).state = max(min(S(j).state, ...
+                                         S(j).bounds(2,:)), ...
+                                     S(j).bounds(1,:));
+                end
+            else
+                % follow the trajectory
+                X(frame+1,1, :,:) = squeeze(X(frame,1, :,:));
+                for j = 1:length(S)
+                    S(j).state = S(j).trajectory(frame);
+                end
             end
         end
     end

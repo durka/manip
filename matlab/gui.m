@@ -306,7 +306,7 @@ if ~isreal(noise) || all(size(noise) ~= [1 2])
     noise = [0.025 0.05];
 end
 
-X = manip_simulate(dims, max([S.a S.b]), frames, S, noise);
+X = manip_simulate(dims, max([S.a S.b]), frames, S, noise, eye(dims+1), ~isfield(S, 'trajectory'));
 setappdata(handles.stuff, 'DATA', X);
 setappdata(handles.stuff, 'simulating', false);
 update_sim_plot(handles);
