@@ -145,20 +145,34 @@ void mexFunction( int nlhs, mxArray *plhs[],
     // HACK to get around NaNs
     if (isnan(out[0])) {
         unsigned i, j;
+        double eps = 10*DBL_EPSILON;
+
+        printf("[GJ] fuck! try adding\n");
         for (i = 0; i < m; ++i) {
             for (j = 0; j < n; ++j) {
-                IJ(vv,m,i,j) += DBL_EPSILON;
+                IJ(vv,m,i,j) += eps;
             }
         }
         funcs[m-2][n-1](uu, vv, out);
+        for (i = 0; i < m; ++i) {
+            for (j = 0; j < n; ++j) {
+                IJ(vv,m,i,j) -= eps;
+            }
+        }
 
         if (isnan(out[0])) {
+            printf("[GJ] fuck! try subtracting\n");
             for (i = 0; i < m; ++i) {
                 for (j = 0; j < n; ++j) {
-                    IJ(vv,m,i,j) -= 2*DBL_EPSILON;
+                    IJ(vv,m,i,j) -= eps;
                 }
             }
             funcs[m-2][n-1](uu, vv, out);
+            for (i = 0; i < m; ++i) {
+                for (j = 0; j < n; ++j) {
+                    IJ(vv,m,i,j) += eps;
+                }
+            }
         }
     }
 

@@ -100,7 +100,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[] )
 {
   mxArray *center, *radius;
-  size_t m, n, p;
+  size_t m, n, p, d;
     
   /* Check for proper number of arguments. */
   if(nrhs!=2) {
@@ -134,9 +134,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
   }
 
   /* Create matrices for return arguments. */
+  d = n*(n-1)/2;
   plhs[0] = mxCreateDoubleMatrix(1, 1, mxREAL);
   if (nrhs == 2) {
-      size_t d = n*(n-1)/2;
       plhs[1] = mxCreateDoubleMatrix(d*2+1, d*2, mxREAL);
   }
   
@@ -145,6 +145,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
   if (nrhs == 2) {
       mxArray* c_lhs[2];
       mxArray* r_lhs[2];
+      double *x, *cc[2], *rr[2], *out;
       
       if (mexCallMATLAB(2, c_lhs, 1, &center, "extract_SE") != 0) {
           mexErrMsgTxt("failed to call extract_SE");
@@ -153,6 +154,47 @@ void mexFunction( int nlhs, mxArray *plhs[],
           mexErrMsgTxt("failed to call extract_SE");
       }
 
-      inverse_revolute_gradient(m-1, mxGetPr(prhs[0]), mxGetPr(c_lhs[0]), mxGetPr(c_lhs[1]), mxGetPr(r_lhs[1]), mxGetPr(plhs[1]));
+      cc[0] = mxGetPr(c_lhs[0]);
+      cc[1] = mxGetPr(c_lhs[1]);
+      rr[0] = mxGetPr(r_lhs[0]);
+      rr[1] = mxGetPr(r_lhs[1]);
+      x = mxGetPr(prhs[0]);
+      out = mxGetPr(plhs[1]);
+
+      inverse_revolute_gradient(m-1, x, cc[0], cc[1], rr[1], out);
+
+      // HACK to get around NaNs
+      if (isnan(IJ(out, d*2+1, d*2, d*2-1))) {
+          unsigned i, j;
+          double eps = 10*DBL_EPSILON;
+
+          printf("[MIR] fuck! try adding\n");
+          for (i = 0; i < n; ++i) {
+              for (j = 0; j < n; ++j) {
+                  IJ(x,n,i,j) += eps;
+              }
+          }
+          inverse_revolute_gradient(m-1, x, cc[0], cc[1], rr[1], out);
+          for (i = 0; i < n; ++i) {
+              for (j = 0; j < n; ++j) {
+                  IJ(x,n,i,j) -= eps;
+              }
+          }
+
+          if (isnan(IJ(out, d*2+1, d*2, d*2-1))) {
+              printf("[MIR] fuck! try subtracting\n");
+              for (i = 0; i < n; ++i) {
+                  for (j = 0; j < n; ++j) {
+                      IJ(x,n,i,j) -= eps;
+                  }
+              }
+              inverse_revolute_gradient(m-1, x, cc[0], cc[1], rr[1], out);
+              for (i = 0; i < n; ++i) {
+                  for (j = 0; j < n; ++j) {
+                      IJ(x,n,i,j) += eps;
+                  }
+              }
+          }
+      }
   }
 }
