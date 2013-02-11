@@ -18,6 +18,8 @@ Commands:
                     repeat last command (just press enter)
     r [id]*         read positions (if no arguments, read all)
 
+    S               EMERGENCY STOP (all motors)
+
     s [id goal]*    set positions
                       no arguments: set all to zero
                       one argument: set all
@@ -53,6 +55,11 @@ def cmd_read(command):
     for aid in targets:
         print net[aid[0]].cache[dynamixel.defs.REGISTER['Id']], net[aid[0]].cache[dynamixel.defs.REGISTER['CurrentPosition']]
 
+def cmd_stop(command):
+    for aid in actuator_ids:
+        net[aid].stop()
+    net.synchronize()
+
 def cmd_move(command, **opts):
     if not command:
         cmds = [[aid, 0] for aid in actuator_ids]
@@ -86,19 +93,20 @@ def cmd_makejoint(command):
 
 def cmd_movejoint(command, **opts):
     if not command:
-        targets = joints.keys()
-        goals = [0]*len(joints)
+        cmds = [[k, 0] for k in joints.keys()]
     elif len(command) == 1:
-        targets = [command[0]]
-        goals = [0]
+        cmds = [[command[0], 0]]
     else:
-        for cmd in check(command, [str, joints.keys()], [int, xrange(-1023, 1024)]):
-            for actuator in joints[cmd[0]]:
-                if opts['relative']:
-                    net[actuator['id']].goal_position += {'+':1, '-':-1}[actuator['sign']] * cmd[1]
-                else:
-                    net[actuator['id']].goal_position = actuator['home'] + {'+':1, '-':-1}[actuator['sign']] * cmd[1]
-        net.synchronize()
+        cmds = check(command, [str, joints.keys()], [int, xrange(-1023, 1024)])
+
+    net.synchronize()
+    for cmd in cmds:
+        for actuator in joints[cmd[0]]:
+            if opts['relative']:
+                net[actuator['id']].goal_position += {'+':1, '-':-1}[actuator['sign']] * cmd[1]
+            else:
+                net[actuator['id']].goal_position = actuator['home'] + {'+':1, '-':-1}[actuator['sign']] * cmd[1]
+    net.synchronize()
 
 
 def check(command, *spec):
@@ -125,6 +133,7 @@ def interpret(command):
         {
                 'h': cmd_help,
                 'r': cmd_read,
+                'S': cmd_stop,
                 's': functools.partial(cmd_move, relative=False),
                 'a': functools.partial(cmd_move, relative=True),
                 'J': cmd_makejoint,
@@ -194,8 +203,11 @@ def main():
         if command[0] == 'q':
             break
         elif command[0] == 'L':
-            for line in open(command[1], 'r').lines():
-                interpret(line.split())
+            for line in open(command[1], 'r').readlines():
+                cmd = line.split()
+                if not (len(cmd) == 0 or cmd[0][0] == '#'):
+                    print 'Sending:', ' '.join(cmd)
+                    interpret(cmd)
         else:
             interpret(command)
 
