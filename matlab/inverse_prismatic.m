@@ -2,7 +2,12 @@
 %   params{1} SE(n) is the offset from the from-object center to prismatic joint
 %   params{2} R(n)  is the unit vector pointing in the direction of prismaticness
 %   state     R     is the extension of the joint
-function [state, D] = inverse_prismatic(x, params)
+function [state, D] = inverse_prismatic(x, p)
+    if iscell(p)
+        params = p;
+    else
+        [params, t, r] = unpack_prismatic(p);
+    end
     offset = params{1};
     u = params{2};
     n = length(u);
@@ -15,9 +20,11 @@ function [state, D] = inverse_prismatic(x, params)
     %state = dot(subsref(x/offset, struct('type','()', 'subs',{{1:d,d+1}})), u);
     
     if nargout > 1
+        if iscell(p)
+            [t, r] = extract_SE(offset);
+        end
         d = n*(n+1)/2;
         D = vertcat(eye(d+n), zeros([1 d+n]));
-        [t, r] = extract_SE(offset);
         if n == 2
             D(end,:) = [ -u(1)*(x(1,1)*cos(r) - x(1,2)*sin(r)) - u(2)*(x(2,1)*cos(r) - x(2,2)*sin(r))
                          -x(1,2)*u(1)*cos(r) - x(2,2)*u(2)*cos(r) - x(1,1)*u(1)*sin(r) - x(2,1)*u(2)*sin(r)

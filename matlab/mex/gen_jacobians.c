@@ -147,7 +147,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         unsigned i, j;
         double eps = 10*DBL_EPSILON;
 
-        printf("[GJ] fuck! try adding\n");
+        //printf("[GJ] fuck! try adding\n");
         for (i = 0; i < m; ++i) {
             for (j = 0; j < n; ++j) {
                 IJ(vv,m,i,j) += eps;
@@ -161,7 +161,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         }
 
         if (isnan(out[0])) {
-            printf("[GJ] fuck! try subtracting\n");
+            //printf("[GJ] fuck! try subtracting\n");
             for (i = 0; i < m; ++i) {
                 for (j = 0; j < n; ++j) {
                     IJ(vv,m,i,j) -= eps;

@@ -2,7 +2,12 @@
 %   params{1} SE(n) is the center of rotation (WRT from-object center)
 %   params{2} SE(n) is the offset from the center to the moving part at theta=0
 %   state     R     is the angle around the circle
-function [x, Dr, Dt] = forward_revolute(params, state)
+function [x, Dr, Dt] = forward_revolute(p, state)
+    if iscell(p)
+        params = p;
+    else
+        [params, ct, cr, ~, rr] = unpack_revolute(p);
+    end
     center = params{1};
     radius = params{2};
     theta = state;
@@ -11,8 +16,10 @@ function [x, Dr, Dt] = forward_revolute(params, state)
     x = radius * R(theta*eye(1,n*(n-1)/2)) * center;
     
     if nargout > 1
-        [ct, cr] = extract_SE(center);
-        [~, rr] = extract_SE(radius);
+        if iscell(p)
+            [ct, cr] = extract_SE(center);
+            [~, rr] = extract_SE(radius);
+        end
         if length(ct) == 2
             thr = rr + theta;
             th = cr + thr;

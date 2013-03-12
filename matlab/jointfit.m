@@ -1,23 +1,23 @@
-function [err, grad] = jointfit(deltas, p, forward, inverse, unpack, Dq, Dr, check)
+function [err, grad] = jointfit(deltas, p, forward, inverse, Dq, Dr, check)
     %dbstop if infnan
 
     err = 0;
-    grad = zeros(size(p));
+    grad = 0;
     
     % accumulate error at each frame
     for frame = 1:length(deltas)
         % perform IK to get the observed params
-        [state, Dki] = inverse(deltas{frame}, unpack(p));
+        [state, Dki] = inverse(deltas{frame}, p);
         
         % get error between real SE pose and observed-modeled SE pose
-        [estimate, Dkr, Dkt] = forward(unpack(p), state);
+        [estimate, Dkr, Dkt] = forward(p, state);
         [e, Dd] = SE_dist(estimate, deltas{frame}, Dkr, Dkt, Dki, Dq, Dr);
         err = err + e;
         grad = grad + Dd;
         
         % check gradient
         if nargin == 8 && check
-            gradcheck = jacobianest(@(p) SE_dist(forward(unpack(p), inverse(deltas{frame}, unpack(p))), deltas{frame}), p);
+            gradcheck = jacobianest(@(p) SE_dist(forward(p, inverse(deltas{frame}, p)), deltas{frame}), p);
             if any(abs(gradcheck - Dd) > 1e-3)
                 disp('GRADIENT FAULT');
                 keyboard;

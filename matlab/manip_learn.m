@@ -1,8 +1,12 @@
-function S = manip_learn(X, dbg, pairs)
+function S = manip_learn(X, dbg, pairs, check)
     if dbg
         dbg = @fprintf;
     else
         dbg = @(varargin) fprintf('');
+    end
+    
+    if nargin < 4
+        check = false;
     end
     
     dbg('Begin learning\n');
@@ -19,13 +23,13 @@ function S = manip_learn(X, dbg, pairs)
     if nargin == 3
         dbg('Fitting all models to given joints...\n');
         for i = 1:size(pairs,2)
-            S = [S, learn_joint(X,f,dims,dbg, pairs(1,i),pairs(2,i))];
+            S = [S, learn_joint(X,f,dims,dbg, pairs(1,i),pairs(2,i), check)];
         end
     else
         dbg('Fitting all models to all possible joints...\n');
         for a = 1:n
             parfor b = a+1:n
-                S = [S, learn_joint(X,f,dims,dbg, a,b)];
+                S = [S, learn_joint(X,f,dims,dbg, a,b, check)];
             end
         end
     end
@@ -56,11 +60,11 @@ function S = manip_learn(X, dbg, pairs)
     end
     
     dbg('Finding minimum spanning tree...\n');
-    [S.a; S.b; S.cost]
-    {S.joint}
+    %[S.a; S.b; S.cost]
+    %{S.joint}
     G = sparse([S.a], [S.b], [S.cost], max([S.a S.b]), max([S.a S.b]));
     G = tril(G + G'); % convert to undirected
-    [MST, pred] = graphminspantree(G)
+    [MST, pred] = graphminspantree(G);
     SS = S;
     S = struct('a', {}, 'b', {}, 'joint', {}, 'params', {}, 'state', {}, 'bounds', {}, 'cost', {});
     for i = 2:length(pred)
@@ -82,25 +86,8 @@ function S = manip_learn(X, dbg, pairs)
         dbg('\n');
     end
     
-    dbg('Removing rigid subclusters...\n');
-    SS = S(strcmp({S.joint}, 'rigid'));
-    S = S(~strcmp({S.joint}, 'rigid'));
-    dbg('\trigid part\n\t\t%s\n\t\t%s\n\tnonrigid part\n\t\t%s\n\t\t%s\n', mat2str([SS.a]), mat2str([SS.b]), mat2str([S.a]), mat2str([S.b]));
-    for i = 1:length(SS)
-        % merge the nodes in S
-        
-        for j = find([S.b] == SS(i).a)
-            dbg('\tadding transform after joint %d-%d\n', S(j).a, S(j).b);
-            S(j).b = SS(i).a;
-            S(j).params = feval(['move_' S(j).joint], S(j).params, 'b', SS(i).params{1});
-        end
-        
-        for j = find([S.a] == SS(i).b)
-            dbg('\tadding transform before joint %d-%d\n', S(j).a, S(j).b);
-            S(j).a = SS(i).a;
-            S(j).params = feval(['move_' S(j).joint], S(j).params, 'a', SS(i).params{1});
-        end
-    end
+    dbg('NOT Removing rigid subclusters...\n');
+    %S = remove_rigid_subclusters(S, dbg);
     
     dbg('Fixing up the indices again...\n');
     for i = 1:max([S.a S.b])
@@ -131,14 +118,14 @@ function S = manip_learn(X, dbg, pairs)
     %profile viewer;
 end
 
-function s = learn_joint(X,f,dims,dbg, a,b)
+function s = learn_joint(X,f,dims,dbg, a,b, check)
     dbg('\tTrying joint %d-%d...\n', a, b);
 
     [deltas, t1, r1, t2, r2, t3, r3] = calc_deltas(X, a, b);
 
     options = optimset('fmincon');
     options = optimset(options, 'Algorithm', 'sqp');
-    %options = optimset(options, 'GradObj', 'on');
+    options = optimset(options, 'GradObj', 'on');
     %options = optimset(options, 'GradConstr', 'on');
     options = optimset(options, 'MaxFunEvals', 1e10);
     options = optimset(options, 'MaxIter', 1e10);
@@ -148,9 +135,9 @@ function s = learn_joint(X,f,dims,dbg, a,b)
     [rigid_fit, rigid_err, flag, output] = fmincon(...
                          @(p) jointfit(deltas, ...
                                        p, ...
-                                       @mex_forward_rigid, @mex_inverse_rigid, ...
-                                       @(p) unpack_rigid(p, dims), ...
-                                       @gen_jacobians, @gen_jacobians), ...
+                                       @forward_rigid, @inverse_rigid, ...
+                                       @gen_jacobians, @gen_jacobians, ...
+                                       check), ...
                          guess_rigid(deltas, t1, r1, t2, r2, t3, r3), ...
                          [], [], [], [], ... % no linear constraints
                          [-inf(size(t1)) -pi*ones(size(r1))], ...
@@ -165,31 +152,31 @@ function s = learn_joint(X,f,dims,dbg, a,b)
     [prismatic_fit, prismatic_err, flag, output] = fmincon(...
                          @(p) jointfit(deltas, ...
                                        p, ...
-                                       @mex_forward_prismatic, @mex_inverse_prismatic, ...
-                                       @(p) unpack_prismatic(p, dims), ...
-                                       @gen_jacobians, @gen_jacobians), ...
+                                       @forward_prismatic, @inverse_prismatic, ...
+                                       @gen_jacobians, @gen_jacobians, ...
+                                       check), ...
                          guess_prismatic(deltas, t1, r1, t2, r2, t3, r3), ...
                          [], [], [], [], ... % no linear constraints
                          [-inf(size(t1)) -pi*ones(size(r1)) -ones(1,dims)], ...
                          [ inf(size(t1))  pi*ones(size(r1))  ones(1,dims)], ...
                          [],...%@(p) nonlcon_unit(p, dims), ... % constrain unit vector to unit length
                          options);
-    prismatic_params = unpack_prismatic(prismatic_fit, dims);
+    prismatic_params = unpack_prismatic(prismatic_fit);
     dbg('\t\tPrismatic joint (%d steps, err=%g, flag=%d): o=%s u=%s\n', output.iterations, prismatic_err, flag, format_SE(prismatic_params{1}, 3), mat2str(prismatic_params{2}, 3));
 
     [revolute_fit, revolute_err, flag, output] = fmincon(...
                          @(p) jointfit(deltas, ...
                                        p, ...
-                                       @mex_forward_revolute, @mex_inverse_revolute, ...
-                                       @(p) unpack_revolute(p, dims), ...
-                                       @gen_jacobians, @gen_jacobians), ...
+                                       @forward_revolute, @inverse_revolute, ...
+                                       @gen_jacobians, @gen_jacobians, ...
+                                       check), ...
                          guess_revolute(deltas, t1, r1, t2, r2, t3, r3), ...
                          [], [], [], [], ... % no linear constraints
                          [-inf(size(t1)) -pi*ones(size(r1)) -inf(size(t1)) -pi*ones(size(r1))], ...
                          [ inf(size(t1))  pi*ones(size(r1))  inf(size(t1))  pi*ones(size(r1))], ...
                          [], ... % no nonlinear constraints
                          options);
-    revolute_params = unpack_revolute(revolute_fit, dims);
+    revolute_params = unpack_revolute(revolute_fit);
     dbg('\t\tRevolute joint (%d steps, err=%g, flag=%d): c=%s o=%s\n', output.iterations, revolute_err, flag, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
 
     names = {'rigid', 'prismatic', 'revolute'};

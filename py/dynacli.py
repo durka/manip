@@ -17,6 +17,7 @@ Commands:
     q               quit
                     repeat last command (just press enter)
     r [id]*         read positions (if no arguments, read all)
+    g [id]*         show goal positions (if no arguments, read all)
 
     S               EMERGENCY STOP (all motors)
 
@@ -28,22 +29,26 @@ Commands:
     a [id rgoal]+   set relative positions
                       DANGER be careful that you don't make the motors fight each other!
 
-    J [name [id sign]*]    set up a joint
+    J [name [id sign]*]    set up a joint (do a read just before)
                              no arguments: list all joints
                              one argument: show that joint
                              otherwise, define a joint
                                e.g. 'J base 1 +' or 'J shoulder 2 + 3 -'
+
+    H [name]*              re-home joint(s) (do a read just before)
 
     j [name rgoal?]*       set joint positions
                              no arguments: set all joints to home
     k [name rgoal?]*       set relative joint positions
                              no arguments: set all joints to home
 
+    z [seconds]?    sleep (no argument: 1 second)
+    m [speed]?      set speed (default 20)
 
     L filename      load script
 """
 
-def cmd_read(command):
+def cmd_read(command, **opts):
     if not command:
         targets = [[aid] for aid in actuator_ids]
     else:
@@ -53,7 +58,10 @@ def cmd_read(command):
         net[aid[0]].read_all()
         time.sleep(0.01)
     for aid in targets:
-        print net[aid[0]].cache[dynamixel.defs.REGISTER['Id']], net[aid[0]].cache[dynamixel.defs.REGISTER['CurrentPosition']]
+        if opts['goal']:
+            print net[aid[0]].cache[dynamixel.defs.REGISTER['Id']], net[aid[0]].cache[dynamixel.defs.REGISTER['GoalPosition']]
+        else:
+            print net[aid[0]].cache[dynamixel.defs.REGISTER['Id']], net[aid[0]].cache[dynamixel.defs.REGISTER['CurrentPosition']]
 
 def cmd_stop(command):
     for aid in actuator_ids:
@@ -69,6 +77,7 @@ def cmd_move(command, **opts):
         cmds = check(command, [int, actuator_ids], [int, xrange(-1023, 1024)])
     net.synchronize()
     for aid, goal in cmds:
+        net[aid].moving_speed = MOVING_SPEED
         if opts['relative']:
             net[aid].goal_position += goal
         else:
@@ -91,6 +100,16 @@ def cmd_makejoint(command):
                 'home': net[aid].cache[dynamixel.defs.REGISTER['CurrentPosition']],
                 'sign': sign})
 
+def cmd_homejoint(command):
+    if not command:
+        cmds = [[n] for n in joints.keys()]
+    else:
+        cmds = check(command, [str, joints.keys()])
+
+    for cmd in cmds:
+        for motor in joints[cmd[0]]:
+            motor['home'] = net[motor['id']].cache[dynamixel.defs.REGISTER['CurrentPosition']]
+
 def cmd_movejoint(command, **opts):
     if not command:
         cmds = [[k, 0] for k in joints.keys()]
@@ -99,14 +118,36 @@ def cmd_movejoint(command, **opts):
     else:
         cmds = check(command, [str, joints.keys()], [int, xrange(-1023, 1024)])
 
+    print cmds, MOVING_SPEED
     net.synchronize()
     for cmd in cmds:
         for actuator in joints[cmd[0]]:
+            net[actuator['id']].moving_speed = MOVING_SPEED
             if opts['relative']:
                 net[actuator['id']].goal_position += {'+':1, '-':-1}[actuator['sign']] * cmd[1]
             else:
                 net[actuator['id']].goal_position = actuator['home'] + {'+':1, '-':-1}[actuator['sign']] * cmd[1]
     net.synchronize()
+
+
+def cmd_setspeed(command):
+    global MOVING_SPEED
+
+    if not command:
+        speed = MOVING_SPEED
+    else:
+        speed = check(command, [int, xrange(0, 100)])[0][0]
+
+    MOVING_SPEED = speed
+
+
+def cmd_sleep(command):
+    if not command:
+        t = 1
+    else:
+        t = check(command, [int, xrange(0, 100)])[0][0]
+
+    time.sleep(t)
 
 
 def check(command, *spec):
@@ -132,20 +173,24 @@ def interpret(command):
     try:
         {
                 'h': cmd_help,
-                'r': cmd_read,
+                'r': functools.partial(cmd_read, goal=False),
+                'g': functools.partial(cmd_read, goal=True),
                 'S': cmd_stop,
                 's': functools.partial(cmd_move, relative=False),
                 'a': functools.partial(cmd_move, relative=True),
                 'J': cmd_makejoint,
+                'H': cmd_homejoint,
                 'j': functools.partial(cmd_movejoint, relative=False),
                 'k': functools.partial(cmd_movejoint, relative=True),
+                'm': cmd_setspeed,
+                'z': cmd_sleep,
         }[command[0]](command[1:])
     except Exception, e:
         print 'Bad command!', e
 
 
 def main():
-    global net, joints, actuator_ids
+    global net, joints, actuator_ids, MOVING_SPEED
 
     ###############################################################################
     # The end point of the servos we will scan for.
@@ -154,6 +199,10 @@ def main():
     # This will scan at approximately one servo id a second so don't worry if it
     # takes a little bit.
     lastServoId = 6
+
+    ###############################################################################
+    # The motor speed
+    MOVING_SPEED = 20
 
     # Set your serial port accordingly.
     if os.name == "posix":
@@ -186,7 +235,7 @@ def main():
     print "...Done"
 
     for actuator in net.get_dynamixels():
-        actuator.moving_speed = 50
+        actuator.moving_speed = MOVING_SPEED
         actuator.synchronized = True
         actuator.torque_enable = True
         actuator.torque_limit = 800
@@ -204,7 +253,8 @@ def main():
             break
         elif command[0] == 'L':
             for line in open(command[1], 'r').readlines():
-                cmd = line.split()
+                cmd = line.split('#')[0] # strip comments
+                cmd = cmd.split()
                 if not (len(cmd) == 0 or cmd[0][0] == '#'):
                     print 'Sending:', ' '.join(cmd)
                     interpret(cmd)

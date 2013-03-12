@@ -30,7 +30,7 @@ function X = manip_read(data, filtB, filtA)
             points{obj}(:, 3:end) = filter(filtB, filtA, points{obj}(:, 3:end), mean(points{obj}(1:round(length(points{obj})/50), 3:end)));
         end
         for frame = 1:f
-            coords = points{obj}(points{obj}(:,1)==frame, :);
+            coords = points{obj}(points{obj}(:,1)==frame, 3:end);
             if isempty(coords)
                 % uh oh, we have some interpolation to do
                 interp(frame, obj) = 1;

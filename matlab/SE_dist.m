@@ -30,7 +30,7 @@ function [dist, grad] = SE_dist(u, v, Dkr, Dkt, Dki, Dq, Dr)
             error('To calculate a gradient SE_dist needs gradient inputs');
         else
             %fprintf('SIZES: Dq[%d %d] Dr[%d %d] Dkr[%d %d] Dkt[%d %d] Dki[%d %d]\n', size(Dq(ur,vr),1),size(Dq(ur,vr),2), size(Dr(ut,vt),1),size(Dr(ut,vt),2), size(Dkr,1),size(Dkr,2), size(Dkt,1),size(Dkt,2), size(Dki,1),size(Dki,2));
-            toohigh = 10000;
+            toohigh = 100000;
             dkr = max(min(Dkr, toohigh), -toohigh);
             dkt = max(min(Dkt, toohigh), -toohigh);
             dki = max(min(Dki, toohigh), -toohigh);

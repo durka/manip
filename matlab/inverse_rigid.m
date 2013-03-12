@@ -1,7 +1,7 @@
 % in 2D and 3D
 %   params{1} SE(n) is the offset from the from-object center to the to-object center
 
-function [state, D] = inverse_rigid(x, params)
+function [state, D] = inverse_rigid(x, ~)
     state = 0; % rigid joints have no state
     
     if nargout > 1

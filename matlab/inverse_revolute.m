@@ -2,7 +2,12 @@
 %   params{1} SE(n) is the center of rotation (WRT from-object center)
 %   params{2} SE(n) is the offset from the center to the moving part at theta=0
 %   state     R     is the angle around the circle
-function [state, D] = inverse_revolute(x, params)
+function [state, D] = inverse_revolute(x, p)
+    if iscell(p)
+        params = p;
+    else
+        [params, ct, cr, ~, rr] = unpack_revolute(p);
+    end
     center = params{1};
     radius = params{2};
     
@@ -18,11 +23,13 @@ function [state, D] = inverse_revolute(x, params)
     state = real(state); % HACK HACK HACK COUGH
     
     if nargout > 1
+        if iscell(p)
+            [ct, cr] = extract_SE(center);
+            [~, rr] = extract_SE(radius);
+        end
         n = size(center,1)-1;
         d = n*(n+1)/2;
         D = vertcat(eye(d*2), zeros([1 d*2]));
-        [ct, cr] = extract_SE(center);
-        [~, rr] = extract_SE(radius);
         if length(ct) == 2
             D(end,:) = [ 0 0 -1      0 0 -1 ];
         else

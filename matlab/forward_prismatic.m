@@ -2,7 +2,12 @@
 %   params{1} SE(n) is the offset from the from-object center to prismatic joint
 %   params{2} R(n)  is the unit vector pointing in the direction of prismaticness
 %   state     R     is the extension of the joint
-function [x, Dr, Dt] = forward_prismatic(params, state)
+function [x, Dr, Dt] = forward_prismatic(p, state)
+    if iscell(p)
+        params = p;
+    else
+        [params, t, r] = unpack_prismatic(p);
+    end
     offset = params{1};
     u = params{2};
     pos = state;
@@ -10,7 +15,9 @@ function [x, Dr, Dt] = forward_prismatic(params, state)
     x = T(u*pos) * offset;
     
     if nargout > 1
-        [t, r] = extract_SE(params{1});
+        if iscell(p)
+            [t, r] = extract_SE(offset);
+        end
         if length(t) == 2
             Dr = [ 0 0 -sin(r) 0 0 0
                    0 0  cos(r) 0 0 0

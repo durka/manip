@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 18-Jan-2013 00:56:53
+% Last Modified by GUIDE v2.5 08-Mar-2013 01:20:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -308,6 +308,7 @@ end
 
 X = manip_simulate(dims, max([S.a S.b]), frames, S, noise, eye(dims+1), ~isfield(S, 'trajectory'));
 setappdata(handles.stuff, 'DATA', X);
+assignin('base', 'DATA', X);
 setappdata(handles.stuff, 'simulating', false);
 update_sim_plot(handles);
 
@@ -336,7 +337,7 @@ if isempty(X)
     return;
 end
 
-learned = manip_learn(X, true);
+learned = manip_learn(X, false);
 assignin('base', 'SS', learned);
 setappdata(handles.stuff, 'GUESS', learned);
 draw_tree(handles.tree_out, learned, 0);
@@ -731,11 +732,27 @@ for i = unique([S.a S.b])
                           'b',      { max([S.a S.b])+1                                                                     }, ...
                           'joint',  { 'rigid'                                                                              }, ...
                           'params', { {T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [1*(dims==2)+3*(dims==3) 1]))} }, ...
-                          'state',  { 0                                                                                    }, ...
+                          'state',  { -1 }, ... % this is used as a sentinel for unfudging
                           'bounds', { [0; 0]                                                                               });
     end
 end
 
+change_tree(handles, S);
+draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
+
+
+% --- Executes on button press in unfudge.
+function unfudge_Callback(hObject, eventdata, handles)
+% hObject    handle to unfudge (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+S = getappdata(handles.stuff, 'TREE');
+
+% deflate (delete any nodes created by fudging)
+S([S.state] == -1) = [];
+
+setappdata(handles.stuff, 'joint', 1);
 change_tree(handles, S);
 draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));
 
@@ -768,6 +785,9 @@ set(handles.([prefix 'prismatic_panel']), 'Visible', 'off');
 set(handles.([prefix 'revolute_panel']), 'Visible', 'off');
 
 i = getappdata(handles.stuff, jointdata);
+if i > length(S)
+    i = 1;
+end
 joint = S(i).joint;
 set(handles.([prefix 'joint_type']), 'Value', find(strcmp(contents, joint)));
 controls = get(handles.([prefix joint '_panel']), 'Children');
@@ -1136,5 +1156,6 @@ function export_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 assignin('base', 'S', getappdata(handles.stuff, 'TREE'));
+assignin('base', 'SS', getappdata(handles.stuff, 'GUESS'));
 assignin('base', 'X', getappdata(handles.stuff, 'DATA'));
 assignin('base', 'dims', getappdata(handles.stuff, 'dims'));

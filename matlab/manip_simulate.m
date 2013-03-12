@@ -48,9 +48,10 @@ function X = manip_simulate(dims, n, f, S, noise, initial, random)
         if frame < f
             if random
                 % nudge parameters randomly
-                dX = T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [dims*(dims-1)/2 1]));
+                dX = T(unifrnd(-noise(1), noise(1), [dims 1])) * R(unifrnd(-noise(2), noise(2), [dims*(dims-1)/2 1]));
                 origin = squeeze(X(frame,1, :,:));
-                X(frame+1,1, :,:) = origin * dX / origin * squeeze(X(frame,1, :,:));  % randomly nudge root
+                %X(frame+1,1, :,:) = origin * dX / origin * squeeze(X(frame,1, :,:));  % randomly nudge root
+                X(frame+1,1, :,:) = dX * squeeze(X(frame,1, :,:));  % randomly nudge root
 
                 for j = 1:length(S)
                     bit = diff(S(j).bounds)/10;
@@ -74,7 +75,8 @@ function X = manip_simulate(dims, n, f, S, noise, initial, random)
         origin = squeeze(X(frame,1, :,:));
         for i = 1:n
             dX = T(unifrnd(-noise(1), noise(1), [dims 1])) * R(unifrnd(-noise(2), noise(2), [dims*(dims-1)/2 1]));
-            X(frame,i, :,:) = origin * dX / origin * squeeze(X(frame,i, :,:));
+            %X(frame,i, :,:) = origin * dX / origin * squeeze(X(frame,i, :,:));
+            X(frame,i, :,:) = dX * squeeze(X(frame,i, :,:));
         end
     end
 end
@@ -86,7 +88,8 @@ function X = place_objects(X, S, parent, origin)
         child = S(joint).b;
         
         % place object
-        X(child, :,:) = origin * S(joint).joint(S(joint).params, S(joint).state) / origin * squeeze(X(parent, :,:));
+        %X(child, :,:) = origin * S(joint).joint(S(joint).params, S(joint).state) / origin * squeeze(X(parent, :,:));
+        X(child, :,:) = squeeze(X(parent, :,:)) * S(joint).joint(S(joint).params, S(joint).state);
         
         % place children
         X = place_objects(X, S, child, origin);
