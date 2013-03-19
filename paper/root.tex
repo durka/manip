@@ -30,8 +30,9 @@
 \usetikzlibrary{fit,shapes,arrows,automata}
 \usepackage{3dplot}
 \tdplotsetmaincoords{50}{105} % viewing angle
-\usepackage{hyperref}
-\usepackage[all]{hypcap}
+\input{tikz-parallelepiped.inc}
+%\usepackage{hyperref}
+%\usepackage[all]{hypcap}
 
 % random helper commands
 \DeclareMathOperator*{\argmin}{argmin}
@@ -107,7 +108,7 @@ Probabilistic Discovery of Articulated Object Kinematics Using Trajectory Matchi
 \section{INTRODUCTION}
 
 \subsection{Motivation}
-Consider the problem of navigating and interacting in unstructured, unknown environments. Actually, this is faced by office workers every morning. A person going to work may put on a take off several pairs of glasses. Operating a motor vehicle is another matter, but even on foot there are doors to open, some with keycards, others by turning keys; exchanging money for a cup of coffee; continuously re-allocating her two hands for various purposes. Once in the office, there remains a perception problem: locate a swivel chair, adapt to any furniture that was moved overnight. Described in human terms, this morning seems simple. Yet we struggle to put a robot through these paces.
+Consider the problem of navigating and interacting in unstructured, unknown environments. Actually, this is faced by office workers every morning. A person going to work may put on and take off several pairs of glasses. Operating a motor vehicle is another matter, but even on foot there are doors to open, some with keycards, others by turning keys; coffee and breakfast to buy; and the continuous allocation problem of accomplishing these tasks with only two hands. Once in the office, there remains a perception problem: locate a swivel chair, adapt to any furniture that was moved overnight. Described in human terms, this hypothetical morning seems simple. Yet we struggle to put a robot through these paces.
 
 If we expect autonomous robots to accompany and assist us in our daily lives, they must be able to act in the human world. This includes many complex manipulation tasks. The sequence described above is completely unremarkable for a human, but involves serious heavy lifting and several open problems if it is to be completed by a robot. This work will focus on an important subproblem applicable to this situation: namely, extracting the kinematic structure of an articulated object from visual input. In the context of the current paper, an \emph{articulated object} is a coherent object in the world that consists of rigid interlocking moving parts (for example, a tape measure, desk lamp, swivel chair, etc). The \emph{kinematic structure} describes the relationships between the parts and how they move; for example, a swivel chair might be described by a tree with the seat at the root. The seat has two children: the backrest (which might be rigidly connected, or recline via a revolute joint), and the wheeled base, which turns on a revolute joint with respect to the seat. The seat might also be vertically adjustable, which would be represented by a prismatic joint in the same place. Note that, in general, kinematic structures are graphs, but in the following they are assumed to be trees to simplify the computation. The wheels of a swivel chair may turn independently, but usually they are all in contact with the floor and so move in concert. Therefore the chair has fewer degrees of freedom than is suggested by a kinematic tree with the wheels as leaves. However, in many cases the analysis is similar and with the tree assumption the structure discovery is much easier.
 
@@ -131,7 +132,7 @@ In the context of this paper, an \emph{articulated object} is a composite object
 
 Mathematically, the relative motion between two parts of an articulated object can be described as a trajectory through $SE(3)$, the space of rigid motions in 3D space. This is a group with six degrees of freedom. However, the presence of a 1-DOF joint restricts the relative motion to a one-dimensional manifold nonlinearly embedded in the six-dimensional configuration space. The problem of finding the joint is thus rephrased as choosing the shape of the manifold (i.e. the joint type) and the nature of its embedding (the joint parameters).
 
-Zooming out from the relative motion of two parts to the articulated object as a whole, we can describe its structure as a directed\footnote{Note that the graph is directed in that reversing the direction of an edge requires inverting the geometry of the joint, but the joint type does not change.} graph, where the nodes are the parts of the object and the edges are annotated with joint types and parameters. An example graph describing the structure of a swivel chair is shown in Figure \ref{fig:Sswivel}. In this simplified swivel chair model, the main parts are the seat, base, backrest and wheels. The wheels turn, the seat swivels and is adjustable in height, and the backrest leans back (P stands for prismatic and R for revolute). Note that, with the seat as the root, the swivel chair can be kinematically described as a tree. This greatly simplifies the joint fitting for reasons that will become clear later, so we will make the assumption in the following that all kinematic graphs are trees. This assumption is, of course, false; even in the swivel chair example the wheels are normally on the ground so their rotations are locked together. For another example, humans have two hands which are normally independent, but when gripping something like a steering wheel or a ladder rung they are kinematically connected. This further reduces the degrees of the system as a whole (thereby simplifying the search space), but it cannot be represented in a tree, so the tree-based algorithm presented here will miss the simplification.
+Zooming out from the relative motion of two parts to the articulated object as a whole, we can describe its structure as a directed\footnote{Note that the graph is directed in that reversing the direction of an edge requires inverting the geometry of the joint; however, the joint type does not change.} graph, where the nodes are the parts of the object and the edges are annotated with joint types and parameters. An example graph describing the structure of a swivel chair is shown in Figure \ref{fig:Sswivel}. In this simplified swivel chair model, the main parts are the seat, base, backrest and wheels. The wheels turn, the seat swivels and is adjustable in height, and the backrest leans back (P stands for prismatic and R for revolute). Note that, with the seat as the root, the swivel chair can be kinematically described as a tree. This greatly simplifies the joint fitting for reasons that will become clear later, so we will make the assumption in the following that all kinematic graphs are trees. This assumption is, of course, false; even in the swivel chair example the wheels are normally on the ground so their rotations are locked together. For another example, humans have two hands which are normally independent, but when gripping something like a steering wheel or a ladder rung they are kinematically connected. This further reduces the degrees of the system as a whole (thereby simplifying the search space), but it cannot be represented in a tree, so the tree-based algorithm presented here will miss the simplification.
 
         \begin{figure}[ht]
           \centering
@@ -157,7 +158,7 @@ Zooming out from the relative motion of two parts to the articulated object as a
         \end{figure}
 
 \subsection{Probabilistic Formulation of the Problem}
-To mathematically formulate the problem, we express the input data as a set of trajectories of $K$ distinct points on an articulated object:\footnote{In this paper, superscripts are used for numbering object parts or feature points, while subscripts are reserved for indexing in time. Where it makes sense, operations may be considered to be implicitly vectorized (i.e. $(x_{1..T}^a)^{-1}$ refers to $\{(x_1^a)^{-1}, (x_2^a)^{-1}), \dots\}$). Also, elements of $SE(3)$ will usually be shown \xsestr{} $\xse{x}$, matrices in $\mathbb{R}^{3 \times 3}$ \xmatstr{} $\xmat{m}$ and vectors in $\mathbb{R}^3$ \xvecstr{} $\xvec{v}$.}
+To mathematically formulate the problem, we express the input data as a set of trajectories of $K$ distinct points on an articulated object:\footnote{In this paper, superscripts are used for numbering object parts or feature points, while subscripts are reserved for indexing in time. Where it makes sense, operations may be considered to be implicitly vectorized (i.e. $(x_{1..T}^a)^{-1}$ refers to $\{(x_1^a)^{-1}, (x_2^a)^{-1}), \dots\}$). Also, elements of $SE(3)$ will usually be shown \xsestr{} ($\xse{x}$), matrices in $\mathbb{R}^{3 \times 3}$ \xmatstr{} ($\xmat{m}$) and vectors in $\mathbb{R}^3$ \xvecstr{} ($\xvec{v}$).}
 \begin{align}
   X = \{ \xse{x}_t^k \in SE(3) \mid k \in \{1..K\}, t \in \{1..T\} \}
 \end{align}
@@ -217,6 +218,8 @@ These formulae are from Park \cite{Park1995}, and serve to show that the corresp
   l&(\xse{u},\xse{v}) : SE(3) \times SE(3) \longrightarrow \mathbb{R} \\
   l&(\xse{u},\xse{v}) = \sqrt{c ||\log(\xmat{u}_R^T \xmat{v}_R)||_F^2 + d ||\xvec{u}_T - \xvec{v}_T||^2} \nonumber
 \end{align}
+where $||\cdot||_F$ denotes the Frobenius norm and $||\cdot||$ the familiar $L^2$ norm.
+
 Since this is only to be used as an objective function for optimization, the quantity of interest is the squared distance
 \begin{align}
   L&(\xse{u},\xse{v}) = c ||\log(\xmat{u}_R^T \xmat{v}_R)||_F^2 + d ||\xvec{u}_T - \xvec{v}_T||^2 \label{eqn:metric}
@@ -228,7 +231,7 @@ The gradient, derived in Appendix \ref{sec:gradient}, is
 Since the general formula for converting a rotation matrix $\xmat{r}$ to axis-angle form involves extracting the angle ${\sqrt{2}\theta = ||\log(\xmat{r})||_F}$, our metric (\ref{eqn:metric}) bears certain similarities to the logarithm of Sturm et al.'s metric (\ref{eqn:sturm-objective}). So using (\ref{eqn:metric}) as a stand-in for log likelihood is quite natural. Furthermore, having derived (\ref{eqn:metric}) from the geometry of the problem, the gradient comes naturally as well.
 
 \subsection{Joint Types}\label{sec:joint-types}
-For the purposes of this work a \emph{joint} defines an embedding of a low-dimensional manifold into $SE(3)$. A joint has a set of \emph{parameters} $\theta$, which characterize the embedding, and \emph{states} $\sigma$, which form local coordinates in the manifold. In the current paper only rigid, prismatic and revolute joints are considered, but these are powerful enough to describe many real-world objects. Figure \ref{fig:joint-types} shows the joints schematically.
+For the purposes of this work a \emph{joint} defines an embedding of a low-dimensional manifold into $SE(3)$. A joint has a set of \emph{parameters}, $\theta$, which characterize the embedding, and \emph{states}, $\sigma$, which form local coordinates in the manifold. In the current paper only rigid, prismatic and revolute joints are considered, but these are powerful enough to describe many real-world objects. Figure \ref{fig:joint-types} shows the joints schematically.
 
 \begin{figure}[ht]
   \centering
@@ -319,7 +322,7 @@ To be useful in our system, a joint must have associated forward and inverse kin
 In the future, it would make sense to add more joint types so that our kinematic trees can be more expressive. For example, ball joints (which have three states) are often seen in the wild, as are screw joints. Note that these could also be represented by combining prismatic and revolute joints with ``virtual'' (invisible) nodes in the tree.
 
 \section{IMPLEMENTATION} \label{sec:implementation}
-Currently the algorithm presented here is implemented in MATLAB. The code will be available online.\footnote{http://www.alexburka.com/penn/manip.html}
+Currently the algorithm presented here is implemented in MATLAB. The code will be available online.\footnote{\url{http://www.alexburka.com/penn/manip.html}}
 
 \subsection{Algorithm Overview} \label{sec:algorithm}
 An overview of the major stages in the learning algorithm is presented in Figure \ref{fig:block-algo}. The procedure is designed to be modular, with most components interchangeable -- for example, the perception could use a Kinect or a laser scanner, the smoothing could use a Kalman filter instead of the current generic low-pass, et cetera.
@@ -370,7 +373,7 @@ where $\mathcal{L}_{max}$ is the maximum likelihood and $k$ is the number of mod
 
 After the loop, which finds the most plausible joint model for each pair of object parts, we still need to decide which parts are actually connected and which joints are superfluous or misleading. The minimum spanning tree fulfills this step, choosing the joints with the lowest cost while keeping all of the nodes connected.
 
-The last step is \emph{rigid subcluster elimination}, which eliminates all rigid joints from the tree, by modifying the surrounding joints to obviate the rigid offset. Table \ref{tbl:move} shows the simple parameter adjustments necessary to absorb a rigid offset $\xse{q}$ on either end of another joint. The reason for including rigid subcluster elimination is for the case in which the input is from an unsupervised feature tracker, where there will be multiple features tracker per object part. The final tree thus contains only the movable joints.
+The last step is \emph{rigid subcluster elimination}, which eliminates all rigid joints from the tree, by modifying the surrounding joints to obviate the rigid offset. Table \ref{tbl:move} shows the simple parameter adjustments necessary to absorb a rigid offset $\xse{q} = (\xmat{q}_R, \xvec{q}_T)$ on either end of another joint. The reason for including rigid subcluster elimination is for the case in which the input is from an unsupervised feature tracker, where there will be multiple features tracker per object part. The final tree thus contains only the movable joints.
 
 \begin{table}[ht]
   \begin{tabular}{c|c|c|l}
@@ -504,34 +507,172 @@ For this experiment we drew several kinematic trees representing imaginary objec
 \end{enumerate}
 
 \subsubsection{Results}
-Figure \ref{fig:exp1} shows the effect of changing the simulator noise and inflation parameters on matching performance. The experiment was run 4 times at each of 4 noise settings and 4 inflation settings. The graph shows the average error across the successful fits:
-\begin{align}
-  e = \sum_{i=1}^N \sum_{t=1}^T || fk_{J^i}(\theta^i, \sigma^i_t) - \Delta^{a^i:b^i}_t ||^2
-\end{align}
-Note that for these trials, rigid subcluster elimination is turned off to make this error calculation simpler. Gratifyingly, the data show that reconstruction error is low with low noise at all inflation levels, and there is a modest increase in error, proportional to noise. This means that, even though the returned joint types are not always correct, especially at high noise levels, the model is able to fit the data.
+Figure \ref{fig:exp1} shows the effect of changing the simulator noise parameter on matching performance. The experiment was run 4 times at each of 4 noise settings and 4 inflation settings; results are shown with no inflation. At the top of the figure is the tree used to generate all the simulations. The plots show the algorithm attempting to model the prismatic joint, at three noise levels. With low noise, this is successful; at high noise levels the fit incorrectly produces three revolute joints.
 
 \begin{figure}[ht]
-  \centering
-  \includegraphics[width=0.4\textwidth]{img/exp1.png}
+  \tikzstyle{cylinder} = [draw,
+                          shape=cylinder,
+                          aspect=1.5,
+                          %left color=blue!30,
+                          %right color=blue!60,
+                          %middle color=red!20, % Has to be called after left color and middle color
+                          outer sep=-0.5\pgflinewidth, % to make sure the ellipse does not draw over the lines
+  ]
+  %\prismatic{modelname}{node_a}{node_b}{x1}{y1}{x2}{y2}{percent enclosed}
+  \newcommand{\prismatic}[8]{\node [cylinder,
+                                    minimum height={#6*(0.5+#8/200)},
+                                    minimum width={#7-#5}]
+                                 (#1-#2) at (#4,#5) {};
+                             \node [cylinder,
+                                    minimum height={#6*(0.5+#8/200)},
+                                    minimum width={0.75 * #7}]
+                                 (#1-#3) at ({#4 + #6*(0.5-#8/200)}, #5) {};
+                             }
+                            
+  % define all boxes
+  \newsavebox{\treeone}
+  \newsavebox{\treetwo}
+  \newsavebox{\treethree}
+  \newsavebox{\plotone}
+  \newsavebox{\plottwo}
+  \newsavebox{\plotthree}
+  \sbox\treeone{
+  \scalebox{0.6}{
+    \begin{tikzpicture}
+      \prismatic{m1}{1}{2}{0}{0}{3.5cm}{.5cm}{35}
+      \node [parallelepiped,
+             draw, fill=white,
+             minimum width=1.5cm,
+             minimum height=.4cm,
+             parallelepiped offset x=.2cm]
+          (m1-23) at (2.9,-.1) {};
+      \node [parallelepiped,
+             draw,
+             minimum width=1.5cm,
+             minimum height=.3cm,
+             parallelepiped offset y=.1cm,
+             rotate=90]
+           (m1-34) at (3.75,-1.15) {};
+      \node [cylinder,
+             fill=white,
+             minimum height=.3cm,
+             minimum width=.8cm]
+          (m1-3) at (3.6,0) {};
+
+      \node [text width=3.5cm, align=center] (label) at (1.5,-1) {original tree [\emph{Pri-Rig-Rev}]};
+    \end{tikzpicture}
+  }}
+  \sbox\treetwo{
+  \scalebox{0.6}{
+    \begin{tikzpicture}
+      \prismatic{m1}{1}{2}{0}{0}{3.5cm}{.5cm}{35}
+      \node [parallelepiped,
+             draw, fill=white,
+             minimum width=1.5cm,
+             minimum height=.4cm,
+             parallelepiped offset x=.2cm]
+          (m1-23) at (2.9,-.1) {};
+      \node [parallelepiped,
+             draw,
+             minimum width=1.5cm,
+             minimum height=.3cm,
+             parallelepiped offset y=.1cm,
+             rotate=90]
+           (m1-34) at (3.75,-1.15) {};
+      \node [cylinder,
+             fill=white,
+             minimum height=.3cm,
+             minimum width=.8cm]
+          (m1-3) at (3.6,0) {};
+
+      \node [text width=3.5cm, align=center] (label) at (1.5,-1) {learned (accurately) [\emph{Pri-Rig-Rev}]};
+    \end{tikzpicture}
+  }}
+  \sbox\treethree{
+  \scalebox{0.6}{
+    \begin{tikzpicture}
+      \node [cylinder,
+             minimum height=1.5cm,
+             minimum width=.4cm]
+          (m1-1) at (0, 0) {};
+      \node [cylinder,
+             fill=white,
+             minimum height=.3cm,
+             minimum width=.8cm]
+          (m1-12) at (.7, 0) {};
+      \node [cylinder,
+             fill=white,
+             minimum height=1.5cm,
+             minimum width=.4cm]
+          (m1-2) at (1.5, 0) {};
+      \node [cylinder,
+             fill=white,
+             minimum height=.75cm,
+             minimum width=.9cm,
+             rotate=90]
+          (m1-2) at (2.5,-.12) {};
+      \node [parallelepiped,
+             draw, fill=white,
+             minimum width=1.5cm,
+             minimum height=.4cm,
+             parallelepiped offset x=.2cm]
+          (m1-23) at (3.5,-.1) {};
+      \node [parallelepiped,
+             draw,
+             minimum width=1.5cm,
+             minimum height=.3cm,
+             parallelepiped offset y=.1cm,
+             rotate=90]
+           (m1-34) at (4.5,-1.15) {};
+      \node [cylinder,
+             fill=white,
+             minimum height=.3cm,
+             minimum width=.8cm]
+          (m1-3) at (4.35,0) {};
+
+      \node [text width=3.5cm, align=center] (label) at (2,-1) {learned (inaccurately) [\emph{Rev-Rev-Rev}]};
+    \end{tikzpicture}
+  }}
+  \sbox\plotone{\includegraphics[width=0.2\textwidth]{img/exp1_1.eps}}
+  \sbox\plottwo{\includegraphics[width=0.2\textwidth]{img/exp1_2.eps}}
+  \sbox\plotthree{\includegraphics[width=0.2\textwidth]{img/exp1_4.eps}}
+  % finish defining boxes
+
+  \hspace{-.3in}
+  \begin{tikzpicture}
+    \node (t1) at (0,0) {\usebox{\treeone}};
+    \node (p1) at (-2.9,-2.5) {\usebox{\plotone}};
+    \node (p2) at (0,-2.5) {\usebox{\plottwo}};
+    \node (p3) at (2.8,-2.5) {\usebox{\plotthree}};
+    \node (t2) at (-2.5,-5.2) {\usebox{\treetwo}};
+    \node (t3) at (2.5,-5.2) {\usebox{\treethree}};
+
+    \path [draw,->] (t1) -- (p1.north);
+    \path [draw,->] (t1) -- (p2);
+    \path [draw,->] (t1) -- (p3.north);
+    \path [draw,->] (p1) -- (t2);
+    \path [draw,->] (p3) -- (t3);
+  \end{tikzpicture}
+  %\includegraphics[width=0.4\textwidth]{img/exp1.png}
   %\framebox[0.4\textwidth]{\raisebox{0pt}[0.07\textwidth][0.07\textwidth]{Graph coming soon}}
-  \vspace{-.3in}
-  \caption{Simulation robustness to noise and inflation. The noise magnitudes are $\epsilon_{\mbox{\tiny $T$}}=0.025k, \epsilon_{\mbox{\tiny $R$}}=0.05k$ where $k$ is the noise multiplier.}
+  %\vspace{-.1in}
+  \caption{Simulation robustness to noise. Visualizations show the best-fitting attempts to model the leftmost joint as prismatic, at different noise levels.}
   \label{fig:exp1}
 \end{figure}
 
-Real-world trajectory measurements will always be noisy, especially when recovering 3D pose from 2D cameras, so robustness to noise in simulation is promising. The assumption that noise will be uniformly distributed in $\mathfrak{se}(3)$ is perhaps a naive one, so future work should vary this distribution.
+Real-world trajectory measurements will always be noisy, especially when recovering 3D pose from 2D cameras, so robustness to noise in simulation is promising. The assumption that noise will be uniformly distributed in $\mathfrak{se}(3)$ is perhaps a na\"{i}ve one, so future work should vary this distribution.
 
 \subsection{Experiment 2: Objects in the lab}
 \subsubsection{Setup}
 In the first experiment, the learner was applied to simple articulated objects found in the robotics lab: a swing arm desk lamp and a Dynamixel robotic arm (shown in Figure \ref{fig:lamp+arm}). The lamp has three revolute joints and a two-bar linkage which does not correspond to any of the models in the current system (in fact it has two degrees of freedom), but for certain motions it appears as a prismatic joint which can be detected. The robotic arm has four revolute joints (and a prismatic joint in the gripper which we are not using).
 
-For the experiment, the lamp and robotic arm were both actuated by hand to capture two datasets each. For a final dataset, the robotic arm was driven by a computer through a set of scripted motions; accordingly we can construct a ground truth for comparison. The objects were instrumented with Aruco markers (approximaely 2 inches in width) at the points marked in red on the figure. All videos were recorded with the built-in webcam on a 2012 Apple MacBook Air, using OpenCV.
+For the experiment, the lamp and robotic arm were both actuated by hand to capture two datasets each. For a final dataset, the robotic arm was driven by a computer through a set of scripted motions; accordingly we can construct a ground truth for comparison. The objects were instrumented with Aruco markers (approximaely 2 inches in width) at the points marked in red on the figure. All videos were recorded with the built-in webcam on a 2012 Apple MacBook Air, using OpenCV, and are available online.
 
 Once parsed by the Aruco tracking library, we have a set of markers identified in each frame, and coordinates $\langle t_x, t_y, t_z, r_x, r_y, r_z \rangle^{1..K}$ for each one (frames where one or more markers go undetected are simply discarded). Since the library unfortunately uses a different version of Euler angles than the rest of this work, we perform the transformation
 \begin{align}
   \xmat{r}^k = R_z(\frac{\pi}{2})R_y(r_x^k)R_z(-\frac{\pi}{2})R_y(r_y^k)R_z(r_z^k)
 \end{align}
-The Aruco output is rather noisy, especially the rotation components, so we smooth it with a low-pass filter with transfer function $H(z) = \frac{0.1}{1 + 0.9z^{-1}}$. After that, the trajectories are processed by the matching algorithm as in Figure \ref{fig:block-algo}.
+The Aruco output is rather noisy, especially the rotation components, so we smooth it with a low-pass filter. After that, the trajectories are processed by the matching algorithm as in Figure \ref{fig:block-algo}.
 
 \begin{figure}[ht]
   \centering
@@ -543,13 +684,13 @@ The Aruco output is rather noisy, especially the rotation components, so we smoo
 
 \subsubsection{Results}
 %Unfortunately, it doesn't really work. The matching is interminably slow, revolute joints are nearly always confused with prismatic joints, and there is no robustness at all to noise. This project is apparently a fraud, and unsuccessful rip-off of Sturm et al. What a shame. Sorry I made you read this far to find out. At this point, you're pretty invested and you might as well read the conclusion.
-The matching works well in most cases. Figure \ref{fig:exp2} shows a plot through time of the commands sent to the base joint of the robotic arm, and the angle detected for that joint (note that of course the commands are sent instantaneously, but the arm speed is heavily limited so that the camera does not lose track of the Aruco tags). We see that the detection works fairly well as the base joint rotates around the $z$ axis. At high angles, the Aruco tags are at an oblique angle with respect to the camera, so there is not much resolution and the detection accuracy is reduced.
+Figure \ref{fig:exp2} shows a trace through time of the commands sent to the base joint of the robotic arm, and the angle detected for that joint (note that of course the commands are sent instantaneously, but the arm speed is heavily limited so that the camera does not lose track of the Aruco tags). We see that the detection works fairly well as the base joint rotates around the $z$ axis. At high angles, the Aruco tags are at an oblique angle with respect to the camera, so there is not much resolution and the detection accuracy is reduced.
 
 \begin{figure}[ht]
   \centering
   %\framebox[0.4\textwidth]{\raisebox{0pt}[0.07\textwidth][0.07\textwidth]{Visualizations coming soon}}
   \includegraphics[width=.4\textwidth]{img/exp2b.png}
-  \vspace{-.3in}
+  \vspace{-.1in}
   \caption{Commanded and detected angles for one joint of the robotic arm in Experiment 2.}
   \label{fig:exp2}
 \end{figure}
@@ -560,23 +701,23 @@ In the current paper we have presented a working system that takes in raw trajec
 
 There are many avenues for continuing research with this modular platform as a base. 
 
-One area that invites inquiry is better object tracking: that using a stereoscopic camera we can achieve real-time position and orientation tracking without using fiducial markers. This requires an RGBD sensor to track features over time (perhaps using SIFT or similar techniques) and determine their orientation in 3D space. Using unsupervised feature extraction rather than manual tagging also exemplifies the need for rigid subcluster elimination (see Section \ref{sec:algorithm}). One intriguing direction, given a stationary camera, is to directly use motion for feature tracking and segmentation.
+One area that invites inquiry is better object tracking: that using a stereoscopic camera we can achieve real-time position and orientation tracking without using fiducial markers. Given a stationary camera, motion can be used directly for segmentation.
 
-Another avenue is to re-examine the feedforward nature of Figure \ref{fig:block-algo}. Other popular vision algorithms, such as SLAM, use probabilistic structures to keep track of a belief state about the world, which in turn informs the interpretation of new sensor data. Figure \ref{fig:block-algo} might benefit from more loops, so that a speculative kinematic tree is built from initial data, which can make it easier to interpret new data (for instance, by refining the motion model of a Kalman filter). We could even incorporate a structure akin to a particle filter in order to track multiple kinematic tree hypotheses \cite{Thrun2002}.
+Another avenue is to re-examine the feedforward nature of Figure \ref{fig:block-algo}. Other popular vision algorithms, such as SLAM, use probabilistic structures to keep track of a belief state about the world, which in turn informs the interpretation of new sensor data. We could even incorporate a structure akin to a particle filter in order to track multiple kinematic tree hypotheses \cite{Thrun2002}.
 
 Looking further ahead, it is somewhat limiting to confine the modeling effort to software. Humans and animals routinely modify the environment to test hypotheses and ease perception. Robots may nudge, squeeze, pick up or even throw and drop objects in order to learn about their kinematic and dynamic properties. The ``Ripley'' robotic arm system described in \cite{Hsiao2005} performs these exploratory manipulations. Applied to articulated objects, this kind of ``interactive perception'', where the current belief state of the kinematic tree determines the most informative manipulator action, could be very helpful.
 
-In conclusion, the system presented here is modular and extensible, and we see many interesting directions for extendings its functionality.
+In conclusion, the system presented here is modular and extensible, and we see many interesting directions for extending its functionality.
 
 
-\section{APPENDIX}
+\appendix
 
 \subsection{Gradient of the Objective Function} \label{sec:gradient}
-If we regard $L(\xse{u},\xse{v})$ as a chain of nested functions
+If we re-cast (\ref{eqn:metric}) as a chain of nested functions
 \begin{align}
   L(\xse{u},\xse{v}) &= c*g(h(k(\xse{u}, \xse{v}))) + d*m(n(\xse{u}, \xse{v}))
 \end{align}
-then we can find the Jacobians individually
+where the individual functions are
 \begin{alignat*}{3}
   g(x) &= ||x||_F^2 \quad\quad& \mathbb{R}^{3 \times 3} &\rightarrow \mathbb{R} \\
   h(x) &= \log{x} \quad\quad& \mathbb{R}^{3 \times 3} &\rightarrow \mathbb{R}^{3 \times 3} \\
@@ -584,11 +725,11 @@ then we can find the Jacobians individually
   m(x) &= ||x||^2 \quad\quad& \mathbb{R}^3 &\rightarrow \mathbb{R} \\
   n(\xse{u},\xse{v}) &= \xvec{u}_T - \xvec{v}_T \quad\quad& SE(3) &\rightarrow \mathbb{R}^3
 \end{alignat*}
-and combine them to form the full partial derivative
+the gradient decomposes as a combination of Jacobian matrices:
 \begin{align}
   \deriv{L}{\xse{u}} &= c\deriv{g}{x}\deriv{h}{x}\deriv{k}{\xse{u}} + d\deriv{m}{x}\deriv{n}{\xse{u}}
 \end{align}
-Checking the dimensions and using the above Jacobians, a short computation yields:
+Computing the Jacobians and calculating as above,
 \begin{align*}
   \deriv{g}{x} &= 2x \quad\quad& 1 &\times 9 &&& % matrix cookbook p14
   \deriv{h}{x} &= x^{-1} \quad\quad& 9 &\times 9 \\
@@ -603,13 +744,11 @@ Checking the dimensions and using the above Jacobians, a short computation yield
 and this will be used to speed up the gradient descent optimization (see Algorithm \ref{alg:manip-learn}).
 
 \subsection{Source Code}
-The MATLAB and C++ code underlying the algorithms described in this paper are released under the WTFPL and may be found at \texttt{http://www.alexburka.com/penn/manip}.
+The MATLAB, Python and C++ code underlying the algorithms described in this paper may be found at {\hfil\penalty 100 \hfilneg \hbox{\url{http://www.alexburka.com/penn/manip.html}}}.
 
 \section*{ACKNOWLEDGMENTS}
 
-\begin{enumerate}
-  \item Prof. Thomas Hunter (Swarthmore)
-\end{enumerate}
+Thanks are due to Prof. Thomas Hunter (Swarthmore College) for a crash course in Lie group theory.
 
 
 \bibliographystyle{IEEEtran}
