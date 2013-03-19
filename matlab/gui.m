@@ -725,17 +725,7 @@ S = getappdata(handles.stuff, 'TREE');
 dims = getappdata(handles.stuff, 'dims');
 fudge = getappdata(handles.stuff, 'fudge');
 
-% inflate using the fudge factor
-for i = unique([S.a S.b])
-    for j = 1:fudge-1
-        S(end+1) = struct('a',      { i                                                                                    }, ...
-                          'b',      { max([S.a S.b])+1                                                                     }, ...
-                          'joint',  { 'rigid'                                                                              }, ...
-                          'params', { {T(unifrnd(-.05, .05, [dims 1])) * R(unifrnd(-.3, .3, [1*(dims==2)+3*(dims==3) 1]))} }, ...
-                          'state',  { -1 }, ... % this is used as a sentinel for unfudging
-                          'bounds', { [0; 0]                                                                               });
-    end
-end
+S = manip_fudge(S, dims, fudge);
 
 change_tree(handles, S);
 draw_tree(handles.tree_in, S, getappdata(handles.stuff, 'joint'));

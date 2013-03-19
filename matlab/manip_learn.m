@@ -35,29 +35,7 @@ function S = manip_learn(X, dbg, pairs, check)
     end
     
     dbg('Fixing up the indices...\n');
-    for i = 1:max([S.a S.b])
-        j = i;
-        
-        if j > [S.a S.b]
-            break
-        end
-        
-        while j ~= [S.a S.b]
-            j = j + 1;
-        end
-        
-        if j ~= i
-            dbg('\t%d >= %d\n', j, i);
-            dbg('\t\t%s\n\t\t%s\n', mat2str([S.a]), mat2str([S.b]));
-            for k = find([S.a] == j)
-                S(k).a = i;
-            end
-            for k = find([S.b] == j)
-                S(k).b = i;
-            end
-            dbg('\t\t%s\n\t\t%s\n', mat2str([S.a]), mat2str([S.b]));
-        end
-    end
+    S = fixup_indices(S, dbg);
     
     dbg('Finding minimum spanning tree...\n');
     %[S.a; S.b; S.cost]
@@ -90,29 +68,7 @@ function S = manip_learn(X, dbg, pairs, check)
     %S = remove_rigid_subclusters(S, dbg);
     
     dbg('Fixing up the indices again...\n');
-    for i = 1:max([S.a S.b])
-        j = i;
-        
-        if j > [S.a S.b]
-            break
-        end
-        
-        while j ~= [S.a S.b]
-            j = j + 1;
-        end
-        
-        if j ~= i
-            dbg('\t%d >= %d\n', j, i);
-            dbg('\t\t%s\n\t\t%s\n', mat2str([S.a]), mat2str([S.b]));
-            for k = find([S.a] == j)
-                S(k).a = i;
-            end
-            for k = find([S.b] == j)
-                S(k).b = i;
-            end
-            dbg('\t\t%s\n\t\t%s\n', mat2str([S.a]), mat2str([S.b]));
-        end
-    end
+    S = fixup_indices(S, dbg);
     
     dbg('Done learning (%g sec)\n\n', toc);
     %profile viewer;
@@ -167,7 +123,7 @@ function s = learn_joint(X,f,dims,dbg, a,b, check)
     [revolute_fit, revolute_err, flag, output] = fmincon(...
                          @(p) jointfit(deltas, ...
                                        p, ...
-                                       @forward_revolute, @inverse_revolute, ...
+                                       @mex_forward_revolute, @mex_inverse_revolute, ...
                                        @gen_jacobians, @gen_jacobians, ...
                                        check), ...
                          guess_revolute(deltas, t1, r1, t2, r2, t3, r3), ...
@@ -185,7 +141,7 @@ function s = learn_joint(X,f,dims,dbg, a,b, check)
     errs = [rigid_err, prismatic_err, revolute_err];
     crits = errs + cellfun(@length, fits); % TODO need weights here
     [best_crit, best] = min(crits);
-    dbg('\tBest: %s (bics %s)\n', names{best}, mat2str(crits, 3));
+    dbg('\tBest %d-%d: %s (bics %s)\n', a, b, names{best}, mat2str(crits, 3));
     s = struct('a',      a, ...
                'b',      b, ...
                'joint',  names{best}, ...

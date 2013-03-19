@@ -5,7 +5,7 @@
 % 2D:   FRAME_INDEX OBJECT_ID Tx Ty R
 % 3D:   FRAME_INDEX OBJECT_ID Tx Ty Tz Rx Ry Rz
 
-function X = manip_read(data, filtB, filtA)
+function [X, interp] = manip_read(data, filtB, filtA)
     switch size(data,2)
         case 5
             dims = 2;
