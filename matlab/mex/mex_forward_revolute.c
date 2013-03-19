@@ -122,22 +122,20 @@ void mexFunction( int nlhs, mxArray *plhs[],
     mexErrMsgTxt("Too many output arguments.");
   }
   
-  /* The first input must be a 1x2 cell with two SE(n)'s in it.*/
-  if (!mxIsCell(prhs[0]) || mxGetNumberOfDimensions(prhs[0]) != 2 || mxGetM(prhs[0]) != 1 || mxGetN(prhs[0]) != 2) {
-      mexErrMsgTxt("params must be a 1x2 cell array.");
+  /* The first input must be a 1x6/1x12 vector of parameters */
+  if (!mxIsDouble(prhs[0]) || mxGetM(prhs[0]) != 1 || (mxGetN(prhs[0]) != 6 && mxGetN(prhs[0]) != 12)) {
+      mexErrMsgTxt("params must be a real double array.");
   }
-  center = mxGetCell(prhs[0], 0);
+
+  /* Unpack parameter vector */
+  mxArray* params;
+  if (mexCallMATLAB(1, &params, 1, &prhs[0], "unpack_revolute") != 0) {
+      mexErrMsgTxt("failed to call unpack_revolute");
+  }
+  center = mxGetCell(params, 0);
+  radius = mxGetCell(params, 1);
   m = mxGetM(center);
   n = mxGetN(center);
-  if (!mxIsDouble(center) || mxIsComplex(center) || !((m == 3 && n == 3) || (m == 4 && n == 4))) {
-      mexErrMsgTxt("params{1} must be a 3x3 or 4x4 real double matrix.");
-  }
-  radius = mxGetCell(prhs[0], 1);
-  p = mxGetM(radius);
-  n = mxGetN(radius);
-  if (!mxIsDouble(radius) || mxIsComplex(radius) || n != m || p != n) {
-      mexErrMsgTxt("params{2} must be a real double matrix with dimension corresponding to params{1}.");
-  }
 
   /* The second input must be a real double scalar. */
   if (!mxIsDouble(prhs[1]) || mxIsComplex(prhs[1]) || mxGetM(prhs[1]) != 1 || mxGetN(prhs[1]) != 1) {

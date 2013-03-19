@@ -2,7 +2,7 @@
 %   params{1} SE(n) is the center of rotation (WRT from-object center)
 %   params{2} SE(n) is the offset from the center to the moving part at theta=0
 %   state     R     is the angle around the circle
-function [state, D] = inverse_revolute(x, p)
+function [state, D, e] = inverse_revolute(x, p)
     if iscell(p)
         params = p;
     else
@@ -11,16 +11,20 @@ function [state, D] = inverse_revolute(x, p)
     center = params{1};
     radius = params{2};
     
-    %rot = radius\x/center;
-    %state = acos(rot(1,1));
-    if size(x,1) == 4
-        state = acos((radius(1,2)*radius(2,3)*x(3,1)*center(2,2)*center(3,3) - radius(1,2)*radius(2,3)*x(3,1)*center(2,3)*center(3,2) - radius(1,2)*radius(2,3)*x(3,2)*center(2,1)*center(3,3) + radius(1,2)*radius(2,3)*x(3,2)*center(2,3)*center(3,1) + radius(1,2)*radius(2,3)*x(3,3)*center(2,1)*center(3,2) - radius(1,2)*radius(2,3)*x(3,3)*center(2,2)*center(3,1) - radius(1,2)*radius(3,3)*x(2,1)*center(2,2)*center(3,3) + radius(1,2)*radius(3,3)*x(2,1)*center(2,3)*center(3,2) + radius(1,2)*radius(3,3)*x(2,2)*center(2,1)*center(3,3) - radius(1,2)*radius(3,3)*x(2,2)*center(2,3)*center(3,1) - radius(1,2)*radius(3,3)*x(2,3)*center(2,1)*center(3,2) + radius(1,2)*radius(3,3)*x(2,3)*center(2,2)*center(3,1) - radius(1,3)*radius(2,2)*x(3,1)*center(2,2)*center(3,3) + radius(1,3)*radius(2,2)*x(3,1)*center(2,3)*center(3,2) + radius(1,3)*radius(2,2)*x(3,2)*center(2,1)*center(3,3) - radius(1,3)*radius(2,2)*x(3,2)*center(2,3)*center(3,1) - radius(1,3)*radius(2,2)*x(3,3)*center(2,1)*center(3,2) + radius(1,3)*radius(2,2)*x(3,3)*center(2,2)*center(3,1) + radius(1,3)*radius(3,2)*x(2,1)*center(2,2)*center(3,3) - radius(1,3)*radius(3,2)*x(2,1)*center(2,3)*center(3,2) - radius(1,3)*radius(3,2)*x(2,2)*center(2,1)*center(3,3) + radius(1,3)*radius(3,2)*x(2,2)*center(2,3)*center(3,1) + radius(1,3)*radius(3,2)*x(2,3)*center(2,1)*center(3,2) - radius(1,3)*radius(3,2)*x(2,3)*center(2,2)*center(3,1) + radius(2,2)*radius(3,3)*x(1,1)*center(2,2)*center(3,3) - radius(2,2)*radius(3,3)*x(1,1)*center(2,3)*center(3,2) - radius(2,2)*radius(3,3)*x(1,2)*center(2,1)*center(3,3) + radius(2,2)*radius(3,3)*x(1,2)*center(2,3)*center(3,1) + radius(2,2)*radius(3,3)*x(1,3)*center(2,1)*center(3,2) - radius(2,2)*radius(3,3)*x(1,3)*center(2,2)*center(3,1) - radius(2,3)*radius(3,2)*x(1,1)*center(2,2)*center(3,3) + radius(2,3)*radius(3,2)*x(1,1)*center(2,3)*center(3,2) + radius(2,3)*radius(3,2)*x(1,2)*center(2,1)*center(3,3) - radius(2,3)*radius(3,2)*x(1,2)*center(2,3)*center(3,1) - radius(2,3)*radius(3,2)*x(1,3)*center(2,1)*center(3,2) + radius(2,3)*radius(3,2)*x(1,3)*center(2,2)*center(3,1))/((radius(1,1)*radius(2,2)*radius(3,3) - radius(1,1)*radius(2,3)*radius(3,2) - radius(1,2)*radius(2,1)*radius(3,3) + radius(1,2)*radius(2,3)*radius(3,1) + radius(1,3)*radius(2,1)*radius(3,2) - radius(1,3)*radius(2,2)*radius(3,1))*(center(1,1)*center(2,2)*center(3,3) - center(1,1)*center(2,3)*center(3,2) - center(1,2)*center(2,1)*center(3,3) + center(1,2)*center(2,3)*center(3,1) + center(1,3)*center(2,1)*center(3,2) - center(1,3)*center(2,2)*center(3,1))));
-        %state = 2*atan2(((center(1,1)^2*radius(1,1)^2 + center(1,1)^2*radius(1,2)^2 + center(2,1)^2*radius(1,1)^2 + center(2,1)^2*radius(1,2)^2 - center(3,1)^2*radius(1,3)^2 - 2*center(3,1)*center(4,1)*radius(1,3)*radius(1,4) + 2*center(3,1)*radius(1,3)*x(1,1) - center(4,1)^2*radius(1,4)^2 + 2*center(4,1)*radius(1,4)*x(1,1) - x(1,1)^2)^(1/2) + center(1,1)*radius(1,2) - center(2,1)*radius(1,1)), (x(1,1) + center(1,1)*radius(1,1) + center(2,1)*radius(1,2) - center(3,1)*radius(1,3) - center(4,1)*radius(1,4)));
-    else
-        state = acos(-(radius(1,2)*x(2,1)*center(2,2) - radius(1,2)*x(2,2)*center(2,1) - radius(2,2)*x(1,1)*center(2,2) + radius(2,2)*x(1,2)*center(2,1))/((radius(1,1)*radius(2,2) - radius(1,2)*radius(2,1))*(center(1,1)*center(2,2) - center(1,2)*center(2,1))));
-    end
+    rot = radius\x/center;
+    state = acos(0.5*(trace(rot)-2));
+    e = [(rot(3,2)-rot(2,3))/(2*sin(state)) (rot(1,3)-rot(3,1))/(2*sin(state)) (rot(2,1)-rot(1,2))/(2*sin(state))];
+    [~,i] = max(abs(e));
+    state = state*e(i);
     
-    state = real(state); % HACK HACK HACK COUGH
+    %if size(x,1) == 4
+    %    %state = acos((radius(1,2)*radius(2,3)*x(3,1)*center(2,2)*center(3,3) - radius(1,2)*radius(2,3)*x(3,1)*center(2,3)*center(3,2) - radius(1,2)*radius(2,3)*x(3,2)*center(2,1)*center(3,3) + radius(1,2)*radius(2,3)*x(3,2)*center(2,3)*center(3,1) + radius(1,2)*radius(2,3)*x(3,3)*center(2,1)*center(3,2) - radius(1,2)*radius(2,3)*x(3,3)*center(2,2)*center(3,1) - radius(1,2)*radius(3,3)*x(2,1)*center(2,2)*center(3,3) + radius(1,2)*radius(3,3)*x(2,1)*center(2,3)*center(3,2) + radius(1,2)*radius(3,3)*x(2,2)*center(2,1)*center(3,3) - radius(1,2)*radius(3,3)*x(2,2)*center(2,3)*center(3,1) - radius(1,2)*radius(3,3)*x(2,3)*center(2,1)*center(3,2) + radius(1,2)*radius(3,3)*x(2,3)*center(2,2)*center(3,1) - radius(1,3)*radius(2,2)*x(3,1)*center(2,2)*center(3,3) + radius(1,3)*radius(2,2)*x(3,1)*center(2,3)*center(3,2) + radius(1,3)*radius(2,2)*x(3,2)*center(2,1)*center(3,3) - radius(1,3)*radius(2,2)*x(3,2)*center(2,3)*center(3,1) - radius(1,3)*radius(2,2)*x(3,3)*center(2,1)*center(3,2) + radius(1,3)*radius(2,2)*x(3,3)*center(2,2)*center(3,1) + radius(1,3)*radius(3,2)*x(2,1)*center(2,2)*center(3,3) - radius(1,3)*radius(3,2)*x(2,1)*center(2,3)*center(3,2) - radius(1,3)*radius(3,2)*x(2,2)*center(2,1)*center(3,3) + radius(1,3)*radius(3,2)*x(2,2)*center(2,3)*center(3,1) + radius(1,3)*radius(3,2)*x(2,3)*center(2,1)*center(3,2) - radius(1,3)*radius(3,2)*x(2,3)*center(2,2)*center(3,1) + radius(2,2)*radius(3,3)*x(1,1)*center(2,2)*center(3,3) - radius(2,2)*radius(3,3)*x(1,1)*center(2,3)*center(3,2) - radius(2,2)*radius(3,3)*x(1,2)*center(2,1)*center(3,3) + radius(2,2)*radius(3,3)*x(1,2)*center(2,3)*center(3,1) + radius(2,2)*radius(3,3)*x(1,3)*center(2,1)*center(3,2) - radius(2,2)*radius(3,3)*x(1,3)*center(2,2)*center(3,1) - radius(2,3)*radius(3,2)*x(1,1)*center(2,2)*center(3,3) + radius(2,3)*radius(3,2)*x(1,1)*center(2,3)*center(3,2) + radius(2,3)*radius(3,2)*x(1,2)*center(2,1)*center(3,3) - radius(2,3)*radius(3,2)*x(1,2)*center(2,3)*center(3,1) - radius(2,3)*radius(3,2)*x(1,3)*center(2,1)*center(3,2) + radius(2,3)*radius(3,2)*x(1,3)*center(2,2)*center(3,1))/((radius(1,1)*radius(2,2)*radius(3,3) - radius(1,1)*radius(2,3)*radius(3,2) - radius(1,2)*radius(2,1)*radius(3,3) + radius(1,2)*radius(2,3)*radius(3,1) + radius(1,3)*radius(2,1)*radius(3,2) - radius(1,3)*radius(2,2)*radius(3,1))*(center(1,1)*center(2,2)*center(3,3) - center(1,1)*center(2,3)*center(3,2) - center(1,2)*center(2,1)*center(3,3) + center(1,2)*center(2,3)*center(3,1) + center(1,3)*center(2,1)*center(3,2) - center(1,3)*center(2,2)*center(3,1))));
+    %    state = 2*atan2(((center(1,1)^2*radius(1,1)^2 + center(1,1)^2*radius(1,2)^2 + center(2,1)^2*radius(1,1)^2 + center(2,1)^2*radius(1,2)^2 - center(3,1)^2*radius(1,3)^2 - 2*center(3,1)*center(4,1)*radius(1,3)*radius(1,4) + 2*center(3,1)*radius(1,3)*x(1,1) - center(4,1)^2*radius(1,4)^2 + 2*center(4,1)*radius(1,4)*x(1,1) - x(1,1)^2)^(1/2) + center(1,1)*radius(1,2) - center(2,1)*radius(1,1)), (x(1,1) + center(1,1)*radius(1,1) + center(2,1)*radius(1,2) - center(3,1)*radius(1,3) - center(4,1)*radius(1,4)));
+    %else
+    %    state = acos(-(radius(1,2)*x(2,1)*center(2,2) - radius(1,2)*x(2,2)*center(2,1) - radius(2,2)*x(1,1)*center(2,2) + radius(2,2)*x(1,2)*center(2,1))/((radius(1,1)*radius(2,2) - radius(1,2)*radius(2,1))*(center(1,1)*center(2,2) - center(1,2)*center(2,1))));
+    %end
+    
+    %state = real(state); % HACK HACK HACK COUGH
     
     if nargout > 1
         if iscell(p)

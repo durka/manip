@@ -56,11 +56,9 @@ end
 void inverse_revolute(int n, double *x, double *center, double *radius, double *theta)
 {
     if (n == 2) {
-        *theta = acos((IJ(radius,3,0,1)*IJ(radius,3,1,2)*IJ(x,3,2,0)*IJ(center,3,1,1)*IJ(center,3,2,2) - IJ(radius,3,0,1)*IJ(radius,3,1,2)*IJ(x,3,2,0)*IJ(center,3,1,2)*IJ(center,3,2,1) - IJ(radius,3,0,1)*IJ(radius,3,1,2)*IJ(x,3,2,1)*IJ(center,3,1,0)*IJ(center,3,2,2) + IJ(radius,3,0,1)*IJ(radius,3,1,2)*IJ(x,3,2,1)*IJ(center,3,1,2)*IJ(center,3,2,0) + IJ(radius,3,0,1)*IJ(radius,3,1,2)*IJ(x,3,2,2)*IJ(center,3,1,0)*IJ(center,3,2,1) - IJ(radius,3,0,1)*IJ(radius,3,1,2)*IJ(x,3,2,2)*IJ(center,3,1,1)*IJ(center,3,2,0) - IJ(radius,3,0,1)*IJ(radius,3,2,2)*IJ(x,3,1,0)*IJ(center,3,1,1)*IJ(center,3,2,2) + IJ(radius,3,0,1)*IJ(radius,3,2,2)*IJ(x,3,1,0)*IJ(center,3,1,2)*IJ(center,3,2,1) + IJ(radius,3,0,1)*IJ(radius,3,2,2)*IJ(x,3,1,1)*IJ(center,3,1,0)*IJ(center,3,2,2) - IJ(radius,3,0,1)*IJ(radius,3,2,2)*IJ(x,3,1,1)*IJ(center,3,1,2)*IJ(center,3,2,0) - IJ(radius,3,0,1)*IJ(radius,3,2,2)*IJ(x,3,1,2)*IJ(center,3,1,0)*IJ(center,3,2,1) + IJ(radius,3,0,1)*IJ(radius,3,2,2)*IJ(x,3,1,2)*IJ(center,3,1,1)*IJ(center,3,2,0) - IJ(radius,3,0,2)*IJ(radius,3,1,1)*IJ(x,3,2,0)*IJ(center,3,1,1)*IJ(center,3,2,2) + IJ(radius,3,0,2)*IJ(radius,3,1,1)*IJ(x,3,2,0)*IJ(center,3,1,2)*IJ(center,3,2,1) + IJ(radius,3,0,2)*IJ(radius,3,1,1)*IJ(x,3,2,1)*IJ(center,3,1,0)*IJ(center,3,2,2) - IJ(radius,3,0,2)*IJ(radius,3,1,1)*IJ(x,3,2,1)*IJ(center,3,1,2)*IJ(center,3,2,0) - IJ(radius,3,0,2)*IJ(radius,3,1,1)*IJ(x,3,2,2)*IJ(center,3,1,0)*IJ(center,3,2,1) + IJ(radius,3,0,2)*IJ(radius,3,1,1)*IJ(x,3,2,2)*IJ(center,3,1,1)*IJ(center,3,2,0) + IJ(radius,3,0,2)*IJ(radius,3,2,1)*IJ(x,3,1,0)*IJ(center,3,1,1)*IJ(center,3,2,2) - IJ(radius,3,0,2)*IJ(radius,3,2,1)*IJ(x,3,1,0)*IJ(center,3,1,2)*IJ(center,3,2,1) - IJ(radius,3,0,2)*IJ(radius,3,2,1)*IJ(x,3,1,1)*IJ(center,3,1,0)*IJ(center,3,2,2) + IJ(radius,3,0,2)*IJ(radius,3,2,1)*IJ(x,3,1,1)*IJ(center,3,1,2)*IJ(center,3,2,0) + IJ(radius,3,0,2)*IJ(radius,3,2,1)*IJ(x,3,1,2)*IJ(center,3,1,0)*IJ(center,3,2,1) - IJ(radius,3,0,2)*IJ(radius,3,2,1)*IJ(x,3,1,2)*IJ(center,3,1,1)*IJ(center,3,2,0) + IJ(radius,3,1,1)*IJ(radius,3,2,2)*IJ(x,3,0,0)*IJ(center,3,1,1)*IJ(center,3,2,2) - IJ(radius,3,1,1)*IJ(radius,3,2,2)*IJ(x,3,0,0)*IJ(center,3,1,2)*IJ(center,3,2,1) - IJ(radius,3,1,1)*IJ(radius,3,2,2)*IJ(x,3,0,1)*IJ(center,3,1,0)*IJ(center,3,2,2) + IJ(radius,3,1,1)*IJ(radius,3,2,2)*IJ(x,3,0,1)*IJ(center,3,1,2)*IJ(center,3,2,0) + IJ(radius,3,1,1)*IJ(radius,3,2,2)*IJ(x,3,0,2)*IJ(center,3,1,0)*IJ(center,3,2,1) - IJ(radius,3,1,1)*IJ(radius,3,2,2)*IJ(x,3,0,2)*IJ(center,3,1,1)*IJ(center,3,2,0) - IJ(radius,3,1,2)*IJ(radius,3,2,1)*IJ(x,3,0,0)*IJ(center,3,1,1)*IJ(center,3,2,2) + IJ(radius,3,1,2)*IJ(radius,3,2,1)*IJ(x,3,0,0)*IJ(center,3,1,2)*IJ(center,3,2,1) + IJ(radius,3,1,2)*IJ(radius,3,2,1)*IJ(x,3,0,1)*IJ(center,3,1,0)*IJ(center,3,2,2) - IJ(radius,3,1,2)*IJ(radius,3,2,1)*IJ(x,3,0,1)*IJ(center,3,1,2)*IJ(center,3,2,0) - IJ(radius,3,1,2)*IJ(radius,3,2,1)*IJ(x,3,0,2)*IJ(center,3,1,0)*IJ(center,3,2,1) + IJ(radius,3,1,2)*IJ(radius,3,2,1)*IJ(x,3,0,2)*IJ(center,3,1,1)*IJ(center,3,2,0))/((IJ(radius,3,0,0)*IJ(radius,3,1,1)*IJ(radius,3,2,2) - IJ(radius,3,0,0)*IJ(radius,3,1,2)*IJ(radius,3,2,1) - IJ(radius,3,0,1)*IJ(radius,3,1,0)*IJ(radius,3,2,2) + IJ(radius,3,0,1)*IJ(radius,3,1,2)*IJ(radius,3,2,0) + IJ(radius,3,0,2)*IJ(radius,3,1,0)*IJ(radius,3,2,1) - IJ(radius,3,0,2)*IJ(radius,3,1,1)*IJ(radius,3,2,0))*(IJ(center,3,0,0)*IJ(center,3,1,1)*IJ(center,3,2,2) - IJ(center,3,0,0)*IJ(center,3,1,2)*IJ(center,3,2,1) - IJ(center,3,0,1)*IJ(center,3,1,0)*IJ(center,3,2,2) + IJ(center,3,0,1)*IJ(center,3,1,2)*IJ(center,3,2,0) + IJ(center,3,0,2)*IJ(center,3,1,0)*IJ(center,3,2,1) - IJ(center,3,0,2)*IJ(center,3,1,1)*IJ(center,3,2,0))));
+        *theta = acos(-(IJ(radius,3,0,1)*IJ(x,3,1,0)*IJ(center,3,1,1) - IJ(radius,3,0,1)*IJ(x,3,1,1)*IJ(center,3,1,0) - IJ(radius,3,1,1)*IJ(x,3,0,0)*IJ(center,3,1,1) + IJ(radius,3,1,1)*IJ(x,3,0,1)*IJ(center,3,1,0))/((IJ(radius,3,0,0)*IJ(radius,3,1,1) - IJ(radius,3,0,1)*IJ(radius,3,1,0))*(IJ(center,3,0,0)*IJ(center,3,1,1) - IJ(center,3,0,1)*IJ(center,3,1,0))));
     } else {
-        double t1 = (IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,0)*IJ(center,4,1,1)*IJ(center,4,2,2) - IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,0)*IJ(center,4,1,2)*IJ(center,4,2,1) - IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,1)*IJ(center,4,1,0)*IJ(center,4,2,2) + IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,1)*IJ(center,4,1,2)*IJ(center,4,2,0) + IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,2)*IJ(center,4,1,0)*IJ(center,4,2,1) - IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,2)*IJ(center,4,1,1)*IJ(center,4,2,0) - IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,0)*IJ(center,4,1,1)*IJ(center,4,2,2) + IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,0)*IJ(center,4,1,2)*IJ(center,4,2,1) + IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,1)*IJ(center,4,1,0)*IJ(center,4,2,2) - IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,1)*IJ(center,4,1,2)*IJ(center,4,2,0) - IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,2)*IJ(center,4,1,0)*IJ(center,4,2,1) + IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,2)*IJ(center,4,1,1)*IJ(center,4,2,0) - IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,0)*IJ(center,4,1,1)*IJ(center,4,2,2) + IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,0)*IJ(center,4,1,2)*IJ(center,4,2,1) + IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,1)*IJ(center,4,1,0)*IJ(center,4,2,2) - IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,1)*IJ(center,4,1,2)*IJ(center,4,2,0) - IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,2)*IJ(center,4,1,0)*IJ(center,4,2,1) + IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,2)*IJ(center,4,1,1)*IJ(center,4,2,0) + IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,0)*IJ(center,4,1,1)*IJ(center,4,2,2) - IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,0)*IJ(center,4,1,2)*IJ(center,4,2,1) - IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,1)*IJ(center,4,1,0)*IJ(center,4,2,2) + IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,1)*IJ(center,4,1,2)*IJ(center,4,2,0) + IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,2)*IJ(center,4,1,0)*IJ(center,4,2,1) - IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,2)*IJ(center,4,1,1)*IJ(center,4,2,0) + IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,0)*IJ(center,4,1,1)*IJ(center,4,2,2) - IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,0)*IJ(center,4,1,2)*IJ(center,4,2,1) - IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,1)*IJ(center,4,1,0)*IJ(center,4,2,2) + IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,1)*IJ(center,4,1,2)*IJ(center,4,2,0) + IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,2)*IJ(center,4,1,0)*IJ(center,4,2,1) - IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,2)*IJ(center,4,1,1)*IJ(center,4,2,0) - IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,0)*IJ(center,4,1,1)*IJ(center,4,2,2) + IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,0)*IJ(center,4,1,2)*IJ(center,4,2,1) + IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,1)*IJ(center,4,1,0)*IJ(center,4,2,2) - IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,1)*IJ(center,4,1,2)*IJ(center,4,2,0) - IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,2)*IJ(center,4,1,0)*IJ(center,4,2,1) + IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,2)*IJ(center,4,1,1)*IJ(center,4,2,0))/((IJ(radius,4,0,0)*IJ(radius,4,1,1)*IJ(radius,4,2,2) - IJ(radius,4,0,0)*IJ(radius,4,1,2)*IJ(radius,4,2,1) - IJ(radius,4,0,1)*IJ(radius,4,1,0)*IJ(radius,4,2,2) + IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(radius,4,2,0) + IJ(radius,4,0,2)*IJ(radius,4,1,0)*IJ(radius,4,2,1) - IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(radius,4,2,0))*(IJ(center,4,0,0)*IJ(center,4,1,1)*IJ(center,4,2,2) - IJ(center,4,0,0)*IJ(center,4,1,2)*IJ(center,4,2,1) - IJ(center,4,0,1)*IJ(center,4,1,0)*IJ(center,4,2,2) + IJ(center,4,0,1)*IJ(center,4,1,2)*IJ(center,4,2,0) + IJ(center,4,0,2)*IJ(center,4,1,0)*IJ(center,4,2,1) - IJ(center,4,0,2)*IJ(center,4,1,1)*IJ(center,4,2,0)));
-        //printf("\t\tt1 = %g\n", t1);
-        *theta = acos(t1);
+        *theta = acos((IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,0)*IJ(center,4,1,1)*IJ(center,4,2,2) - IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,0)*IJ(center,4,1,2)*IJ(center,4,2,1) - IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,1)*IJ(center,4,1,0)*IJ(center,4,2,2) + IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,1)*IJ(center,4,1,2)*IJ(center,4,2,0) + IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,2)*IJ(center,4,1,0)*IJ(center,4,2,1) - IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(x,4,2,2)*IJ(center,4,1,1)*IJ(center,4,2,0) - IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,0)*IJ(center,4,1,1)*IJ(center,4,2,2) + IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,0)*IJ(center,4,1,2)*IJ(center,4,2,1) + IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,1)*IJ(center,4,1,0)*IJ(center,4,2,2) - IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,1)*IJ(center,4,1,2)*IJ(center,4,2,0) - IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,2)*IJ(center,4,1,0)*IJ(center,4,2,1) + IJ(radius,4,0,1)*IJ(radius,4,2,2)*IJ(x,4,1,2)*IJ(center,4,1,1)*IJ(center,4,2,0) - IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,0)*IJ(center,4,1,1)*IJ(center,4,2,2) + IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,0)*IJ(center,4,1,2)*IJ(center,4,2,1) + IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,1)*IJ(center,4,1,0)*IJ(center,4,2,2) - IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,1)*IJ(center,4,1,2)*IJ(center,4,2,0) - IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,2)*IJ(center,4,1,0)*IJ(center,4,2,1) + IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(x,4,2,2)*IJ(center,4,1,1)*IJ(center,4,2,0) + IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,0)*IJ(center,4,1,1)*IJ(center,4,2,2) - IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,0)*IJ(center,4,1,2)*IJ(center,4,2,1) - IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,1)*IJ(center,4,1,0)*IJ(center,4,2,2) + IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,1)*IJ(center,4,1,2)*IJ(center,4,2,0) + IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,2)*IJ(center,4,1,0)*IJ(center,4,2,1) - IJ(radius,4,0,2)*IJ(radius,4,2,1)*IJ(x,4,1,2)*IJ(center,4,1,1)*IJ(center,4,2,0) + IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,0)*IJ(center,4,1,1)*IJ(center,4,2,2) - IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,0)*IJ(center,4,1,2)*IJ(center,4,2,1) - IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,1)*IJ(center,4,1,0)*IJ(center,4,2,2) + IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,1)*IJ(center,4,1,2)*IJ(center,4,2,0) + IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,2)*IJ(center,4,1,0)*IJ(center,4,2,1) - IJ(radius,4,1,1)*IJ(radius,4,2,2)*IJ(x,4,0,2)*IJ(center,4,1,1)*IJ(center,4,2,0) - IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,0)*IJ(center,4,1,1)*IJ(center,4,2,2) + IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,0)*IJ(center,4,1,2)*IJ(center,4,2,1) + IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,1)*IJ(center,4,1,0)*IJ(center,4,2,2) - IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,1)*IJ(center,4,1,2)*IJ(center,4,2,0) - IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,2)*IJ(center,4,1,0)*IJ(center,4,2,1) + IJ(radius,4,1,2)*IJ(radius,4,2,1)*IJ(x,4,0,2)*IJ(center,4,1,1)*IJ(center,4,2,0))/((IJ(radius,4,0,0)*IJ(radius,4,1,1)*IJ(radius,4,2,2) - IJ(radius,4,0,0)*IJ(radius,4,1,2)*IJ(radius,4,2,1) - IJ(radius,4,0,1)*IJ(radius,4,1,0)*IJ(radius,4,2,2) + IJ(radius,4,0,1)*IJ(radius,4,1,2)*IJ(radius,4,2,0) + IJ(radius,4,0,2)*IJ(radius,4,1,0)*IJ(radius,4,2,1) - IJ(radius,4,0,2)*IJ(radius,4,1,1)*IJ(radius,4,2,0))*(IJ(center,4,0,0)*IJ(center,4,1,1)*IJ(center,4,2,2) - IJ(center,4,0,0)*IJ(center,4,1,2)*IJ(center,4,2,1) - IJ(center,4,0,1)*IJ(center,4,1,0)*IJ(center,4,2,2) + IJ(center,4,0,1)*IJ(center,4,1,2)*IJ(center,4,2,0) + IJ(center,4,0,2)*IJ(center,4,1,0)*IJ(center,4,2,1) - IJ(center,4,0,2)*IJ(center,4,1,1)*IJ(center,4,2,0))));
     }
 
     if (isnan(*theta)) {
@@ -112,26 +110,22 @@ void mexFunction( int nlhs, mxArray *plhs[],
   /* The first input must be a SE(n) */
   m = mxGetM(prhs[0]);
   n = mxGetN(prhs[0]);
-  if (!mxIsDouble(prhs[0]) || mxIsComplex(prhs[1]) || !((m == 3 && n == 3) || (m == 4 && n ==4))) {
+  if (!mxIsDouble(prhs[0]) || mxIsComplex(prhs[0]) || !((m == 3 && n == 3) || (m == 4 && n ==4))) {
       mexErrMsgTxt("x must be a 3x3 or 4x4 real double matrix.");
   }
   
-  /* The second input must be a 1x2 cell with two SE(n)'s and a R(n) in it.*/
-  if (!mxIsCell(prhs[1]) || mxGetNumberOfDimensions(prhs[1]) != 2 || mxGetM(prhs[1]) != 1 || mxGetN(prhs[1]) != 2) {
-      mexErrMsgTxt("params must be a 1x2 cell array.");
+  /* The second input must be a 1x6/1x12 vector of parameters */
+  if (!mxIsDouble(prhs[1]) || mxIsComplex(prhs[1]) || mxGetM(prhs[1]) != 1 || mxGetN(prhs[1]) != n*(n-1)) {
+      mexErrMsgTxt("params must be a real double array.");
   }
-  center = mxGetCell(prhs[1], 0);
-  p = mxGetM(center);
-  n = mxGetN(center);
-  if (!mxIsDouble(center) || mxIsComplex(center) || n != m || p != n) {
-      mexErrMsgTxt("params{1} must be a real double matrix with dimension corresponding to x.");
+  
+  /* Unpack parameter vector */
+  mxArray* params;
+  if (mexCallMATLAB(1, &params, 1, &prhs[1], "unpack_revolute") != 0) {
+      mexErrMsgTxt("failed to call unpack_revolute");
   }
-  radius = mxGetCell(prhs[1], 1);
-  p = mxGetM(radius);
-  n = mxGetN(radius);
-  if (!mxIsDouble(radius) || mxIsComplex(radius) || n != m || p != n) {
-      mexErrMsgTxt("params{2} must be a real double matrix with dimension corresponding to x.");
-  }
+  center = mxGetCell(params, 0);
+  radius = mxGetCell(params, 1);
 
   /* Create matrices for return arguments. */
   d = n*(n-1)/2;
@@ -143,21 +137,20 @@ void mexFunction( int nlhs, mxArray *plhs[],
   /* Call subroutine(s). */
   inverse_revolute(m-1, mxGetPr(prhs[0]), mxGetPr(center), mxGetPr(radius), mxGetPr(plhs[0]));
   if (nrhs == 2) {
-      mxArray* c_lhs[2];
-      mxArray* r_lhs[2];
-      double *x, *cc[2], *rr[2], *out;
+      double *pvec, *x, *cc[2], *rr[2], *out;
       
-      if (mexCallMATLAB(2, c_lhs, 1, &center, "extract_SE") != 0) {
-          mexErrMsgTxt("failed to call extract_SE");
+      pvec = mxGetPr(prhs[1]);
+      if (n == 2) {
+          cc[0] = &pvec[0];
+          cc[1] = &pvec[2];
+          rr[0] = &pvec[3];
+          rr[1] = &pvec[5];
+      } else {
+          cc[0] = &pvec[0];
+          cc[1] = &pvec[3];
+          rr[0] = &pvec[6];
+          rr[1] = &pvec[9];
       }
-      if (mexCallMATLAB(2, r_lhs, 1, &radius, "extract_SE") != 0) {
-          mexErrMsgTxt("failed to call extract_SE");
-      }
-
-      cc[0] = mxGetPr(c_lhs[0]);
-      cc[1] = mxGetPr(c_lhs[1]);
-      rr[0] = mxGetPr(r_lhs[0]);
-      rr[1] = mxGetPr(r_lhs[1]);
       x = mxGetPr(prhs[0]);
       out = mxGetPr(plhs[1]);
 
@@ -168,7 +161,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
           unsigned i, j;
           double eps = 10*DBL_EPSILON;
 
-          printf("[MIR] fuck! try adding\n");
+          //printf("[MIR] fuck! try adding\n");
           for (i = 0; i < n; ++i) {
               for (j = 0; j < n; ++j) {
                   IJ(x,n,i,j) += eps;
@@ -182,7 +175,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
           }
 
           if (isnan(IJ(out, d*2+1, d*2, d*2-1))) {
-              printf("[MIR] fuck! try subtracting\n");
+              //printf("[MIR] fuck! try subtracting\n");
               for (i = 0; i < n; ++i) {
                   for (j = 0; j < n; ++j) {
                       IJ(x,n,i,j) -= eps;
