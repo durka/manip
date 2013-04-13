@@ -1,11 +1,21 @@
 % parses data into X (see manip_simulate for definition of X)
-% data came from uiimport of output from cpp/*_tracker
+% for the old format, data came from uiimport of output from cpp/*_tracker
+% for the new format, data is the filename of output from cpp/*_tracker
 
+% there are two formats (auto-detected):
+% OLD FORMAT (data is a matrix)
 % data columns:
 % 2D:   FRAME_INDEX OBJECT_ID Tx Ty R
 % 3D:   FRAME_INDEX OBJECT_ID Tx Ty Tz Rx Ry Rz
+% NEW FORMAT (data is a filename)
+% 2D:   FRAME_INDEX TIMESTAMP: (OBJECT_ID Tx Ty R | )*
+% 3D:   FRAME_INDEX TIMESTAMP: (OBJECT_ID Tx Ty Tz Rx Ry Ryz | )*
 
 function [X, interp] = manip_read(data, filtB, filtA)
+    if ischar(data)
+        data = new2old(data);
+    end
+
     switch size(data,2)
         case 5
             dims = 2;
@@ -48,3 +58,24 @@ function [X, interp] = manip_read(data, filtB, filtA)
     % TODO instead of interpolating, throw out non-full frames
     X = X(~any(interp, 2), :,:,:);
 end
+
+function data = new2old(filename)
+    data = [];
+    f = fopen(filename, 'r');
+    tline = fgetl(f);
+    while ischar(tline)
+        parts = regexp(tline, ':', 'split');
+        prefix_parts = regexp(parts{1}, ' ', 'split');
+        suffix_parts = regexp(parts{2}, '\|', 'split');
+        index = str2double(prefix_parts{1});
+        stamp = str2double(prefix_parts{2}); % TODO don't swallow the timestamp
+        for i=1:length(suffix_parts)
+            if ~all(isspace(suffix_parts{i}))
+                data = [data; [index str2num(suffix_parts{i})]];
+            end
+        end
+        tline = fgetl(f);
+    end
+    fclose(f);
+end
+
