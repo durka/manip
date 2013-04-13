@@ -102,8 +102,8 @@ if package.loaded.torch then
     function torch.crossm(m)
         if m:dim() > 1 or m:size(1) ~= 3 then error('You can only get the cross product matrix of a 3-vector') end
         return torch.Tensor{{    0, -m[3],  m[2]},
-        { m[3],     0, -m[1]},
-        {-m[2],  m[1],  0}}
+                            { m[3],     0, -m[1]},
+                            {-m[2],  m[1],  0}}
     end
 end
 
