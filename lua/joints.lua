@@ -2,18 +2,42 @@ require 'torch'
 require 'utils'
 require 'geometry'
 
+--- kinematic joint definitions.
+-- the class interface is:
+--   new
+--   unpack
+--   forward
+--   inverse
+--   guess
+--   reverse
+--   move
+-- TODO how to enforce interfaces in Lua
+
+--- rigid joint class.
+-- ONLY 3D (TODO 2D)
+-- @field p (tensor 6) the joint parameters
 Rigid = {}
 
+--- constructor.
+-- @param p (tensor 6 or numeric array(6)) the joint parameters
 function Rigid:new(p)
     return setmetatable({p = torch.Tensor(p)}, {__index = Rigid})
 end
 
+--- unpack joint parameters.
+-- @return table of { offset (SE) }
 function Rigid:unpack()
     return {offset = SE:new(3)
                        :T(self.p[{ {1,3} }])
                        :R_euler('ZYZ', self.p[{ {4,6} }])}
 end
 
+--- forward kinematics.
+-- @param state
+-- @param jacobian non-nil if the Jacobians should be calculated
+-- @return x
+-- @return Dr (if jacobian is non-nil)
+-- @return Dt (if jacobian is non-nil)
 function Rigid:forward(state, jacobian)
     p = self:unpack()
 
@@ -49,6 +73,11 @@ function Rigid:forward(state, jacobian)
     end
 end
 
+--- inverse kinematics.
+-- @param x
+-- @param jacobian (non-nil if Jacobian should be calculated)
+-- @return state
+-- @return D (if jacobian is non-nil)
 function Rigid:inverse(x, jacobian)
     state = 0; -- rigid joints have no state
 
@@ -62,7 +91,16 @@ function Rigid:inverse(x, jacobian)
     end
 end
 
+--- guess parameters from data.
+-- @param deltas
+-- @param t1
+-- @param r1
+-- @param t2
+-- @param r2
+-- @param t3
+-- @param r3
+-- @return (tensor 6) guessed parameters
 function Rigid:guess(deltas, t1, r1, t2, r2, t3, r3)
-    return {t = t1, r = r1}
+    return torch.cat(t1, r1)
 end
 
