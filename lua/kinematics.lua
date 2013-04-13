@@ -1,3 +1,5 @@
+module(..., package.seeall)
+
 require 'torch'
 
 require 'utils'
@@ -12,7 +14,7 @@ require 'data'
 -- @param a (int) first feature
 -- @param b (int) second feature
 -- @return deltas (tensor Fx4x4) relative trajectory
-function calc_deltas(X, a, b)
+local function calc_deltas(X, a, b)
 end
 
 --- learn a kinematic tree from a trajectory matrix

@@ -1,3 +1,4 @@
+module(..., package.seeall)
 require 'torch'
 
 --- classes and functions for wrangling rigid motions.

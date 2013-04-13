@@ -4,10 +4,10 @@ require 'torch'
 require 'xlua'
 require 'qt'
 require 'image'
+require 'yaml'
 
 require 'params'
 require 'utils'
-require 'geometry'
 require 'data'
 
 -- parse args
@@ -17,16 +17,16 @@ end
 dataset = arg[1]
 s = tonumber(arg[2])
 
-camdata = try(yaml.loadfile, {string.format('%s/../macbook_air_webcam.yml', DATA_DIR)}, 'find camera data YAML')
+camdata = utils.try(yaml.loadfile, {string.format('%s/../macbook_air_webcam.yml', params.DATA_DIR)}, 'find camera data YAML')
 camdata.camera_matrix = torch.reshape(torch.Tensor(camdata.camera_matrix.data), 3, 3)
 
 -- load data
-X, idxs = read(dataset)
+X, idxs = data.read(dataset)
 
 -- show images
 for f = 1,X:size(1) do
-    I = try(image.load, {string.format('%s/%s_dirty_%d.jpg', DATA_DIR, dataset, idxs[f]),
-                         string.format('%s/%s_dirty_%d.png', DATA_DIR, dataset, idxs[f])},
+    I = utils.try(image.load, {string.format('%s/%s_dirty_%d.jpg', params.DATA_DIR, dataset, idxs[f]),
+                               string.format('%s/%s_dirty_%d.png', params.DATA_DIR, dataset, idxs[f])},
             'find the images')
     for i = 1,X:size(2) do
         print(torch.squeeze(X[{ f,i, {},{} }]))

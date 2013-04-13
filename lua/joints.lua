@@ -1,3 +1,5 @@
+module(..., package.seeall)
+
 require 'torch'
 require 'utils'
 require 'geometry'

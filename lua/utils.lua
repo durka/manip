@@ -1,7 +1,10 @@
-require 'torch'
-require 'yaml'
+FL = require 'functional.list'
+OP = require 'functional.operators'
+module(..., package.seeall)
 
 --- various utility function and monkey patches.
+-- intentinally pollutes the global namespace and monkey-patches various classes
+-- require 'yaml' and 'torch' first if you want those to be monkey-patched
 
 --- reload a package.
 -- @param package name (just like require)
@@ -9,95 +12,6 @@ function reload(pkg)
     package.loaded[pkg] = nil
     require(pkg)
 end
-
--- functional programming
-FL = require 'functional.list'
-OP = require 'functional.operators'
-
---- identity function (for map, filter, etc).
--- @param whatever
--- @return whatever
-FL.id = function (...) return ... end
-
---- monkey-patch to convert an iterator into a table.
--- @param iterator (not an infinite one!)
--- @return table containing all the values from the iterator
-function table.fromiter(iter)
-    local t = {}
-    for i in iter do
-        table.insert(t, i)
-    end
-    return t
-end
-
---- monkey-patch to split a string.
--- @param s (string) the string to split
--- @param delim (regex, default '%s') the things between splits
--- @return table of splits
-function string.split(s, delim)
-    local delim = delim or '%s'
-    return table.fromiter(string.gmatch(s, string.format('[^%s]+', delim)))
-end
-
---- monkey-patch to load OpenCV YAML.
--- Removes the first line (with version info) if present
--- @param file (stirng) filename
--- @return YAML as table
--- @see yaml.load
-function yaml.loadfile(file)
-    local f = io.open(file)
-    local s = f:read('*all')
-    f:close()
-
-    if string.sub(s, 1, 1) == '%' then
-        s = string.sub(s, (string.find(s, '\n')))
-    end
-
-    return yaml.load(s)
-end
-
---- monkey-patch to calculate a cross-product matrix.
--- @param m (tensor 3) vector
--- @return (tensor 3x3) [m]_\times
-function torch.crossm(m)
-    if m:dim() > 1 or m:size(1) ~= 3 then error('You can only get the cross product matrix of a 3-vector') end
-    return torch.Tensor{{    0, -m[3],  m[2]},
-                        { m[3],     0, -m[1]},
-                        {-m[2],  m[1],  0}}
-end
-
--- add an eps constant (floating point epsilon) to the math package
-local eps = 1
-repeat eps = eps / 2 until (eps / 2) == 0
-math.eps = eps;
-
-
---- monkey-patch to make a range iterator.
--- range(start)             returns an iterator from 1 to a (step = 1)
--- range(start, stop)       returns an iterator from a to b (step = 1)
--- range(start, stop, step) returns an iterator from a to b, counting by step.
--- @param i (int) start (or end, with start=1, if no other parameters)
--- @param to (int) end (inclusive)
--- @param step (int, default 1) iteration step
--- @return iterator
--- @see table.fromiter if you need a table instead
-function math.range (i, to, inc)
-    if i == nil then return end -- range(--[[ no args ]]) -> return "nothing" to fail the loop in the caller
-
-    if not to then
-        to = i 
-        i  = to == 0 and 0 or (to > 0 and 1 or -1) 
-    end 
-
-    -- we don't have to do the to == 0 check
-    -- 0 -> 0 with any inc would never iterate
-    inc = inc or (i < to and 1 or -1) 
-
-    -- step back (once) before we start
-    i = i - inc 
-
-    return function () if i == to then return nil end i = i + inc return i, i end 
-end 
 
 --- pause execution and request user input.
 function pause()
@@ -131,5 +45,99 @@ function try(action, alternatives, giveup)
     local s = string.format('Unable to %s. Tried:\n', giveup)
     for i,alt in ipairs(alternatives) do s = string.format('%s\t%s\n', s, alt) end
     error(s)
+end
+
+--- identity function (for map, filter, etc).
+-- @param whatever
+-- @return whatever
+FL.id = function (...) return ... end
+
+if package.loaded.table then
+    --- monkey-patch to convert an iterator into a table.
+    -- @param iterator (not an infinite one!)
+    -- @return table containing all the values from the iterator
+    function table.fromiter(iter)
+        local t = {}
+        for i in iter do
+            table.insert(t, i)
+        end
+        return t
+    end
+end
+
+if package.loaded.string then
+    --- monkey-patch to split a string.
+    -- @param s (string) the string to split
+    -- @param delim (regex, default '%s') the things between splits
+    -- @return table of splits
+    function string.split(s, delim)
+        local delim = delim or '%s'
+        return table.fromiter(string.gmatch(s, string.format('[^%s]+', delim)))
+    end
+end
+
+if package.loaded.yaml then
+    --- monkey-patch to load OpenCV YAML.
+    -- Removes the first line (with version info) if present
+    -- @param file (stirng) filename
+    -- @return YAML as table
+    -- @see yaml.load
+    function yaml.loadfile(file)
+        local f = io.open(file)
+        local s = f:read('*all')
+        f:close()
+
+        if string.sub(s, 1, 1) == '%' then
+            s = string.sub(s, (string.find(s, '\n')))
+        end
+
+        return yaml.load(s)
+    end
+end
+
+if package.loaded.torch then
+    --- monkey-patch to calculate a cross-product matrix.
+    -- @param m (tensor 3) vector
+    -- @return (tensor 3x3) [m]_\times
+    function torch.crossm(m)
+        if m:dim() > 1 or m:size(1) ~= 3 then error('You can only get the cross product matrix of a 3-vector') end
+        return torch.Tensor{{    0, -m[3],  m[2]},
+        { m[3],     0, -m[1]},
+        {-m[2],  m[1],  0}}
+    end
+end
+
+if package.loaded.math then
+    -- add an eps constant (floating point epsilon) to the math package
+    local eps = 1
+    repeat eps = eps / 2 until (eps / 2) == 0
+    math.eps = eps;
+
+    --- monkey-patch to make a range iterator.
+    -- range(start)             returns an iterator from 1 to a (step = 1)
+    -- range(start, stop)       returns an iterator from a to b (step = 1)
+    -- range(start, stop, step) returns an iterator from a to b, counting by step.
+    -- @param i (int) start (or end, with start=1, if no other parameters)
+    -- @param to (int) end (inclusive)
+    -- @param step (int, default 1) iteration step
+    -- @return iterator
+    -- @see table.fromiter if you need a table instead
+    function math.range (i, to, inc)
+        if i == nil then return end -- range(--[[ no args ]]) -> return "nothing" to fail the loop in the caller
+
+        if not to then
+            to = i 
+            i  = to == 0 and 0 or (to > 0 and 1 or -1) 
+        end 
+
+        -- we don't have to do the to == 0 check
+        -- 0 -> 0 with any inc would never iterate
+        inc = inc or (i < to and 1 or -1) 
+
+        -- step back (once) before we start
+        i = i - inc 
+
+        return function () if i == to then return nil end i = i + inc return i, i end 
+    end 
 end
 

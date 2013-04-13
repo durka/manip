@@ -1,5 +1,9 @@
+module(..., package.seeall)
 require 'torch'
+
 require 'utils'
+require 'params'
+require 'geometry' local SE = geometry.SE
 
 --- functions to deal with trajectory data on disk.
 
@@ -10,8 +14,8 @@ require 'utils'
 -- @return X (tensor FxNx4x4) the trajectory matrix (F frames and N tracked features)
 -- @return idxs (numeric array) frame indices that were kept in X (any frames with <N features are dropped)
 function read(dataset)
-    local logf = try(io.open, {string.format('%s/%s.txt', DATA_DIR, dataset),
-                               string.format('%s/%s_out.txt', DATA_DIR, dataset)},
+    local logf = utils.try(io.open, {string.format('%s/%s.txt', params.DATA_DIR, dataset),
+                                     string.format('%s/%s_out.txt', params.DATA_DIR, dataset)},
                      'find data dump file')
     local line = logf:read('*line')
     local data = {}
