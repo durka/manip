@@ -48,7 +48,10 @@ function [X, interp] = manip_read(data, filtB, filtA)
                 if dims == 2
                     X(frame,obj, :,:) = T(coords(1:2))*R(coords(3));
                 else
-                    X(frame,obj, :,:) = T(coords(1:3))*R([pi/2 coords(4) -pi/2])*R([0 coords(5) 0])*R([0 0 coords(6)]); % shenanigans to get Rxyz out of Rzyz
+                    %X(frame,obj, :,:) = T(coords(1:3))*R([pi/2 coords(4) -pi/2])*R([0 coords(5) 0])*R([0 0 coords(6)]); % shenanigans to get Rxyz out of Rzyz
+                    th = sqrt(sum(coords(4:6).^2));
+                    v = coords(4:6)/th;
+                    X(frame,obj, :,:) = T(coords(1:3)) * [(eye(3)*cos(th) + [0 -v(3) v(2); v(3) 0 -v(1); -v(2) v(1) 0]*sin(th) + v'*v*(1-cos(th))) [0;0;0]; 0 0 0 1];
                 end
             end
         end
