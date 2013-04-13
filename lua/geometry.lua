@@ -11,11 +11,17 @@ require 'torch'
 SE = {}
 
 --- constructor.
--- @param n (int) number of dimensions
-function SE:new(n)
-    return setmetatable({n = n,
-                         m = torch.eye(n+1)},
-                        {__index = SE})
+-- @param n_or_m [n (int) number of dimensions] OR [m (tensor (n+1)x(n+1)) matrix representation]
+function SE:new(n_or_m)
+    if type(n) == 'number' then
+        return setmetatable({n = n_or_m,
+                             m = torch.eye(n+1)},
+                            {__index = SE})
+    else
+        return setmetatable({n = n_or_m:size(1)-1,
+                             m = n_or_m},
+                            {__index = SE})
+    end
 end
 
 --- reset to identity.
