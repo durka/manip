@@ -7,7 +7,7 @@ require 'geometry' local SE = geometry.SE
 require 'joints'
 require 'data'
 
---- the main package: learning kinematics from computer vision.
+--- the main package: learning kinematics from feature trajectories.
 
 --- calculate the relative trajectory between two features
 -- @param X (tensor FxNx4x4) trajectory matrix
@@ -15,7 +15,7 @@ require 'data'
 -- @param b (int) second feature
 -- @return deltas (tensor Fx4x4) relative trajectory
 -- @return t1, r1, t2, r2, t3, r3
---[[local--]] function calc_deltas(X, a, b)
+function calc_deltas(X, a, b)
     local deltas = torch.Tensor(X:size(1), X:size(3), X:size(4))
     for i = 1,X:size(1) do
         deltas[i] = X[{i,b}] * torch.inverse(X[{i,a}])
