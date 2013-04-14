@@ -55,8 +55,28 @@ if package.loaded.string then
         return table.fromiter(string.gmatch(s, string.format('[^%s]+', delim)))
     end
 
+    --- monkey-patch for string interpolation.
+    -- @param s (string) format string with interpolations like ${var}
+    -- @param tab (table) values to fill in the interpolations
+    -- @return interpolated string
+    -- @see string.format
     function string.interp(s, tab)
         return (string.gsub(s, '($%b{})', function(w) return tab[string.sub(w, 3, -2)] or w end))
+    end
+
+    --- monkey-patch for reverse string searching.
+    -- @param s (string) haystack
+    -- @param pat (string) needle
+    -- @param ... just like string.find (except starting from the end)
+    -- @return start and end positions of last occurrence of needle in haystack, or nil if none
+    -- @see string.find
+    function string.rfind(s, pat, ...)
+        a, b = string.find(string.reverse(s), string.reverse(pat), ...)
+        if a then
+            a = #s - a + 1
+            b = #s - b + 1
+        end
+        return b, a
     end
 end
 
@@ -76,18 +96,6 @@ if package.loaded.yaml then
         end
 
         return yaml.load(s)
-    end
-end
-
-if package.loaded.torch then
-    --- monkey-patch to calculate a cross-product matrix.
-    -- @param m (tensor 3) vector
-    -- @return (tensor 3x3) [m]_\times
-    function torch.crossm(m)
-        if m:dim() > 1 or m:size(1) ~= 3 then error('You can only get the cross product matrix of a 3-vector') end
-        return torch.Tensor{{    0, -m[3],  m[2]},
-                            { m[3],     0, -m[1]},
-                            {-m[2],  m[1],  0}}
     end
 end
 
@@ -123,6 +131,30 @@ if package.loaded.math then
 
         return function () if i == to then return nil end i = i + inc return i, i end 
     end 
+end
+
+if package.loaded.torch then
+    --- monkey-patch to calculate a cross-product matrix.
+    -- @param m (tensor 3) vector
+    -- @return (tensor 3x3) [m]_\times
+    function torch.crossm(m)
+        if m:dim() > 1 or m:size(1) ~= 3 then error('You can only get the cross product matrix of a 3-vector') end
+        return torch.Tensor{{    0, -m[3],  m[2]},
+                            { m[3],     0, -m[1]},
+                            {-m[2],  m[1],  0}}
+    end
+end
+
+if package.loaded.gnuplot then
+    --- monkey-patch to plot quivers
+    -- @param data (tensor Nx6) x, y, z, u, v, w
+    function gnuplot.quiver(data, title)
+        title = title or ''
+        local s = tostring(data)
+        s = string.sub(s, 1, string.rfind(s, '\n', 2))
+        s = string.gsub(s, '\n', '\\n')
+        gnuplot.raw(string.format('splot "<echo \'%s\'" title "%s" with vectors', s, title))
+    end
 end
 
 
