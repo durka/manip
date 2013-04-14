@@ -1,14 +1,11 @@
 #!/usr/bin/env torch
 
-require 'torch'
-require 'xlua'
-require 'qt'
 require 'image'
 require 'yaml'
 
-require 'params'
-require 'utils'
-require 'data'
+local utils = require 'utils'
+utils.import 'params'
+utils.import 'data'
 
 -- parse args
 if #arg ~= 2 then

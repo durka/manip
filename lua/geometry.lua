@@ -1,32 +1,30 @@
-module(..., package.seeall)
-require 'torch'
-
 --- classes and functions for wrangling rigid motions.
 -- TODO overload operators
 -- TODO constructor from tensor
+local geometry = {}
 
 --- class to represent a rigid motion in N dimensions.
 -- @field n (int) number of dimensions (2 or 3)
 -- @field m (tensor (n+1)x(n+1)) matrix representation
-SE = {}
+geometry.SE = {}
 
 --- constructor.
 -- @param n_or_m [n (int) number of dimensions] OR [m (tensor (n+1)x(n+1)) matrix representation]
-function SE:new(n_or_m)
-    if type(n) == 'number' then
+function geometry.SE:new(n_or_m)
+    if type(n_or_m) == 'number' then
         return setmetatable({n = n_or_m,
-                             m = torch.eye(n+1)},
-                            {__index = SE})
+                             m = torch.eye(n_or_m+1)},
+                            {__index = geometry.SE})
     else
         return setmetatable({n = n_or_m:size(1)-1,
                              m = n_or_m},
-                            {__index = SE})
+                            {__index = geometry.SE})
     end
 end
 
 --- reset to identity.
 -- @return self
-function SE:reset()
+function geometry.SE:reset()
     self.m = torch.eye(self.n+1)
     return self
 end
@@ -34,7 +32,7 @@ end
 --- extract the Lie algebra representation of this rigid motion.
 -- @return t (tensor nx1) the translation components
 -- @return r (tensor 1 or 3x1) the rotation component(s)
-function SE:extract()
+function geometry.SE:extract()
     if self.n == 2 then
         t = self.m[{ {1,2}, {3} }]
         r = torch.Tensor{math.atan2(self.m[{2,1}], self.m[{1,1}])}
@@ -62,7 +60,7 @@ end
 -- ONLY 3D (TODO 2D)
 -- @param t (tensor n, nx1 or numeric table(n)) the translation components
 -- @return self
-function SE:T(t)
+function geometry.SE:T(t)
     self.m[{ {1,self.n}, self.n+1 }] = torch.Tensor(t)
     return self
 end
@@ -71,7 +69,7 @@ end
 -- @param euler (string) order of the Euler angles (e.g. 'XYZ')
 -- @param r (tensor (#euler) or (#euler)x1 or numeric array(#euler)) the rotations (in radians)
 -- @return self
-function SE:R_euler(euler, r)
+function geometry.SE:R_euler(euler, r)
     Raxis = {
              X = function (theta) return torch.Tensor{{1,               0,                0              },
                                                       {0,               math.cos(theta), -math.sin(theta)},
@@ -96,7 +94,7 @@ end
 -- ONLY 3D (TODO 2D)
 -- @param axis (tensor 3 or 3x1 or numeric array(3)) the rotation vector
 -- @return self
-function SE:R_axis(axis)
+function geometry.SE:R_axis(axis)
     angle = math.sqrt(torch.sum(torch.Tensor(axis):pow(2)))
     axis = torch.Tensor(axis)/angle
     self.m[{ {1,3}, {1,3} }] = torch.eye(3)                                      * math.cos(angle)
@@ -104,4 +102,6 @@ function SE:R_axis(axis)
                              + torch.reshape(axis, 3,1)*torch.reshape(axis, 1,3) * (1 - math.cos(angle))
     return self
 end
+
+return geometry
 

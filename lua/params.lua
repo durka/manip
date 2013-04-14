@@ -1,6 +1,7 @@
-module(..., package.seeall)
-
 --- various common parameters/configuration for the other packages.
+local params = {}
 
-DATA_DIR = '../cpp/data'
+params.DATA_DIR = '../cpp/data'
+
+return params
 

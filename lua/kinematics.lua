@@ -1,13 +1,10 @@
-module(..., package.seeall)
-
-require 'torch'
-
-require 'utils'
-require 'geometry' local SE = geometry.SE
-require 'joints'
-require 'data'
+local utils = require 'utils'
+utils.import('geometry', 'SE')
+utils.import 'joints'
+utils.import 'data'
 
 --- the main package: learning kinematics from feature trajectories.
+local kinematics = {}
 
 --- calculate the relative trajectory between two features
 -- @param X (tensor FxNx4x4) trajectory matrix
@@ -15,7 +12,7 @@ require 'data'
 -- @param b (int) second feature
 -- @return deltas (tensor Fx4x4) relative trajectory
 -- @return t1, r1, t2, r2, t3, r3
-function calc_deltas(X, a, b)
+function kinematics.calc_deltas(X, a, b)
     local deltas = torch.Tensor(X:size(1), X:size(3), X:size(4))
     for i = 1,X:size(1) do
         deltas[i] = X[{i,b}] * torch.inverse(X[{i,a}])
@@ -29,6 +26,8 @@ end
 --- learn a kinematic tree from a trajectory matrix
 -- @param X (tensor FxNx4x4) trajectory matrix
 -- @return kinematic tree
-function learn(X)
+function kinematics.learn(X)
 end
+
+return kinematics
 

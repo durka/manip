@@ -1,11 +1,9 @@
-module(..., package.seeall)
-require 'torch'
-
-require 'utils'
-require 'params'
-require 'geometry' local SE = geometry.SE
+local utils = require 'utils'
+utils.import 'params'
+utils.import('geometry', 'SE')
 
 --- functions to deal with trajectory data on disk.
+local data = {}
 
 --- read the output of aruco_tracker.
 -- understands both the old format and the new format (auto-detected)
@@ -13,7 +11,7 @@ require 'geometry' local SE = geometry.SE
 --                         the data dump should be at DATA_DIR/dataset.txt or DATA_DIR/dataset_out.txt
 -- @return X (tensor FxNx4x4) the trajectory matrix (F frames and N tracked features)
 -- @return idxs (numeric array) frame indices that were kept in X (any frames with <N features are dropped)
-function read(dataset)
+function data.read(dataset)
     local logf = utils.try(io.open, {string.format('%s/%s.txt', params.DATA_DIR, dataset),
                                      string.format('%s/%s_out.txt', params.DATA_DIR, dataset)},
                      'find data dump file')
@@ -91,4 +89,6 @@ function read(dataset)
     
     return X, idxs
 end
+
+return data
 

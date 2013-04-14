@@ -1,51 +1,9 @@
 FL = require 'functional.list'
 OP = require 'functional.operators'
-module(..., package.seeall)
 
 --- various utility function and monkey patches.
 -- intentinally pollutes the global namespace and monkey-patches various classes
 -- require 'yaml' and 'torch' first if you want those to be monkey-patched
-
---- reload a package.
--- @param package name (just like require)
-function reload(pkg)
-    package.loaded[pkg] = nil
-    require(pkg)
-end
-
---- pause execution and request user input.
-function pause()
-    local answer = nil
-    while answer ~= '' and answer ~= 'y' and answer ~= 'Y' and neverstall ~= true do
-        io.write("continue ([y]/n/!)? ")
-        io.flush()
-        answer=io.read()
-        if answer == '!' then
-            neverstall = true
-        end
-        if answer == 'n' then
-            print('exiting...')
-            os.exit()
-        end
-    end
-    print ''
-end
-
---- try to call a function that might fail, with a few alternatives.
--- @param action (function) the function we are trying. should take one parameter and return nil on failure
--- @param alternatives (table) the choices to try as action's parameter, in order
--- @param giveup (string) complaint to throw if none of the alternatives work ('Unable to ' is prepended)
--- @return the return value of action, when it succeeded
--- @return the alternative that worked
-function try(action, alternatives, giveup)
-    for i, alt in ipairs(alternatives) do
-        local result = action(alt)
-        if result then return result, alt end
-    end
-    local s = string.format('Unable to %s. Tried:\n', giveup)
-    for i,alt in ipairs(alternatives) do s = string.format('%s\t%s\n', s, alt) end
-    error(s)
-end
 
 --- identity function (for map, filter, etc).
 -- @param whatever
@@ -63,6 +21,28 @@ if package.loaded.table then
         end
         return t
     end
+
+    --- monkey-patch to get the keys out of a table.
+    -- @param table
+    -- @return table of keys
+    function table.keys(t)
+        local keys = {}
+        for k,v in pairs(t) do
+            table.insert(keys, k)
+        end
+        return keys
+    end
+
+    --- monkey-patch to get the values out of a table.
+    -- @param table
+    -- @return table of values
+    function table.vals(t)
+        local vals = {}
+        for k,v in pairs(t) do
+            table.insert(vals, v)
+        end
+        return vals
+    end
 end
 
 if package.loaded.string then
@@ -73,6 +53,10 @@ if package.loaded.string then
     function string.split(s, delim)
         local delim = delim or '%s'
         return table.fromiter(string.gmatch(s, string.format('[^%s]+', delim)))
+    end
+
+    function string.interp(s, tab)
+        return (string.gsub(s, '($%b{})', function(w) return tab[string.sub(w, 3, -2)] or w end))
     end
 end
 
@@ -140,4 +124,70 @@ if package.loaded.math then
         return function () if i == to then return nil end i = i + inc return i, i end 
     end 
 end
+
+
+local utils = {}
+
+--- like require, with some enhanced features.
+-- @param pkg (string) package name (just like require)
+-- @param as (optional string) rename the package
+-- @param from (optional string) comma-separated list of symbols to import
+function utils.import(pkg, as, from)
+    package.loaded[pkg] = nil -- always reload (TODO superreload)
+    local pack = require(pkg)
+    if as then
+        if string.sub(as, 1, 2) == 'as' then
+            pkg = string.sub(as, 4)
+        else
+            from = as
+        end
+    end
+    _G[pkg] = pack
+    if from then
+        for _,symbol in pairs(string.split(from, ',')) do
+            a, b = string.find(symbol, ' as ')
+            if a then
+                _G[string.sub(symbol, b+1)] = _G[pkg][string.sub(symbol, 1, a-1)]
+            else
+                _G[symbol] = _G[pkg][symbol]
+            end
+        end
+    end
+end
+
+--- pause execution and request user input.
+function utils.pause()
+    local answer = nil
+    while answer ~= '' and answer ~= 'y' and answer ~= 'Y' and neverstall ~= true do
+        io.write("continue ([y]/n/!)? ")
+        io.flush()
+        answer=io.read()
+        if answer == '!' then
+            neverstall = true
+        end
+        if answer == 'n' then
+            print('exiting...')
+            os.exit()
+        end
+    end
+    print ''
+end
+
+--- try to call a function that might fail, with a few alternatives.
+-- @param action (function) the function we are trying. should take one parameter and return nil on failure
+-- @param alternatives (table) the choices to try as action's parameter, in order
+-- @param giveup (string) complaint to throw if none of the alternatives work ('Unable to ' is prepended)
+-- @return the return value of action, when it succeeded
+-- @return the alternative that worked
+function utils.try(action, alternatives, giveup)
+    for i, alt in ipairs(alternatives) do
+        local result = action(alt)
+        if result then return result, alt end
+    end
+    local s = string.format('Unable to %s. Tried:\n', giveup)
+    for i,alt in ipairs(alternatives) do s = string.format('%s\t%s\n', s, alt) end
+    error(s)
+end
+
+return utils
 
