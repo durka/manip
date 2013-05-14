@@ -13,7 +13,7 @@
 -- So Haskell functions like zipWith(), zipWith3(), zip4(), unzip5(), 
 -- etc. are not defined.
 -- @class module
--- @name list
+-- @name functional.list
 
 --[[ Needed for luadoc.  Leave commented out.
 module "list"
@@ -25,8 +25,6 @@ module "list"
 ]]--
 
 
-require "table"
-
 local OP    = require "functional.operators"
 local unpack = unpack or table.unpack  -- for Lua 5.2
 
@@ -37,7 +35,7 @@ local _M = {} -- Stores exported objects.
 ]]--
 
 
---[[
+--[[--
     zip_with_helper ()
 
     This is a generalized version of Haskell's zipWith, but instead
@@ -78,7 +76,7 @@ local function zip_with_helper(result_helper, rh_arg, ...)
 end
 
 
---[[
+--[[--
     zip([one or more tables])
 
     For the given tables, create a table that contains the first element
@@ -100,7 +98,11 @@ function _M.zip(...)
 end
 
 
- --[[
+local function map_helper (func, arg_list, results_l)
+    table.insert(results_l, func(unpack(arg_list)))
+end
+
+ --[[--
     map(function, [one or more tables])
 
     Repeatedly apply the function to the arguments composed from the
@@ -121,16 +123,23 @@ end
     arguments as tables provided.  map() returns a list of just the
     first return values from each call to func().
  ]]--
-local function map_helper (func, arg_list, results_l)
-    table.insert(results_l, func(unpack(arg_list)))
-end
-
 function _M.map(func, ...)
     return zip_with_helper(map_helper, func, ...)
 end
 
 
- --[[
+local function filter_helper (func, arg_list, results_l)
+    local result = func(unpack(arg_list))
+    if result then
+        if #arg_list == 1 then
+            table.insert(results_l, arg_list[1])
+        else
+            table.insert(results_l, arg_list)
+        end
+    end
+end
+
+ --[[--
     filter(func, [one or more tables])
 
     Selects the items from the argument list(s), calls
@@ -158,23 +167,12 @@ end
         filter(is_less, {10, 20, 30, 40}, {10, 22, 33, 40})        --> {{20,22}, {30, 33}}
 
  ]]--
-local function filter_helper (func, arg_list, results_l)
-    local result = func(unpack(arg_list))
-    if result then
-        if #arg_list == 1 then
-            table.insert(results_l, arg_list[1])
-        else
-            table.insert(results_l, arg_list)
-        end
-    end
-end
-
 function _M.filter(func, ...)
     return zip_with_helper(filter_helper, func, ...)
 end
 
 
- --[[
+ --[[--
     tail(table)
 
     Return the list starting at the second list item.
@@ -196,7 +194,7 @@ function _M.tail(list)
 end
 
 
- --[[
+ --[[--
     foldr() - list fold right, with initial value
 
     foldr(function, default_value, table)
@@ -216,7 +214,7 @@ function _M.foldr(func, val, tbl)
 end
 
 
---[[
+--[[--
     foldr1() - list fold right
 
     foldr(function, list)
@@ -231,7 +229,7 @@ function _M.foldr1(func, tbl)
 end
 
 
---[[
+--[[--
     foldl() - list fold left with initial value
 
     Example:
@@ -245,7 +243,7 @@ function _M.foldl(func, val, tbl)
 end
 
 
---[[
+--[[--
     foldl1() - list fold left
 
     Example:
@@ -256,7 +254,7 @@ function _M.foldl1(func, tbl)
 end
 
 
---[[
+--[[--
     unzip()
 
     For example:
@@ -307,7 +305,7 @@ end
 _M.transpose = _M.unzip
 
 
---[[
+--[[--
     reverse()
 
     Returns a shallow copy of the items in the list, in 
@@ -335,7 +333,7 @@ function _M.reverse(tbl, force_length)
 end
 
 
---[[
+--[[--
     intersperse()
 
     Inserts an item in between each previously existing item of a list.
@@ -355,7 +353,7 @@ function _M.intersperse(item, tbl)
 end
 
 
---[[
+--[[--
     take()
 
     Returns a shallow copy of the first N items of the given list.
@@ -376,7 +374,7 @@ function _M.take(n, tbl)
 end
 
 
---[[
+--[[--
     drop()
 
     Returns a shallow copy of the list without the first N items.
@@ -395,7 +393,7 @@ function _M.drop(n, tbl)
 end
 
 
---[[
+--[[--
     concat_single(tbl)
 
     Helper for n-ary concat() below.
@@ -412,7 +410,7 @@ local function concat_single(tbl)
 end
 
 
---[[
+--[[--
     concat()
 
     Takes a list of lists, and return a single list with all the elements.
@@ -444,7 +442,7 @@ end
 ]]--
 
 
---[[
+--[[--
     all()
 
     Note that we're not checking explicitly for boolean 'true'
@@ -460,7 +458,7 @@ function _M.all(func, list)
 end
 
 
---[[
+--[[--
     any()
 
     Note that we're not checking explicitly for boolean 'true'
@@ -476,15 +474,6 @@ end
 
 
 
---[[
-    sum()
-
-    Sum the list and/or the arguments.
-
-    If there is just one argument, and it is a list, then
-    return the sum of the items in that list.
-    Otherwise return the sum of all the arguments.
-]]--
 
 local function sum_helper(operator, tbl, ...)
     local args = {...}
@@ -495,8 +484,26 @@ local function sum_helper(operator, tbl, ...)
     end
 end
 
+--[[--
+    sum()
+
+    Sum the list and/or the arguments.
+
+    If there is just one argument, and it is a list, then
+    return the sum of the items in that list.
+    Otherwise return the sum of all the arguments.
+]]--
 function _M.sum(...)     return sum_helper(OP.add, ...) end
 
+--[[
+    product()
+
+    Multiply the list and/or the arguments.
+
+    If there is just one argument, and it is a list, then
+    return the product of the items in that list.
+    Otherwise return the product of all the arguments.
+]]--
 function _M.product(...) return sum_helper(OP.mul, ...) end
 
 
@@ -515,7 +522,7 @@ function _M.or_list(list)  return _M.any(OP.is_true, list) end
 
 
 
---[[
+--[[--
     concat_map(func, tbl)
 
     FIXME: re-analyze this 
@@ -526,7 +533,7 @@ function _M.concat_map(f, tbl)
 end
 
 
---[[
+--[[--
 unfoldr      :: (b -> Maybe (a, b)) -> b -> [a]
 unfoldr f b  =
   case f b of
@@ -546,7 +553,7 @@ function _M.unfoldr(f, b)
 end
 
 
---[[
+--[[--
 unfoldl f x = case f x of
     Nothing     -> []
     Just (u, v) -> unfoldl f v ++ [u]

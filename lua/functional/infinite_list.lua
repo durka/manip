@@ -2,7 +2,7 @@
 -- <br />
 -- Various ways to construct infinite lists.
 -- @class module
--- @name infinite_list
+-- @name functional.infinite_list
 
 --[[ The module line is needed for luadoc to consider this a module.
 module "infinite_list"

@@ -4,7 +4,7 @@
 -- This is just converting the common operators into functions for
 -- convenience with list operations.
 -- @class module
--- @name operators
+-- @name functional.operators
 
 --[[ The module line is needed for luadoc to consider this a module.
 module "operators"

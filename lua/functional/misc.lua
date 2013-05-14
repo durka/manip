@@ -1,5 +1,7 @@
-
+--- Miscellaneous functional things
 -- Copyright (c) 2010 by James Graves <ansible@xnet.com>
+-- @class module
+-- @name functional.misc
 
 
 local L = require "functional.list"
@@ -26,7 +28,7 @@ local _M = {}
 
 ]]--
 
---[[
+--[[--
     argument_pack(...)
 
     Returns a table of arguments much like {...} except that it also explicitly
@@ -42,7 +44,7 @@ function _M.argument_pack(...)
     return new_tbl
 end
 
---[[
+--[[--
     argument_unpack(tbl)
 
     Returns multiple values based on the table passed in.  It expects a field 'n' which
@@ -77,7 +79,7 @@ function _M.argument_unpack(t, ...)
 end
 
 
---[[
+--[[--
     call_with()
 
     This is not a true curry function that converts the given function
@@ -128,7 +130,7 @@ function _M.call_with(myfunc, ...)
 end
 
 
---[[
+--[[--
     reverse_args()
 
     Reverses the argument list passed to it.
