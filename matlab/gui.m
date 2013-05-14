@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 08-Mar-2013 01:20:21
+% Last Modified by GUIDE v2.5 09-May-2013 01:49:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -50,30 +50,33 @@ if isempty(X); return; end;
 
 setappdata(handles.stuff, 'drawing', true);
 
-axes(handles.sim_out);
 S = getappdata(handles.stuff, 'TREE');
 f = getappdata(handles.stuff, 'curframe');
 colors = 'bgrk';
-cla;
-hold on;
+cla(handles.sim_out);
+hold(handles.sim_out, 'on');
 for j = 1:length(S)
     if size(X,3) == 3
         % 2D
-        plot([X(f,S(j).a, 1,3), X(f,S(j).b, 1,3)], ...
+        plot(handles.sim_out, ...
+             [X(f,S(j).a, 1,3), X(f,S(j).b, 1,3)], ...
              [X(f,S(j).a, 2,3), X(f,S(j).b, 2,3)], ...
              [colors(mod(j-1,4)+1) '.-']);
-        quiver([X(f,S(j).a, 1,3), X(f,S(j).b, 1,3)], ...
+        quiver(handles.sim_out, ...
+               [X(f,S(j).a, 1,3), X(f,S(j).b, 1,3)], ...
                [X(f,S(j).a, 2,3), X(f,S(j).b, 2,3)], ...
                [X(f,S(j).a, 1,1), X(f,S(j).b, 1,1)], ...
                [X(f,S(j).a, 2,1), X(f,S(j).b, 2,1)], ...
                0.2, colors(mod(j-1,4)+1));
     else
         % 3D
-        plot3([X(f,S(j).a, 1,4), X(f,S(j).b, 1,4)], ...
+        plot3(handles.sim_out, ...
+              [X(f,S(j).a, 1,4), X(f,S(j).b, 1,4)], ...
               [X(f,S(j).a, 2,4), X(f,S(j).b, 2,4)], ...
               [X(f,S(j).a, 3,4), X(f,S(j).b, 3,4)], ...
               [colors(mod(j-1,4)+1) '.-']);
-        quiver3([X(f,S(j).a, 1,4), X(f,S(j).b, 1,4)], ...
+        quiver3(handles.sim_out, ...
+                [X(f,S(j).a, 1,4), X(f,S(j).b, 1,4)], ...
                 [X(f,S(j).a, 2,4), X(f,S(j).b, 2,4)], ...
                 [X(f,S(j).a, 3,4), X(f,S(j).b, 3,4)], ...
                 [X(f,S(j).a, 1,1), X(f,S(j).b, 1,1)], ...
@@ -82,8 +85,8 @@ for j = 1:length(S)
                 0.2, colors(mod(j-1,4)+1));
     end
 end
-hold off;
-axis(repmat([-5 5], 1, size(X,3)-1));
+hold(handles.sim_out, 'off');
+axis(handles.sim_out, repmat([-5 5], 1, size(X,3)-1));
 
 setappdata(handles.stuff, 'drawing', false);
 
@@ -768,18 +771,19 @@ switch mode
         jointdata = 'ljoint';
 end
 
-contents = lower(get(handles.([prefix 'joint_type']), 'String'));
+contents = get(handles.([prefix 'joint_type']), 'String');
 
 set(handles.([prefix 'rigid_panel']), 'Visible', 'off');
 set(handles.([prefix 'prismatic_panel']), 'Visible', 'off');
 set(handles.([prefix 'revolute_panel']), 'Visible', 'off');
+set(handles.([prefix 'screw_panel']), 'Visible', 'off');
 
 i = getappdata(handles.stuff, jointdata);
 if i > length(S)
     i = 1;
 end
 joint = S(i).joint;
-set(handles.([prefix 'joint_type']), 'Value', find(strcmp(contents, joint)));
+set(handles.([prefix 'joint_type']), 'Value', find(strcmpi(contents, joint)));
 controls = get(handles.([prefix joint '_panel']), 'Children');
 for c = controls(strcmp(get(controls, 'Style'), 'edit'))'
     try
@@ -1149,3 +1153,26 @@ assignin('base', 'S', getappdata(handles.stuff, 'TREE'));
 assignin('base', 'SS', getappdata(handles.stuff, 'GUESS'));
 assignin('base', 'X', getappdata(handles.stuff, 'DATA'));
 assignin('base', 'dims', getappdata(handles.stuff, 'dims'));
+
+
+
+function joint_param3_Callback(hObject, eventdata, handles)
+% hObject    handle to joint_param3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of joint_param3 as text
+%        str2double(get(hObject,'String')) returns contents of joint_param3 as a double
+joint_prop_callback(hObject, eventdata, handles);
+
+% --- Executes during object creation, after setting all properties.
+function joint_param3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to joint_param3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
