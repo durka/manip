@@ -31,8 +31,8 @@
 \usepackage{3dplot}
 \tdplotsetmaincoords{50}{105} % viewing angle
 \input{tikz-parallelepiped.inc}
-%\usepackage{hyperref}
-%\usepackage[all]{hypcap}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
 
 % random helper commands
 \DeclareMathOperator*{\argmin}{argmin}
@@ -113,7 +113,7 @@ Consider the problem of navigating and interacting in unstructured, unknown envi
 If we expect autonomous robots to accompany and assist us in our daily lives, they must be able to act in the human world. This includes many complex manipulation tasks. The sequence described above is completely unremarkable for a human, but involves serious heavy lifting and several open problems if it is to be completed by a robot. This work will focus on an important subproblem applicable to this situation: namely, extracting the kinematic structure of an articulated object from visual input. In the context of the current paper, an \emph{articulated object} is a coherent object in the world that consists of rigid interlocking moving parts (for example, a tape measure, desk lamp, swivel chair, etc). The \emph{kinematic structure} describes the relationships between the parts and how they move; for example, a swivel chair might be described by a tree with the seat at the root. The seat has two children: the backrest (which might be rigidly connected, or recline via a revolute joint), and the wheeled base, which turns on a revolute joint with respect to the seat. The seat might also be vertically adjustable, which would be represented by a prismatic joint in the same place. Note that, in general, kinematic structures are graphs, but in the following they are assumed to be trees to simplify the computation. The wheels of a swivel chair may turn independently, but usually they are all in contact with the floor and so move in concert. Therefore the chair has fewer degrees of freedom than is suggested by a kinematic tree with the wheels as leaves. However, in many cases the analysis is similar and with the tree assumption the structure discovery is much easier.
 
 \subsection{Literature Review}
-Interactive perception, and discovery of latent kinematic structure, is not an incredibly new idea. It has, however, become somewhat more tractable recently with the widespread availability of accurate RGBD cameras. Recent work includes the efforts of Dov Katz et al at UMass-Amherst \cite{Katz2008,Katz2008a} and later at CMU \cite{Katz2012}, as well as Yan and Pollefeys at UNC \cite{Yan2006} and J\"{u}rgen Sturm et al at the University of Freiburg \cite{Sturm2011}.
+Interactive perception, and discovery of latent kinematic structure, has been investigated previously. It has become somewhat more tractable recently with the widespread availability of accurate RGBD cameras. Recent work includes the efforts of Dov Katz et al at UMass-Amherst \cite{Katz2008,Katz2008a} and later at CMU \cite{Katz2012}, as well as Yan and Pollefeys at UNC \cite{Yan2006} and J\"{u}rgen Sturm et al at the University of Freiburg \cite{Sturm2011}.
 
 Katz et al present a system for ``interactive segmentation'' as well as kinematic modeling in \cite{Katz2008}. They use three-dimensional (RGBD) vision to track a large cloud of feature points on an articulated object of interest. Then, various metrics are used to group feature points into object parts, including 3D proximity, color and texture consistency, and relative 3D motion (that is, rigidly connected feature points will be close together, possibly the same color, and should have very little relative motion). Once the object of interest is segmented into rigid bodies, they aim to discover the underlying kinematic structure of those bodies. This is done using heuristics specific to each built-in joint type. Specifically, the relative 3D trajectories of feature points on a pair of prismatically connected rigid bodies should fit straight lines, and likewise arcs of circles for a revolute joint. These heuristics are somewhat limiting in that there is no unified system for deriving a heuristic from a kinematic definition. However, in a subsequent paper Katz et al explore the use of reinforcement learning to choose manipulator actions that probe the environment for the sole purpose of perception -- an interesting direction that should be considered for this work as well \cite{Katz2008a}.
 
@@ -123,7 +123,7 @@ Sturm et al provide the most direct inspiration for this work in \cite{Sturm2011
 
 \subsection{Paper Outline}
 
-In the rest of this paper, we will present a system for building kinematic trees from visual input, implemented from scratch using MATLAB and following from the techniques of \cite{Sturm2011}. Section \ref{sec:models} introduces the mathematical foundations, and Section \ref{sec:implementation} follows with a schematic view of our implementation. We validate the system with several experiments in simulation and with real-world objects, detailed in Section \ref{sec:experiments}. Finally, Section \ref{sec:conclusion} discusses the many avenues for future research.
+In the rest of this paper, we will present a system for building kinematic trees from visual input, implemented in MATLAB and using a tree-based kinematics model for articulated objects, with nonlinear optimization to find the optimal model at each joint. Section \ref{sec:models} introduces the mathematical foundations, and Section \ref{sec:implementation} follows with a schematic view of our implementation. We validate the system with several experiments in simulation and with real-world objects, detailed in Section \ref{sec:experiments}. Finally, Section \ref{sec:conclusion} discusses the many avenues for future research.
 
 \section{Kinematic and Probabilistic Models} \label{sec:models}
 
@@ -132,7 +132,7 @@ In the context of this paper, an \emph{articulated object} is a composite object
 
 Mathematically, the relative motion between two parts of an articulated object can be described as a trajectory through $SE(3)$, the space of rigid motions in 3D space. This is a group with six degrees of freedom. However, the presence of a 1-DOF joint restricts the relative motion to a one-dimensional manifold nonlinearly embedded in the six-dimensional configuration space. The problem of finding the joint is thus rephrased as choosing the shape of the manifold (i.e. the joint type) and the nature of its embedding (the joint parameters).
 
-Zooming out from the relative motion of two parts to the articulated object as a whole, we can describe its structure as a directed\footnote{Note that the graph is directed in that reversing the direction of an edge requires inverting the geometry of the joint; however, the joint type does not change.} graph, where the nodes are the parts of the object and the edges are annotated with joint types and parameters. An example graph describing the structure of a swivel chair is shown in Figure \ref{fig:Sswivel}. In this simplified swivel chair model, the main parts are the seat, base, backrest and wheels. The wheels turn, the seat swivels and is adjustable in height, and the backrest leans back (P stands for prismatic and R for revolute). Note that, with the seat as the root, the swivel chair can be kinematically described as a tree. This greatly simplifies the joint fitting for reasons that will become clear later, so we will make the assumption in the following that all kinematic graphs are trees. This assumption is, of course, false; even in the swivel chair example the wheels are normally on the ground so their rotations are locked together. For another example, humans have two hands which are normally independent, but when gripping something like a steering wheel or a ladder rung they are kinematically connected. This further reduces the degrees of the system as a whole (thereby simplifying the search space), but it cannot be represented in a tree, so the tree-based algorithm presented here will miss the simplification.
+Leaving the relative motion of two parts to now consider the articulated object as a whole, we can describe its structure as a directed\footnote{Note that the graph is directed in that reversing the direction of an edge requires inverting the geometry of the joint; however, the joint type does not change.} graph, where the nodes are the parts of the object and the edges are annotated with joint types and parameters. An example graph describing the structure of a swivel chair is shown in Figure \ref{fig:Sswivel}. In this simplified swivel chair model, the main parts are the seat, base, backrest and wheels. The wheels turn, the seat swivels and is adjustable in height, and the backrest leans back (P stands for prismatic and R for revolute). Note that, with the seat as the root, the swivel chair can be kinematically described as a tree. This greatly simplifies the joint fitting for reasons that will become clear later, so we will make the assumption in the following that all kinematic graphs are trees. This assumption is, of course, false; even in the swivel chair example the wheels are normally on the ground so their rotations are locked together. For another example, humans have two hands which are normally independent, but when gripping something like a steering wheel or a ladder rung they are kinematically connected. This further reduces the degrees of the system as a whole (thereby simplifying the search space), but it cannot be represented in a tree, so the tree-based algorithm presented here will miss the simplification.
 
         \begin{figure}[ht]
           \centering
@@ -158,7 +158,7 @@ Zooming out from the relative motion of two parts to the articulated object as a
         \end{figure}
 
 \subsection{Probabilistic Formulation of the Problem}
-To mathematically formulate the problem, we express the input data as a set of trajectories of $K$ distinct points on an articulated object:\footnote{In this paper, superscripts are used for numbering object parts or feature points, while subscripts are reserved for indexing in time. Where it makes sense, operations may be considered to be implicitly vectorized (i.e. $(x_{1..T}^a)^{-1}$ refers to $\{(x_1^a)^{-1}, (x_2^a)^{-1}), \dots\}$). Also, elements of $SE(3)$ will usually be shown \xsestr{} ($\xse{x}$), matrices in $\mathbb{R}^{3 \times 3}$ \xmatstr{} ($\xmat{m}$) and vectors in $\mathbb{R}^3$ \xvecstr{} ($\xvec{v}$).}
+To mathematically formulate the problem, we express the input data as a set of trajectories of $K$ distinct points on an articulated object:\footnote{In this paper, superscripts are used for numbering object parts, feature points or graph/tree edges, while subscripts are reserved for indexing in time. Where it makes sense, operations may be considered to be implicitly vectorized (i.e. $(\xse{x}_{1..T}^a)^{-1}$ refers to $\{(\xse{x}_1^a)^{-1}, (\xse{x}_2^a)^{-1}), \dots\}$). Also, elements of $SE(3)$ will usually be shown \xsestr{} ($\xse{x}$), matrices in $\mathbb{R}^{3 \times 3}$ \xmatstr{} ($\xmat{a}$) and vectors in $\mathbb{R}^3$ \xvecstr{} ($\xvec{v}$).}
 \begin{align}
   X = \{ \xse{x}_t^k \in SE(3) \mid k \in \{1..K\}, t \in \{1..T\} \}
 \end{align}
@@ -168,13 +168,13 @@ The points could be feature points from camera data, or VICON tracking output, o
 \end{align}
 such that the graph is connected and the trajectory data is satisfactorily explained. Each of the $N$ joints in the model is described by the above 3-tuple $M^i$ where $J$ identifies the joint type, while $\theta$ and $\sigma$ describe the joint parameters and configuration (see Section \ref{sec:joint-types}).
 
-Let $S$ be the set of all spanning trees of the connected graph of size $K$ (which will all have $K-1$ edges), and let $\xse{\Delta}_t^{i:j} = (\xse{x}_t^j)^{-1} \xse{x}_t^i$ be the relative transformation between object parts $i$ and $j$ at time $t$. For a given model $\bowler{E}$ we want to evaluate its likelihood $P(\bowler{E} \mid X)$ but in general this is hard to calculate, so we invoke Bayes' rule \begin{align} P(\bowler{E} \mid X) &= \frac{P(X \mid \bowler{E}) P(\bowler{E})}{P(X)} \end{align} which reformulates the problem in terms of $P(X \mid \bowler{E})$ (easier to calculate), $P(\bowler{E})$ (the model prior), and $P(X)$ (irrelevant for model selection). So we can select the best model using an argmax:
+Let $F$ be the set of all spanning trees of the complete graph of size $K$ (which all have $K-1$ edges), and let $\xse{\Delta}_t^{i:j} = (\xse{x}_t^j)^{-1} \xse{x}_t^i$ be the relative transformation between object parts $i$ and $j$ at time $t$. For a given model $\bowler{E}$ we want to evaluate its likelihood $P(\bowler{E} \mid X)$ but in general this is hard to calculate, so we invoke Bayes' rule \begin{align} P(\bowler{E} \mid X) &= \frac{P(X \mid \bowler{E}) P(\bowler{E})}{P(X)} \end{align} which reformulates the problem in terms of $P(X \mid \bowler{E})$ (easier to calculate), $P(\bowler{E})$ (the model prior), and $P(X)$ (irrelevant for model selection). So we can select the best model using an argmax:
 \begin{align}
-  \bowler{E} &= \max_E P(X \mid E) P(M) \\
-  &= \max_{E \in S} \prod_{i=1}^{K-1} \max_{M^i} P(X \mid M^i) P(M^i) \label{eqn:indep-joints}\\
-  &= \max_{E \in S} \prod_{i=1}^{K-1} \max_{M^i} \prod_{t=1}^T P(\xse{\Delta}_t^{a^i:b^i} \mid M^i) P(M^i) \label{eqn:indep-time}\\
-  &= \max_{E \in S} \sum_{i=1}^{K-1} \max_{M^i} \sum_{t=1}^T \log P(\xse{\Delta}_t^{a^i:b^i} \mid M^i) + \log P(M^i) \label{eqn:mle-log}\\
-  &\approx \min_{E \in S} \sum_{i=1}^{K-1} \min_{M^i} \sum_{t=1}^T ||\xse{\Delta}_t^{a^i:b^i} - fk_{J^i}(\theta^i, \sigma_t^i)|| + |\theta^i| \label{eqn:cost-aic}
+  \bowler{E} &= \max_E P(X \mid E) P(E) \\
+  &= \max_{E \in F} \prod_{i=1}^{K-1} \max_{M^i} P(X \mid M^i) P(M^i) \label{eqn:indep-joints}\\
+  &= \max_{E \in F} \prod_{i=1}^{K-1} \max_{M^i} \prod_{t=1}^T P(\xse{\Delta}_t^{a^i:b^i} \mid M^i) P(M^i) \label{eqn:indep-time}\\
+  &= \max_{E \in F} \sum_{i=1}^{K-1} \max_{M^i} \sum_{t=1}^T \log P(\xse{\Delta}_t^{a^i:b^i} \mid M^i) + \log P(M^i) \label{eqn:mle-log}\\
+  &\approx \min_{E \in F} \sum_{i=1}^{K-1} \min_{M^i} \sum_{t=1}^T ||\xse{\Delta}_t^{a^i:b^i} - fk_{J^i}(\theta^i, \sigma_t^i)|| + |\theta^i| \label{eqn:cost-aic}
 \end{align}
 
 % TODO explain AIC:
@@ -183,13 +183,13 @@ Let $S$ be the set of all spanning trees of the connected graph of size $K$ (whi
 
 As per usual in model selection over a large search space, we make several dubious independence assumptions in order to make the search tractable. In this case, we assume that
 \begin{inparaenum}[(a)]
-\item separate joints are independent (\ref{eqn:indep-joints}), and 
-\item the likelihood of a given model is independent across time (\ref{eqn:indep-time}).
+\item separate joints are independent, necessary for (\ref{eqn:indep-joints}), and 
+\item the likelihood of a given model is independent across time, expressed in (\ref{eqn:indep-time}).
 \end{inparaenum}
-Notice that maximizing likelihood is the same as maximizing log likelihood, so we can switch the products to sums without changing the outcome (\ref{eqn:mle-log}); lastly in (\ref{eqn:cost-aic}) we switch from maximizing likelihood to minimizing the Akaike Information Criterion \cite{Liddle2008}. In this final form, the choice of $g \in G$ can be executed by building a complete graph of all $K$ parts, weighting each edge with the AIC of the model best explaining the corresponding joint, and then finding the minimum spanning tree (see Figure \ref{fig:block-algo}). The definitions for the distance metric $||x-y||$ in this space and the forward kinematics $fk(\theta,\sigma)$ are given in sections \ref{sec:metric} and \ref{sec:joint-types} respectively.
+Notice that maximizing likelihood is the same as maximizing log likelihood, so we can switch the products to sums without changing the outcome, as in (\ref{eqn:mle-log}); lastly in (\ref{eqn:cost-aic}) we switch from maximizing likelihood to minimizing the Akaike Information Criterion \cite{Liddle2008}. In this final form, the choice of $E \in F$ can be executed by building a complete graph of all $K$ parts, weighting each edge with the AIC of the model which  best explains the corresponding joint, and then finding the minimum spanning tree (see Figure \ref{fig:block-algo}). The definitions for the distance metric $||x-y||$ in this space and the forward kinematics $fk(\theta,\sigma)$ are given in sections \ref{sec:metric} and \ref{sec:joint-types} respectively.
 
 \subsection{A pseudo-Riemannian Distance Metric on $SE(3)$}\label{sec:metric}
-A central problem in the mathematics of trajectory fitting is defining a distance function in trajectory space. Sturm did not discuss this problem in \cite{Sturm2011}, but as implemented\footnote{see the functions \texttt{GenericModel::getInlierLogLikelihood} and \texttt{my\char"5Fdf} in \url{http://alufr-ros-pkg.googlecode.com/svn/trunk/articulation/articulation_models/src/models/generic_model.cpp}} that system uses a zero-mean, two-dimensional Gaussian distribution with diagonal covariance on the rotation angle and translation magnitude. That is, to find the ``distance'' $l_S(\xse{u},\xse{v})$ between two $SE(3)$ transformations, first find the relative transformation $\xse{u}^{-1}*\xse{v}$. Any such transformation can be expressed as the composition of a rotation $\xmat{r}$ and a translation $\xvec{t}$, and taking the axis-angle view we can extract a single angle $\theta$ from the rotation, so that Sturm et al.'s metric is
+A central problem in the mathematics of trajectory fitting is defining a distance function in trajectory space. Sturm did not discuss this problem in \cite{Sturm2011}, but as implemented\footnote{Not explicitly mentioned in \cite{Sturm2011}, but see the function \texttt{GenericModel::getInlierLogLikelihood}, available at \url{http://alufr-ros-pkg.googlecode.com/svn/trunk/articulation/articulation_models/src/models/generic_model.cpp}} that system uses a zero-mean, two-dimensional Gaussian distribution with diagonal covariance on the rotation angle and translation magnitude. That is, to find the ``distance'' $l_S(\xse{u},\xse{v})$ between two $SE(3)$ transformations, first find the relative transformation $\xse{u}^{-1}*\xse{v}$. Any such transformation can be expressed as the composition of a rotation $\xmat{r}$ and a translation $\xvec{t}$, and taking the axis-angle view we can extract a single angle $\theta$ from the rotation, so that Sturm et al.'s metric is
 \begin{align}
   l_S(\xse{u},\xse{v}) &= \frac{1}{2\pi \sigma_r \sigma_t} \exp\left\{-\frac{1}{2}\left( \frac{\theta^2}{\sigma_r^2} + \frac{||\xvec{t}||^2}{\sigma_t^2} \right)\right\} \label{eqn:sturm-objective}
 \end{align}
@@ -197,9 +197,9 @@ with suitably defined variances $\sigma_r$ and $\sigma_t$. In this section, we w
 
 $SE(3)$ is not a Euclidean space because three of its six degrees of freedom describe rotations, which are topologically distinct from translational dimensions. Therefore it is not so easy to find a natural distance metric on $SE(3)$. However, we need one, in order to evaluate the likelihood of a candidate joint model with regards to data (\ref{eqn:cost-aic}). In this work we will use the scale-dependent left-invariant metric derived by Park \cite{Park1995}, though other choices are available (e.g. Belta and Kumar \cite{Belta2002}, Larochelle et al \cite{Larochelle2007}).
 
-A distance metric must be symmetric, positive definite, and satisfy the triangle inequality. Additional desirable properties are scale-invariance ($||a-b||$ should not depend on the units of each dimension) and bi-invariance (left $||a-b|| = ||ca-cb||$ and right $||a-b|| = ||ac-bc||$). Unfortunately it can be shown \cite{Park1995} that in $SE(3)$ scale invariance is impossible, and we have to choose between left- and right-invariance. Luckily, however, $SE(3)$ is a Lie group, so we can use techniques from calculus to derive an acceptable metric. The main idea is, given two points $a, b \in SE(3)$, the distance is defined as a line integral along a geodesic from $a$ to $b$ (the shortest path, or an approximation thereto) \emph{in the Lie algebra $\mathfrak{se}(3)$}. This is called a Riemannian metric. (Since the Lie algebra is comparable to a derivative, imagine measuring the length of an airplane's flight path by dividing it into many short segments and summing the lengths of each segment as if the Earth were piecewise flat.)
+A distance metric must be symmetric, positive definite, and satisfy the triangle inequality. Additional desirable properties are scale-invariance ($||a-b||$ should not depend on the units of each dimension) and bi-invariance (left $||a-b|| = ||ca-cb||$ and right $||a-b|| = ||ac-bc||$). Unfortunately it can be shown that in $SE(3)$ scale invariance is impossible, and we have to choose between left- and right-invariance \cite{Park1995}. Fortunately, however, $SE(3)$ is a Lie group, so we can use techniques from calculus to derive an acceptable metric. The main idea is, given two points $a, b \in SE(3)$, the distance is defined as a line integral along a geodesic from $a$ to $b$ (the shortest path, or an approximation thereto) \emph{in the Lie algebra $\mathfrak{se}(3)$}. This is known as a Riemannian metric. (Since the Lie algebra is comparable to a derivative, one may imagine measuring the length of an airplane's flight path by dividing it into many short segments and summing the lengths of each segment as if the globe were piecewise flat.)
 
-An element of $SE(3)$ may be considered as a $4 \times 4$ matrix containing a rotation and a translation
+An element of $SE(3)$ may be viewed as a $4 \times 4$ matrix containing a rotation and a translation
 \begin{align}
   \xse{u} &= \mat{c|c}{ u_R \in \mathbb{R}^{3 \times 3} & u_T \in \mathbb{R}^{3 \times 1} \\\hline 0 & 1 }
 \end{align}
@@ -207,13 +207,13 @@ and its Lie algebra $\mathfrak{se}(3)$ has six-dimensional elements $(\omega, v)
 \begin{align}
   \exp{\mat{c|c}{ \omega_\times & v \\\hline 0 & 0 }} &= \mat{c|c}{ e^{\omega_\times} & Av \\\hline 0 & 1}
 \end{align}
-where $\omega_\times$ is the skew-symmetric cross product matrix and $A$ is defined thusly
+where $\omega_\times$ (the skew-symmetric cross product matrix) and $A$ are defined thusly
 \begin{align}
   \omega_\times &= \mat{ccc}{ 0 & -\omega_3 & \omega_2 \\ \omega_3 & 0 & -\omega_1 \\ -\omega_2 & \omega_1 & 0 } \\
   e^{\omega_\times} &= I + \frac{\sin||\omega||}{||\omega||} \omega_\times + \frac{1 - \cos{||\omega||}}{||\omega||^2} \omega_\times^2 \\
   A &= I + \frac{1 - \cos{||\omega||}}{||\omega||^2} \omega_\times + \frac{||\omega|| - \sin{||\omega||}}{||\omega||^3} \omega_\times^2
 \end{align}
-These formulae are from Park \cite{Park1995}, and serve to show that the correspondence between $SE(3)$ and $\mathfrak{se}(3)$ is well-defined, but it will not be necessary to use them explicitly. The metric used in this work, which is scale-dependent and right-invariant, is
+These formulae are from Park \cite{Park1995}, and serve to verify that the correspondence between $SE(3)$ and $\mathfrak{se}(3)$ is well-defined, but it will not be necessary to use them explicitly. The metric used in this work, which is scale-dependent\footnote{In this work, the scale constants $c=2$ and $d=1$ are used in (\ref{eqn:metric}), but further exploration of this parameter space may be desirable.} and right-invariant, is
 \begin{align}
   l&(\xse{u},\xse{v}) : SE(3) \times SE(3) \longrightarrow \mathbb{R} \\
   l&(\xse{u},\xse{v}) = \sqrt{c ||\log(\xmat{u}_R^T \xmat{v}_R)||_F^2 + d ||\xvec{u}_T - \xvec{v}_T||^2} \nonumber
@@ -325,7 +325,7 @@ In the future, it would make sense to add more joint types so that our kinematic
 Currently the algorithm presented here is implemented in MATLAB. The code will be available online.\footnote{\url{http://www.alexburka.com/penn/manip.html}}
 
 \subsection{Algorithm Overview} \label{sec:algorithm}
-An overview of the major stages in the learning algorithm is presented in Figure \ref{fig:block-algo}. The procedure is designed to be modular, with most components interchangeable -- for example, the perception could use a Kinect or a laser scanner, the smoothing could use a Kalman filter instead of the current generic low-pass, et cetera.
+An overview of the major stages in the learning algorithm is presented in Figure \ref{fig:block-algo}. The procedure is designed to be modular, with most components interchangeable -- for example, the perception could use a Kinect or a laser scanner, the smoothing could use a Kalman filter instead of the current generic low-pass -- this is beneficial for future development of the system.
 
 \begin{figure}[ht]
   \begin{tikzpicture}[auto, >=latex']
@@ -380,7 +380,7 @@ The last step is \emph{rigid subcluster elimination}, which eliminates all rigid
     Joint type & Parameters & Prepend rigid $\xse{q}$ & Append rigid $\xse{q}$ \\
     \hline
     Rigid & $\xse{o}$ & $\xse{o} \leftarrow \xse{o}*\xse{q}$ & $\xse{o} \leftarrow \xse{q}*\xse{o}$ \\
-    Prismatic & $\xse{o}, \xvec{u}$ & $\xse{o} \leftarrow \xse{o}*\xse{q}$ & $\xse{o} \leftarrow \xse{q}*\xse{o},~ ~ \xvec{u} \leftarrow \xmat{q}_R*\xvec{u}$ \\
+    Prismatic & $\xse{o}, \xvec{u}$ & $\xse{o} \leftarrow \xse{o}*\xse{q}$ & $\xse{o} \leftarrow \xse{q}*\xse{o}$ \\&&& $\xvec{u} \leftarrow \xmat{q}_R*\xvec{u}$ \\
     Revolute & $\xse{c}, \xse{r}$ & $\xse{c} \leftarrow \xse{c}*\xse{q}$ & $\xse{r} \leftarrow \xse{q}*\xse{r}$ \\
   \end{tabular}
   \caption{Incorporating rigid offsets into joints}
@@ -507,7 +507,7 @@ For this experiment we drew several kinematic trees representing imaginary objec
 \end{enumerate}
 
 \subsubsection{Results}
-Figure \ref{fig:exp1} shows the effect of changing the simulator noise parameter on matching performance. The experiment was run 4 times at each of 4 noise settings and 4 inflation settings; results are shown with no inflation. At the top of the figure is the tree used to generate all the simulations. The plots show the algorithm attempting to model the prismatic joint, at three noise levels. With low noise, this is successful; at high noise levels the fit incorrectly produces three revolute joints.
+Figure \ref{fig:exp1} shows the effect of changing the simulator noise parameter on matching performance. The experiment was run 4 times at each of 4 noise settings and 4 inflation settings; results are shown with no inflation. At the top of the figure is the tree used to generate all the simulations. The plots show the algorithm attempting to model the prismatic joint, at three noise levels. With low noise, this is successful; at high noise levels the fit produces three revolute joints, which is incorrect but understandable, given the near-random appearance of the trajectory on the right side of Figure \ref{fig:exp1}.
 
 \begin{figure}[ht]
   \tikzstyle{cylinder} = [draw,
@@ -689,7 +689,7 @@ Figure \ref{fig:exp2} shows a trace through time of the commands sent to the bas
 \begin{figure}[ht]
   \centering
   %\framebox[0.4\textwidth]{\raisebox{0pt}[0.07\textwidth][0.07\textwidth]{Visualizations coming soon}}
-  \includegraphics[width=.4\textwidth]{img/exp2b.png}
+  \includegraphics[width=.4\textwidth]{img/exp2b.eps}
   \vspace{-.1in}
   \caption{Commanded and detected angles for one joint of the robotic arm in Experiment 2.}
   \label{fig:exp2}
