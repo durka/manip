@@ -340,7 +340,7 @@ if isempty(X)
     return;
 end
 
-learned = manip_learn(X, false);
+learned = manip_learn(X, true);
 assignin('base', 'SS', learned);
 setappdata(handles.stuff, 'GUESS', learned);
 draw_tree(handles.tree_out, learned, 0);
@@ -465,7 +465,7 @@ as = 1:n;
 if ~ok; return; end;
 a = as(a);
 b = n+1;
-joints = {'rigid', 'prismatic', 'revolute'};
+joints = {'rigid', 'prismatic', 'revolute', 'screw'};
 [joint, ok] = listdlg('Name', 'Joint type?', ...
                       'ListString', joints, ...
                       'SelectionMode', 'single', ...
