@@ -81,13 +81,15 @@ function s = learn_joint(X,f,dims,dbg, a,b, check)
 
     options = optimset('fmincon');
     options = optimset(options, 'Algorithm', 'sqp');
-    options = optimset(options, 'GradObj', 'on');
+    %options = optimset(options, 'GradObj', 'on');
+    %options = optimset(options, 'DerivativeCheck', 'on');
     %options = optimset(options, 'GradConstr', 'on');
     options = optimset(options, 'MaxFunEvals', 1e10);
     options = optimset(options, 'MaxIter', 1e10);
     options = optimset(options, 'Display', 'off');
     options = optimset(options, 'Diagnostics', 'off');
 
+    if false
     [rigid_fit, rigid_err, flag, output] = fmincon(...
                          @(p) jointfit(deltas, ...
                                        p, ...
@@ -134,7 +136,8 @@ function s = learn_joint(X,f,dims,dbg, a,b, check)
                          options);
     revolute_params = unpack_revolute(revolute_fit);
     dbg('\t\tRevolute joint (%d steps, err=%g, flag=%d): c=%s o=%s\n', output.iterations, revolute_err, flag, format_SE(revolute_params{1}, 3), format_SE(revolute_params{2}, 3));
-
+    end
+    
     [screw_fit, screw_err, flag, output] = fmincon(...
                          @(p) jointfit(deltas, ...
                                        p, ...
@@ -150,10 +153,10 @@ function s = learn_joint(X,f,dims,dbg, a,b, check)
     screw_params = unpack_screw(screw_fit);
     dbg('\t\tScrew joint (%d steps, err=%g, flag=%d): c=%s o=%s p=%g\n', output.iterations, screw_err, flag, format_SE(screw_params{1}, 3), format_SE(screw_params{2}, 3), screw_params{3});
     
-    names = {'rigid', 'prismatic', 'revolute'};
-    fits = {rigid_fit, prismatic_fit, revolute_fit};
-    params = {rigid_params, prismatic_params, revolute_params};
-    errs = [rigid_err, prismatic_err, revolute_err];
+    names = {'rigid', 'prismatic', 'revolute', 'screw'};
+    fits = cellfun(@(f) evalin('caller', [f '_fit']), names, 'UniformOutput',false);
+    params = cellfun(@(f) evalin('caller', [f '_params']), names, 'UniformOutput',false);
+    errs = cellfun(@(f) evalin('caller', [f '_err']), names);
     crits = errs + cellfun(@length, fits); % TODO need weights here
     [best_crit, best] = min(crits);
     dbg('\tBest %d-%d: %s (bics %s)\n', a, b, names{best}, mat2str(crits, 3));
