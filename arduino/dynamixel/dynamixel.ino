@@ -40,13 +40,21 @@ void shut_down_everything()
 
 void read_motor_position(int motor)
 {
-    Serial.print("Motor #"); Serial.print(motor); Serial.print(" position = "); Serial.println(Dynamixel.readPosition(motor));
+    Serial.print("Motor #");
+    Serial.print(motor);
+    Serial.print(" position = ");
+    Serial.print(Dynamixel.readPosition(motor));
+    Serial.print(", load = ");
+    Serial.println(Dynamixel.readLoad(motor));
 }
 
 void move_motor_to(int motor, int goal)
 {
   Dynamixel.moveSpeed(motor, goal, g_speed);
-  Serial.print("Moving motor #"); Serial.print(motor); Serial.print(" to position "); Serial.println(goal);
+  Serial.print("Moving motor #");
+  Serial.print(motor);
+  Serial.print(" to position ");
+  Serial.println(goal);
 }
 
 void process_command(const char buf[])
