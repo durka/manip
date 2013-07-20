@@ -17,6 +17,7 @@
 
 #include "watcher.h"
 #include "processor.h"
+#include "graphics.h"
 #include "writer.h"
 
 using namespace std;
@@ -51,22 +52,25 @@ int main(int argc, char *argv[])
     }
 
     // some queues
-    QueueRaw qraw;
-    QueueCooked qcooked;
+    QueueRaw qwp;
+    QueueCooked qpg, qpw;
 
     // wire up the threads
-    Watcher eagle(cout, cerr, qraw);
-    Processor intelinside(cout, cerr, qraw, qcooked);
-    Writer scribe(cout, cerr, qcooked);
+    Watcher eagle(cout, cerr, qwp);
+    Processor intelinside(cout, cerr, qwp, qpg, qpw);
+    Graphics painter(cout, cerr, qpg);
+    Writer scribe(cout, cerr, qpw);
 
     // setup input and output
     if (!eagle.setup(argv[1])) return 1;
     if (!intelinside.setup(argv[5], argv[6])) return 1;
+    if (!painter.setup()) return 1;
     if (!scribe.setup(argv[2], argv[3], argv[4])) return 1;
 
     // spin up some threads!
     eagle.start();
     intelinside.start();
+    painter.start();
     scribe.start();
 
     // catch ctrl-c
@@ -85,6 +89,7 @@ int main(int argc, char *argv[])
     cout << "waiting for threads..." << endl;
     eagle.kill();
     intelinside.kill();
+    painter.kill();
     scribe.kill();
 
     return 0;

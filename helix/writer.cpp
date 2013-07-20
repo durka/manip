@@ -40,9 +40,6 @@ namespace acquire
             }
         }
 
-        // gui
-        namedWindow(prefix);
-
         return true;
     }
 
@@ -83,9 +80,6 @@ namespace acquire
             }
             data << endl;
         }
-
-        imshow(prefix, pkt.dirty);
-        waitKey(1);
 
         return true;
     }

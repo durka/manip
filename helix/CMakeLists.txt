@@ -17,8 +17,9 @@ set(all_libs ${OpenCV_LIBS} ${aruco_LIBS} ${Boost_LIBRARIES})
 add_library(flexvideo flexvideo.cpp)
 add_library(watcher watcher.cpp)
 add_library(processor processor.cpp)
+add_library(graphics graphics.cpp)
 add_library(writer writer.cpp)
 
 add_executable(acquire acquire.cpp)
-target_link_libraries(acquire watcher processor writer flexvideo ${all_libs})
+target_link_libraries(acquire watcher processor graphics writer flexvideo ${all_libs})
 

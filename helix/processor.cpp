@@ -59,7 +59,8 @@ namespace acquire
             cooked.dirty = raw.image.clone();
         }
 
-        qo.push(cooked);
+        qo1.push(cooked);
+        qo2.push(cooked);
         return true;
     }
 
