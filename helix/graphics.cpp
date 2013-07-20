@@ -26,7 +26,6 @@ namespace acquire
         q.wait_and_pop(pkt);
 
         // TODO
-        // - scale down and show both images
         // - support "scroll lock"
 
         static double ticks = getTickCount(), fps = 0;
@@ -35,11 +34,15 @@ namespace acquire
             ticks = getTickCount();
         }
 
+        Mat image(pkt.dirty.rows/2, pkt.dirty.cols, pkt.dirty.type());
+        resize(pkt.clean, Mat(image, Rect(0, 0, pkt.dirty.cols/2, pkt.dirty.rows/2)), Size(), 0.5, 0.5, CV_INTER_AREA);
+        resize(pkt.dirty, Mat(image, Rect(pkt.dirty.cols/2, 0, pkt.dirty.cols/2, pkt.dirty.rows/2)), Size(), 0.5, 0.5, CV_INTER_AREA);
+
         ostringstream fps_str;
         fps_str << "FPS: " << fps;
-        putText(pkt.dirty, fps_str.str(), cvPoint(50, 50), FONT_HERSHEY_PLAIN, 1, cvScalar(255,0,0));
+        putText(image, fps_str.str(), cvPoint(50, 50), FONT_HERSHEY_PLAIN, 1, cvScalar(255,0,0));
         
-        imshow(prefix, pkt.dirty);
+        imshow(prefix, image);
         waitKey(10);
 
         return true;

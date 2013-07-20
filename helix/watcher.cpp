@@ -40,7 +40,7 @@ namespace acquire
             pkt.time = time(NULL);
             captor.retrieve(pkt.image);
             q.push(pkt);
-            usleep(33333);
+            usleep(40000);
             return true;
         }
     }
