@@ -10,18 +10,15 @@ namespace acquire
     using namespace std;
     using namespace aruco;
 
-    bool Processor::setup(string intrinsics_, string marker_size_)
+    bool Processor::setup(string intrinsics_, float marker_size_)
     {
         // read camera intrinsics
+        tout() << "reading intrinscs from " << intrinsics_ << endl;
         intrinsics.readFromXMLFile(intrinsics_); // notwithstanding it's actually YAML ...?
         // intrinsics.resize(image.size()); // let's see if we can get away with skipping this
 
-        // marker size, maybe
-        if (marker_size_.length() > 0) {
-            marker_size = atof(marker_size_.c_str());
-        } else {
-            marker_size = -1;
-        }
+        tout() << "detecting markers of size " << marker_size_ << " (-1 means no detection)" << endl;
+        marker_size = marker_size_;
 
         // some parameters
         detective.setCornerRefinementMethod(MarkerDetector::SUBPIX);

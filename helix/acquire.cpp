@@ -6,7 +6,7 @@
 #include <ctime>
 #include <signal.h>
 #include <boost/thread.hpp>
-#include <boost/atomic.hpp>
+#include <boost/program_options.hpp>
 #include "aruco/aruco.h"
 #include "aruco/cvdrawingutils.h"
 
@@ -22,6 +22,7 @@
 
 using namespace std;
 using namespace boost;
+namespace opt = boost::program_options;
 using namespace cv;
 using namespace aruco;
 using namespace acquire;
@@ -45,9 +46,31 @@ void handle_sigint(int s)
 
 int main(int argc, char *argv[])
 {
-    if (argc != 7) {
-        cerr << "Invalid number of arguments" << endl;
-        cerr << "Usage: " << argv[0] << " (in.avi|live) out_clean_%d.jpg out_dirty_%d.jpg out.txt intrinsics.yml marker_size" << endl;
+    opt::options_description desc("Manip acquisition utility\nAllowed options");
+    desc.add_options()
+        ("help,h",                                                                  "print short help")
+        ("source,s",          opt::value<string>()->default_value("live"),          "video source: \"live\", video file, or filename pattern")
+        ("outdir,d",          opt::value<string>()->default_value("."),             "output directory")
+        ("outname,o",         opt::value<string>()->default_value(""),              "output filename prefix\n\tclean images: {dir}/{name}_clean_%d.jpg\n\tdirty images: {dir}/{name}_dirty_%d.jpg\n\tdata log: {dir}/{name}.txt\n\tempty string: no output")
+        ("intrinsics,i",      opt::value<string>()->default_value("MacBookAir5,2"), "camera intrinsics (built-in model name)")
+        ("intrinsics-file,f", opt::value<string>(),                                 "camera intrinsics (YAML/XML file)")
+        ("marker-size,m",     opt::value<float>(),                                  "marker size in arbitrary units");
+
+    opt::variables_map args;
+    try {
+        opt::store(opt::parse_command_line(argc, argv, desc), args);
+        opt::notify(args);
+
+        if (argc == 1 || args.count("help")) {
+            cerr << desc << endl;
+            return 0;
+        }
+        if (args.count("intrinsics") && args.count("intrinsics-file")) {
+            cerr << "You passed both a camera model name and an intrinsics file. Pick one." << endl << desc << endl;
+            return 1;
+        }
+    } catch (std::exception& e) {
+        cerr << e.what() << endl << desc << endl;
         return 1;
     }
 
@@ -62,10 +85,20 @@ int main(int argc, char *argv[])
     Writer scribe(cout, cerr, qpw);
 
     // setup input and output
-    if (!eagle.setup(argv[1])) return 1;
-    if (!intelinside.setup(argv[5], argv[6])) return 1;
-    if (!painter.setup()) return 1;
-    if (!scribe.setup(argv[2], argv[3], argv[4])) return 1;
+    try {
+        if (!eagle.setup(args["source"].as<string>())) return 1;
+        if (!intelinside.setup(args.count("intrinsics-file")
+                                    ? args["intrinsics-file"].as<string>()
+                                    : SHARE_PREFIX + string("/") + args["intrinsics"].as<string>() + string(".yml"),
+                               args.count("marker-size")
+                                    ? args["marker-size"].as<float>()
+                                    : -1)) return 1;
+        if (!painter.setup()) return 1;
+        if (!scribe.setup(args["outdir"].as<string>(), args["outname"].as<string>())) return 1;
+    } catch (std::exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 
     // spin up some threads!
     eagle.start();

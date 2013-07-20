@@ -9,6 +9,7 @@ namespace acquire
 
     typedef concurrent_queue<acquire::RawPacket> QueueRaw;
     typedef concurrent_queue<acquire::CookedPacket> QueueCooked;
+    template<typename T> struct pthreadfunc { typedef int (*type)(pthread_attr_t*, T); };
 
     class WorkerThread
     {
@@ -17,7 +18,20 @@ namespace acquire
                 : out(out_),err(err_), prefix("[" + prefix_ + "] ") {}
             void start()
             {
-                yarn = boost::thread(&WorkerThread::thread, this);
+                start(boost::thread::attributes());
+            }
+            template<typename T, int N> void start(typename pthreadfunc<T>::type func[N], T param[N])
+            {
+                boost::thread::attributes attrs;
+                for (int i = 0; i < N; ++i)
+                {
+                    func[i](attrs.native_handle(), param[i]);
+                }
+                start(attrs);
+            }
+            void start(boost::thread::attributes attrs)
+            {
+                yarn = boost::thread(attrs, boost::bind(&WorkerThread::thread, this));
             }
             void kill()
             {

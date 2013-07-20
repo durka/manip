@@ -11,26 +11,20 @@ namespace acquire
     using namespace cv;
     using namespace aruco;
 
-    bool Writer::setup(string clean_fmt_, string dirty_fmt_, string data_path)
+    bool Writer::setup(string outdir, string outname)
     {
         // open video outputs
-        if (clean_fmt_.find("%d") == string::npos) {
+        if (outname == "") {
             clean_fmt = "";
+            dirty_fmt = "";
         } else {
-            clean_fmt = clean_fmt_;
+            clean_fmt = outdir + "/" + outname + "_clean_%d.jpg";
+            dirty_fmt = outdir + "/" + outname + "_dirty_%d.jpg";
             tout() << "Writing clean images to " << clean_fmt << endl;
-        }
-        if (dirty_fmt.find("%d") == string::npos) {
-            dirty_fmt_ = "";
-        } else {
-            dirty_fmt = dirty_fmt_;
             tout() << "Writing dirty images to " << dirty_fmt << endl;
-        }
-        // here we trust the user to give good format strings
-        // this is obviously a security vulnerability
-
-        // open text output
-        if (data_path.length() > 0) {
+            
+            // open text output
+            string data_path = outdir + "/" + outname + ".txt";
             data.open(data_path.c_str());
             if (!data.is_open()) {
                 terr() << "Failed to open text output " << data_path << "!" << endl;

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <boost/chrono.hpp>
 #include "acquire.h"
 #include "flexvideo.h"
 #include "aruco/cvdrawingutils.h"
@@ -9,6 +10,7 @@ namespace acquire
 {
     using namespace std;
     using namespace cv;
+    using namespace boost::chrono;
 
     bool Watcher::setup(string path)
     {
@@ -32,6 +34,8 @@ namespace acquire
 
         if (lameduck) return false;
 
+        steady_clock::time_point start = steady_clock::now();
+
         if (!captor.grab()) {
             return false;
         } else {
@@ -40,7 +44,7 @@ namespace acquire
             pkt.time = time(NULL);
             captor.retrieve(pkt.image);
             q.push(pkt);
-            usleep(40000);
+            boost::this_thread::sleep_until(start + milliseconds(50));
             return true;
         }
     }

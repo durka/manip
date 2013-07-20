@@ -12,7 +12,7 @@ namespace acquire
         public:
             Writer(ostream& out_, ostream& err_, QueueCooked& q_)
                 : WorkerThread(out_, err_, "writer thread"), q(q_) {}
-            bool setup(string clean_fmt_, string dirty_fmt_, string data_path);
+            bool setup(string outdir, string outname);
 
         private:
             bool loop(bool lameduck);

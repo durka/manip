@@ -11,7 +11,7 @@ namespace acquire
         public:
             Processor(ostream& out_, ostream& err_, QueueRaw& qi_, QueueCooked& qo1_, QueueCooked& qo2_)
                 : WorkerThread(out_, err_, "processing thread"), qi(qi_), qo1(qo1_), qo2(qo2_) {}
-            bool setup(string intrinsics_, string marker_size_);
+            bool setup(string intrinsics_, float marker_size_);
 
         private:
             bool loop(bool lameduck);
