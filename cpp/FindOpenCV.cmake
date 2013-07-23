@@ -53,6 +53,7 @@ find_path(OpenCV_DIR "OpenCVConfig.cmake" DOC "Root directory of OpenCV")
 ##====================================================
 ## Find OpenCV libraries
 ##----------------------------------------------------
+message(STATUS "OpenCV_DIR=${OpenCV_DIR}")
 if(EXISTS "${OpenCV_DIR}")
 
         #When its possible to use the Config script use it.

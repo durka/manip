@@ -2,13 +2,14 @@ cmake_minimum_required (VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ".")
 project (kinematic_arboretum)
 
-find_package (OpenCV REQUIRED)
+set(OpenCV_DIR "/usr/local/opt/opencv/share/OpenCV")
+find_package(OpenCV REQUIRED)
+find_package(Boost COMPONENTS system thread REQUIRED)
+message("boost libraries are at " ${Boost_LIBRARIES})
 
-message (STATUS "opencv libs: " ${OpenCV_LIBS})
+include_directories(../aruco/src)
+link_directories(../aruco/src)
 
-include_directories (aruco)
-link_directories (aruco)
-
-add_executable (aruco_tracker aruco_tracker.cpp)
-target_link_libraries (aruco_tracker ${OpenCV_LIBS} aruco)
+add_executable(aruco_tracker aruco_tracker.cpp)
+target_link_libraries(aruco_tracker ${OpenCV_LIBS} aruco ${Boost_LIBRARIES})
 
