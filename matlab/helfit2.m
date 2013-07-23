@@ -1,4 +1,4 @@
-function [origin, radius, caxis, pitch, plane, theta] = helfit2(X,a,b, opt) % X is FxNx4x4
+function [origin, radius, caxis, pitch, plane, theta] = helfit2(Y, opt)
 
 figure(evalin('base', 'fhf2'));
 clf;
@@ -7,8 +7,6 @@ if ~exist('opt', 'var')
     opt = false;
 end
 
-deltas = calc_deltas(X, a, b);
-Y = cell2mat(cellfun(@(d) subsref((d*[0;0;0;1])', substruct('()', {1:3})), deltas, 'UniformOutput',false));
 
 % new axis plan made up from scratch
 
@@ -60,11 +58,12 @@ for j=1:size(Y,1)
 end
 p = polyfit(unwrap(theta), Y*caxis', 1);
 pitch = p(1);
+offset = p(2);
 
 if opt
     % do the extra optimization (from Aqvist paper)
     
-    do_plot(211, Y, Y_p3, origin, caxis, plane, theta, radius, pitch);
+    do_plot(211, Y, Y_p3, origin, caxis, plane, theta, radius, pitch, offset);
     
     origin, radius, caxis, pitch
     
@@ -86,17 +85,31 @@ if opt
                          [min(Y(:,1)) min(Y(:,2)) min(Y(:,3)), -1 -1 -1]-10, ...
                          [max(Y(:,1)) max(Y(:,2)) max(Y(:,3)),  1  1  1]+10, ... % no upper limit
                          @constraint, ...
-                         options);
+                         options)
     
    origin = fit(1:3)';
    caxis = fit(4:6)';
+   'the fit is', fit
    
    % recalculate the stuff
    plane = createPlane(origin', caxis');
    Y_p3 = projPointOnPlane(Y, plane);
    Y_p2 = planePosition(Y_p3, plane);
-   origin_p2 = planePosition(origin', plane);
+   %origin_p2 = planePosition(origin', plane);
+   origin_p2 = find_center(Y_p2);
+   origin = planePoint(plane, origin_p2)';
    radius = mean(sqrt(sum(bsxfun(@minus, Y_p2, origin_p2).^2, 2)));
+   
+   % slide the origin "down" along the axis
+   'the weird part', size(origin), size(Y), size(caxis)
+   origin = origin + caxis*min(bsxfun(@minus, Y, origin')*caxis);
+   plane = createPlane(origin', caxis');
+   Y_p3 = projPointOnPlane(Y, plane);
+   Y_p2 = planePosition(Y_p3, plane);
+   %origin_p2 = planePosition(origin', plane);
+   origin_p2 = find_center(Y_p2);
+   origin = planePoint(plane, origin_p2)';
+   radius = median(sqrt(sum(bsxfun(@minus, Y_p2, origin_p2).^2, 2)));
    
    % STEP 2: helix pitch
    % departing from the paper here because it doesn't make any sense
@@ -105,44 +118,62 @@ if opt
    %pa = circ(1:2);
    %a = planePoint(plane, pa)';
    theta = zeros(N,1);
+   thetac = zeros(N,1);
+   thetas = zeros(N,1);
    for j=1:size(Y,1)
        theta(j) = atan2((Y_p2(j,2) - origin_p2(2)), (Y_p2(j,1) - origin_p2(1)));
+       thetac(j) = real(acos((Y_p2(j,1) - origin_p2(1))/radius));
+       thetas(j) = real(asin((Y_p2(j,2) - origin_p2(2))/radius));
    end
-   p = polyfit(unwrap(theta), Y*caxis, 1);
-   pitch = p(1);
+   p = robustfit(sort(unwrap(theta)), sort(bsxfun(@minus, Y, origin')*caxis));
+   pitch = p(2);
+   offset = p(1);
+   
+   subplot(211);
+   plot(unwrap(theta), bsxfun(@minus, Y, origin')*caxis, unwrap(theta), pitch*unwrap(theta)+offset, unwrap(theta), unwrap(thetac), unwrap(theta), unwrap(thetas), unwrap(theta), Y_p2(:,2) - origin_p2(2), unwrap(theta), Y_p2(:,1) - origin_p2(1));
+   title(sprintf('pitch=%g\t\toffset=%g', pitch, offset));
+   
    
 end
 
-do_plot(212, Y, Y_p3, origin, caxis, plane, theta, radius, pitch);
+do_plot(212, Y, Y_p3, origin, caxis, plane, theta, radius, pitch, offset);
 
-%if ~opt
+if ~opt
     subplot(211);
     %plot(1:N, unwrap(theta), 1:N, Y*caxis');
     plot(cellfun(@(d) dot(d(1:3,1), caxis), deltas));
-%end
+end
 
 origin, radius, caxis, pitch
 
 end
 
-function do_plot(sp, y, yp, or, ca, pl, th, ra, pit)
+function do_plot(sp, y, yp, or, ca, pl, th, ra, pit, off)
 
-    if dot(ca, y(1,:)) < 0
-        ca = -ca;
-    end
+    %th = th(1:end/4);
+    %y = y(1:end/4,:);
+
+    %if dot(ca, y(1,:)) < 0
+    %    ca = -ca;
+    %end
 
     % some hacky forward kinematics up in here
+    rot = vrrotvec2mat([cross([0 0 1], ca) real(acos(dot([0 0 1], ca)))]);
+    [ts, rs] = extract_SE([rot' [0;0;0]; 0 0 0 1])
+    hack = pi/2%real(acos(rs(1)))
     th = unwrap(th);
-    th = th - min(th);
-    fprintf('theta goes from %g to %g\n', min(th), max(th));
-    th = linspace(min(th), 2*max(th)-min(th), 1000)';
-    x = [cos(th)*ra sin(th)*ra th*pit];
-    x = x*vrrotvec2mat([cross([0 0 1], ca) real(acos(dot([0 0 1], ca)))])'; % rotate it so the z-axis is correct by rotating around cross(current Z, target Z) by acos(dot(current Z, target Z))
-    x = bsxfun(@plus, or', x); % make the  helix
+    %th = th - min(th);
+    fprintf('theta goes from %g to %g (offset %g)\n', min(th), max(th), off);
+    th = linspace(min(th), max(th), 1000)';
+    x = [cos(th+hack)*ra sin(th+hack)*ra th*pit+off];
+    assignin('base', 'r', rot);
+    x = (rot*x')'; % rotate it so the z-axis is correct by rotating around cross(current Z, target Z) by acos(dot(current Z, target Z))
+    x = bsxfun(@plus, x, or'); % make the  helix
     
     subplot(sp);
     hold on;
-    plot3(y(:,1), y(:,2), y(:,3), '.', yp(:,1), yp(:,2), yp(:,3), '.', x(:,1), x(:,2), x(:,3), 'LineWidth',2);
+    plot3(y(:,1), y(:,2), y(:,3), '.', yp(:,1), yp(:,2), yp(:,3), '.', x(:,1), x(:,2), x(:,3), 'LineWidth',1);
+    %plot3(y(:,1), y(:,2), y(:,3), '.', x(:,1), x(:,2), x(:,3), 'LineWidth',1,'MarkerSize',1);
     
     plot3(or(1), or(2), or(3), 'r.', 'MarkerSize',5);
     quiver3(or(1), or(2), or(3), ca(1), ca(2), ca(3), 30, 'r', 'LineWidth',3);
