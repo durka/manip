@@ -28,12 +28,12 @@ Acquisition
 -----------
 1. Get usage information:
 
-    $ acquire
-    $ acquire -h
+        $ acquire
+        $ acquire -h
 
 2. Capture images from a camera with some generic settings:
 
-    $ acquire -o capture -m 10
+        $ acquire -o capture -m 10
 
 This outputs the clean and dirty images in the current directory (with a "capture\_" prefix), as well as the data log in capture.txt. The marker size is set to 10 (this doesn't affect anything if you don't have measurements anyway). The capture will run until you press Ctrl-C in the terminal, at which point the program will finish writing images to disk and then quit.
 
@@ -41,14 +41,14 @@ Helix fitting
 -------------
 1. Read in some data (ya gotta acquire it first)
 
-    > X = read('data/capture.out')
+        > X = read('data/capture.out')
 
 2. Fit the data to a helix
 
-Let's assume you're interested in the motion of the first feature, relative to the camera frame. (Relative motion between features will come later.)
+    Let's assume you're interested in the motion of the first feature, relative to the camera frame. (Relative motion between features will come later.)
 
-    > f1 = figure; f2 = figure;
-    > fit(squeeze(X(:,1,1:3,4)), f1, f2)
+        > f1 = figure; f2 = figure;
+        > fit(squeeze(X(:,1,1:3,4)), f1, f2)
 
 Hacking
 =======
@@ -59,6 +59,8 @@ You'll find a clear separation between the acquisition part (C++) and all the ma
 - Acquisition
     - Headers
 
+        | File      | description
+        | --------- | -----------
         | acquire.h | common header for everything; defines WorkerThread base class
         | watcher.h | worker thread that grabs images from the camera (or file)
         | processor.h | worker thread that looks for Aruco tags in image frames
@@ -70,6 +72,8 @@ You'll find a clear separation between the acquisition part (C++) and all the ma
 
     - Sources
 
+        | File      | description
+        | --------- | -----------
         | acquire.cpp | the main program, does nothing much except parse the command line and launch worker threads
         | watcher.cpp | see above
         | processor.cpp | see above
@@ -78,11 +82,15 @@ You'll find a clear separation between the acquisition part (C++) and all the ma
         | flexvideo.cpp | see above
     - Misc
 
+        | File      | description
+        | --------- | -----------
         | CMakeLists.txt | the build script; the lines you might want to change are 17-19 where the targets are defined
         | MacBookAir5,2.yml | camera calibration matrix for my camera (see [Usage/Acquisition](#acquisition) above for how to DIY)
 
 - Learning
 
+    | File      | description
+    | --------- | -----------
     | fit.m | fits a helix from data (see [Theory](#theory) above)
     | read.m | reads in a data file created by the acquisition program (see [Hacking/Formats](#formats) below)
     | makehelix.m | generates a helix, given parameters, for testing
