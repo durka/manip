@@ -114,9 +114,11 @@ int main(int argc, char *argv[])
     sigaction(SIGINT, &sigint_handler, NULL);
 
     // main loop
-    while (!sigint) { // capture until ESC or end of video
-        waitKey(10);
-        usleep(1000);
+    while (!sigint && (eagle.is_running()
+                       && intelinside.is_running()
+                       && painter.is_running()
+                       && scribe.is_running())) { // capture until Ctrl-c, Esc, or end of video
+        if (waitKey(10) == 27) break;
     }
     
     cout << "waiting for threads..." << endl;

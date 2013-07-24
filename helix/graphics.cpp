@@ -43,9 +43,7 @@ namespace acquire
         putText(image, fps_str.str(), cvPoint(50, 50), FONT_HERSHEY_PLAIN, 1, cvScalar(255,0,0));
         
         imshow(prefix, image);
-        waitKey(10);
-
-        return true;
+        return true; // waitKey has to be called on the main thread
     }
 
     void Graphics::cleanup()

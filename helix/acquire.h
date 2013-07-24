@@ -15,7 +15,7 @@ namespace acquire
     {
         public:
             WorkerThread(ostream& out_, ostream& err_, std::string prefix_)
-                : out(out_),err(err_), prefix("[" + prefix_ + "] ") {}
+                : out(out_), err(err_), prefix("[" + prefix_ + "] ") {}
             void start()
             {
                 start(boost::thread::attributes());
@@ -40,6 +40,7 @@ namespace acquire
                     yarn.join();
                 }
             }
+            bool is_running() { return yarn.joinable(); }
 
         protected:
             virtual bool loop(bool lameduck) = 0;
