@@ -1,4 +1,4 @@
-function [origin, radius, caxis, pitch, plane, theta] = fit(Y, fig1, fig2)
+function [origin, radius, caxis, pitch, plane, theta, offset] = fit(Y, fig1, fig2)
 
     % new axis plan made up from scratch
 
@@ -16,8 +16,8 @@ function [origin, radius, caxis, pitch, plane, theta] = fit(Y, fig1, fig2)
     thickness = zeros(1, n);
     err = zeros(1, n);
     for i=1:n
-        c = basis\mean(proj)';
-        c(i) = min(Y(:,i));
+        c = mean(Y)'; %c = basis\mean(proj)'; % this is stupid???
+        %c(i) = min(Y(:,i)); % this isn't needed???
         plane(i,:) = createPlane(c', basis(:,i)');
         Y_p3(:,:,i) = projPointOnPlane(Y, plane(i,:));
         Y_p2(:,:,i) = planePosition(Y_p3(:,:,i), plane(i,:));
@@ -33,7 +33,7 @@ function [origin, radius, caxis, pitch, plane, theta] = fit(Y, fig1, fig2)
     err
     h
     %pause
-    caxis = basis(:,h)';
+    caxis = basis(:,h)'
     origin = origin(:,h);
     origin_p2 = origin_p2(:,h);
     radius = radius(h);
@@ -45,26 +45,27 @@ function [origin, radius, caxis, pitch, plane, theta] = fit(Y, fig1, fig2)
     % departing from the paper here because it doesn't make any sense
     % approach: find the angles of pY WRT pa, then divide by projected distance along H to get the pitch
     theta = zeros(N,1);
-    for j=1:size(Y,1)
+    for j=1:N
         theta(j) = atan2((Y_p2(j,2) - origin_p2(2)), (Y_p2(j,1) - origin_p2(1)));
     end
     p = polyfit(unwrap(theta), Y*caxis', 1);
-    pitch = p(1);
-    offset = p(2);
+    pitch = p(1)
+    offset = p(2)
+    %pause
 
     % do the extra optimization (from Aqvist paper)
 
-    do_plot(fig1, Y, Y_p3, origin, caxis, plane, theta, radius, pitch, offset);
+    draw(fig1, Y, Y_p3, origin, caxis, plane, theta, radius, pitch, offset);
 
-    origin, radius, caxis, pitch
+    origin, radius, caxis, pitch, norm(caxis)-1
 
     [fit, err, flag, output] = nonlin_min(...
                                        @(p) objective_thinair(p, Y), ...
                                        [origin' caxis]', ...
                                        optimset(%'Algorithm', 'siman', ...
                                                 %'stoch_regain_constr', true, ...
-                                                'lbound', [min(Y(:,1)) min(Y(:,2)) min(Y(:,3)), -1 -1 -1]'-10, ...
-                                                'ubound', [max(Y(:,1)) max(Y(:,2)) max(Y(:,3)),  1  1  1]'+10, ...
+                                                'lbound', [min(Y(:,1)) min(Y(:,2)) min(Y(:,3)), -1 -1 -1]'-100, ...
+                                                'ubound', [max(Y(:,1)) max(Y(:,2)) max(Y(:,3)),  1  1  1]'+100, ...
                                                 'equc'  , {@constraint}));
 
     origin = fit(1:3)';
@@ -81,7 +82,9 @@ function [origin, radius, caxis, pitch, plane, theta] = fit(Y, fig1, fig2)
     radius = mean(sqrt(sum(bsxfun(@minus, Y_p2, origin_p2).^2, 2)));
 
     % slide the origin "down" along the axis
+    'sliding from', origin
     origin = origin' + caxis*min(bsxfun(@minus, Y, origin')*caxis');
+    'slid to', origin
     plane = createPlane(origin, caxis);
     Y_p3 = projPointOnPlane(Y, plane);
     Y_p2 = planePosition(Y_p3, plane);
@@ -114,50 +117,10 @@ function [origin, radius, caxis, pitch, plane, theta] = fit(Y, fig1, fig2)
 
 
 
-    do_plot(fig2, Y, Y_p3, origin, caxis, plane, theta, radius, pitch, offset);
+    draw(fig2, Y, Y_p3, origin, caxis, plane, theta, radius, pitch, offset);
 
     origin, radius, caxis, pitch
 
-end
-
-function do_plot(sp, y, yp, or, ca, pl, th, ra, pit, off)
-
-    %th = th(1:end/4);
-    %y = y(1:end/4,:);
-
-    %if dot(ca, y(1,:)) < 0
-    %    ca = -ca;
-    %end
-
-    % some hacky forward kinematics up in here
-    rotvec = cross([0 0 1], ca)';
-    rotvec = rotvec/norm(rotvec);
-    theta = real(acos(dot([0 0 1], ca)));
-    rot = expm(crossm(rotvec*theta));
-    hack = 0%pi/2%real(acos(rs(1)))
-    th = unwrap(th);
-    %th = th - min(th);
-    fprintf('theta goes from %g to %g (offset %g)\n', min(th), max(th), off);
-    th = linspace(min(th), max(th), 1000)';
-    x = [cos(th+hack)*ra sin(th+hack)*ra th*pit+off];
-    assignin('base', 'r', rot);
-    assignin('base', 'v', rotvec);
-    assignin('base', 't', theta);
-    x = (rot*x')'; % rotate it so the z-axis is correct by rotating around cross(current Z, target Z) by acos(dot(current Z, target Z))
-    x = bsxfun(@plus, x, or'); % make the  helix
-
-    figure(sp);
-    clf;
-    hold on;
-    plot3(y(:,1), y(:,2), y(:,3), 'b.');
-    plot3(yp(:,1), yp(:,2), yp(:,3), 'g.');
-    plot3(x(:,1), x(:,2), x(:,3), 'r');%, 'LineWidth',1);
-
-    plot3(or(1), or(2), or(3), 'r.', 'MarkerSize',5);
-    quiver3(or(1), or(2), or(3), ca(1), ca(2), ca(3), 30, 'LineWidth',3);
-    %drawPlane3d(pl);
-    hold off;
-    axis equal;
 end
 
 function f = objective_thinair(p, Y)
@@ -173,6 +136,8 @@ function f = objective_thinair(p, Y)
 
     x = sqrt(sum(bsxfun(@minus, Y_p2, o).^2, 2));
     f = std(x);
+
+    disp([num2str(p') ' = ' num2str(f)]);
 end
 
 function [f, grad] = objective_paper(p, Y)
