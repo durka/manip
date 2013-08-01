@@ -9,13 +9,14 @@ namespace acquire
 
     typedef concurrent_queue<acquire::RawPacket> QueueRaw;
     typedef concurrent_queue<acquire::CookedPacket> QueueCooked;
+    typedef concurrent_queue<acquire::DigestedPacket> QueueDigested;
     template<typename T> struct pthreadfunc { typedef int (*type)(pthread_attr_t*, T); };
 
     class WorkerThread
     {
         public:
             WorkerThread(ostream& out_, ostream& err_, std::string prefix_)
-                : out(out_), err(err_), prefix("[" + prefix_ + "] ") {}
+                : out(out_), err(err_), prefix("[" + prefix_ + "] "), running(false) {}
             void start()
             {
                 start(boost::thread::attributes());
@@ -32,15 +33,17 @@ namespace acquire
             void start(boost::thread::attributes attrs)
             {
                 yarn = boost::thread(attrs, boost::bind(&WorkerThread::thread, this));
+                running = true;
             }
             void kill()
             {
-                if (yarn.joinable()) {
+                if (running) {
                     yarn.interrupt();
                     yarn.join();
+                    running = false;
                 }
             }
-            bool is_running() { return yarn.joinable(); }
+            bool is_running() { return running; }
 
         protected:
             virtual bool loop(bool lameduck) = 0;
@@ -67,6 +70,7 @@ namespace acquire
                 }
                 terr() << "FPS: " << (float)iters/(time(NULL) - start) << endl;
                 cleanup();
+                running = false;
             }
             ostream& tout() { return out << prefix; }
             ostream& terr() { return err << prefix; }
@@ -75,6 +79,7 @@ namespace acquire
             std::string prefix;
             ostream& out;
             ostream& err;
+            bool running;
     };
 
 } // namespace acquire

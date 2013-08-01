@@ -7,6 +7,8 @@
 /checkouts
 /.lein-deps-sum
 *.swp
+*.swo
+*.gp
 *.pyc
 *.o
 *.so
@@ -26,4 +28,5 @@ doc
 fitnewton
 helixhough
 libseamstress
+build
 include

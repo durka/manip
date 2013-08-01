@@ -23,7 +23,7 @@ namespace acquire
         if (lameduck) return false;
 
         CookedPacket pkt;
-        q.wait_and_pop(pkt);
+        q1.wait_and_pop(pkt);
 
         // TODO
         // - support "scroll lock"

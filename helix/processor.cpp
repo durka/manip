@@ -58,6 +58,7 @@ namespace acquire
 
         qo1.push(cooked);
         qo2.push(cooked);
+        qo3.push(cooked);
         return true;
     }
 

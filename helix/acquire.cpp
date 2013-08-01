@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <queue>
@@ -18,6 +19,7 @@
 #include "watcher.h"
 #include "processor.h"
 #include "graphics.h"
+#include "fitter.h"
 #include "writer.h"
 
 using namespace std;
@@ -54,7 +56,8 @@ int main(int argc, char *argv[])
         ("outname,o",         opt::value<string>()->default_value(""),              "output filename prefix\n\tclean images: {dir}/{name}_clean_%d.jpg\n\tdirty images: {dir}/{name}_dirty_%d.jpg\n\tdata log: {dir}/{name}.txt\n\tempty string: no output")
         ("intrinsics,i",      opt::value<string>()->default_value("MacBookAir5,2"), "camera intrinsics (built-in model name)")
         ("intrinsics-file,f", opt::value<string>(),                                 "camera intrinsics (YAML/XML file)")
-        ("marker-size,m",     opt::value<float>(),                                  "marker size in arbitrary units");
+        ("marker-size,m",     opt::value<float>()->default_value(10),               "marker size in arbitrary units")
+        ("markers,n",         opt::value<int>(),                                    "number of markers");
 
     opt::variables_map args;
     try {
@@ -76,13 +79,16 @@ int main(int argc, char *argv[])
 
     // some queues
     QueueRaw qwp;
-    QueueCooked qpg, qpw;
+    QueueCooked qpg, qpw, qpf;
+    QueueDigested qfg;
 
     // wire up the threads
-    Watcher eagle(cout, cerr, qwp);
-    Processor intelinside(cout, cerr, qwp, qpg, qpw);
-    Graphics painter(cout, cerr, qpg);
-    Writer scribe(cout, cerr, qpw);
+    ofstream nope; // use an unopened ofstream as a null output
+    Watcher eagle(nope, cerr, qwp);
+    Processor intelinside(nope, cerr, qwp, qpg, qpw, qpf);
+    Fitter tailor(cout, cerr, qpf, qfg);
+    Graphics painter(nope, cerr, qpg, qfg);
+    Writer scribe(nope, cerr, qpw);
 
     // setup input and output
     try {
@@ -93,6 +99,7 @@ int main(int argc, char *argv[])
                                args.count("marker-size")
                                     ? args["marker-size"].as<float>()
                                     : -1)) return 1;
+        if (!tailor.setup(args["markers"].as<int>())) return 1;
         if (!painter.setup()) return 1;
         if (!scribe.setup(args["outdir"].as<string>(), args["outname"].as<string>())) return 1;
     } catch (std::exception& e) {
@@ -103,6 +110,7 @@ int main(int argc, char *argv[])
     // spin up some threads!
     eagle.start();
     intelinside.start();
+    tailor.start();
     painter.start();
     scribe.start();
 
@@ -114,8 +122,9 @@ int main(int argc, char *argv[])
     sigaction(SIGINT, &sigint_handler, NULL);
 
     // main loop
-    while (!sigint && (eagle.is_running()
+    while (!sigint && (   eagle.is_running()
                        && intelinside.is_running()
+                       && tailor.is_running()
                        && painter.is_running()
                        && scribe.is_running())) { // capture until Ctrl-c, Esc, or end of video
         if (waitKey(10) == 27) break;
@@ -124,6 +133,7 @@ int main(int argc, char *argv[])
     cout << "waiting for threads..." << endl;
     eagle.kill();
     intelinside.kill();
+    tailor.kill();
     painter.kill();
     scribe.kill();
 

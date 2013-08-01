@@ -14,9 +14,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(all_libs ${OpenCV_LIBS} ${aruco_LIBS} ${Boost_LIBRARIES})
 
-set(my_libs flexvideo watcher processor graphics writer)
-set(my_bins acquire)
+# START EDITING
+set(ext_libs nlopt matio hdf5)
+set(my_libs flexvideo watcher processor fitter graphics writer geometry)
+set(my_bins acquire test_geometry)
 file(GLOB my_stuff *.yml)
+# END EDITING
 
 add_definitions( -DSHARE_PREFIX="${CMAKE_INSTALL_PREFIX}/share" )
 
@@ -26,7 +29,7 @@ endforeach(lib)
 
 foreach(bin ${my_bins})
     add_executable(${bin} ${bin}.cpp)
-    target_link_libraries(${bin} ${my_libs} ${all_libs})
+    target_link_libraries(${bin} ${my_libs} ${ext_libs} ${all_libs})
 endforeach(bin)
 
 install(TARGETS ${my_bins} DESTINATION bin)
