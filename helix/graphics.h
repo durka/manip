@@ -6,6 +6,8 @@
 namespace acquire
 {
 
+    using namespace cv;
+
     class Graphics : public WorkerThread
     {
         public:
