@@ -90,17 +90,24 @@ int main(int argc, char *argv[])
     Graphics painter(nope, cerr, qpg, qfg);
     Writer scribe(nope, cerr, qpw);
 
+    // read camera intrinsics
+    CameraParameters intrinsics;
+    string intrinsics_path = args.count("intrinsics-file")
+                           ? args["intrinsics-file"].as<string>()
+                           : SHARE_PREFIX + string("/") + args["intrinsics"].as<string>() + string(".yml");
+    cout << "reading intrinscs from " << intrinsics_path << endl;
+    intrinsics.readFromXMLFile(intrinsics_path); // notwithstanding it's actually YAML ...?
+    // intrinsics.resize(image.size()); // let's see if we can get away with skipping this
+
     // setup input and output
     try {
         if (!eagle.setup(args["source"].as<string>())) return 1;
-        if (!intelinside.setup(args.count("intrinsics-file")
-                                    ? args["intrinsics-file"].as<string>()
-                                    : SHARE_PREFIX + string("/") + args["intrinsics"].as<string>() + string(".yml"),
+        if (!intelinside.setup(&intrinsics,
                                args.count("marker-size")
                                     ? args["marker-size"].as<float>()
                                     : -1)) return 1;
         if (!tailor.setup(args["markers"].as<int>())) return 1;
-        if (!painter.setup()) return 1;
+        if (!painter.setup(args["markers"].as<int>(), &intrinsics)) return 1;
         if (!scribe.setup(args["outdir"].as<string>(), args["outname"].as<string>())) return 1;
     } catch (std::exception& e) {
         cerr << e.what() << endl;
@@ -127,7 +134,21 @@ int main(int argc, char *argv[])
                        && tailor.is_running()
                        && painter.is_running()
                        && scribe.is_running())) { // capture until Ctrl-c, Esc, or end of video
-        if (waitKey(10) == 27) break;
+        switch (waitKey(10))
+        {
+            case 27: // ESC
+                sigint = true;
+                break;
+            case 'c':
+                qpg.signal(Graphics::CLEAR); // kick the graphics thread to clear the marker trails
+                qpf.signal(Fitter::CLEAR); // kick the fitter thread to throw out its history
+                break;
+            case 'f':
+                qpf.signal(Fitter::FIT); // kick the fitter thread to start a fit
+                break;
+            default:
+                break;
+        }
     }
     
     cout << "waiting for threads..." << endl;

@@ -36,11 +36,16 @@ namespace acquire
         static int counter = 0;
 
         CookedPacket cooked;
-        qi.wait_and_pop(cooked);
+        int signal = qi.wait_and_pop(cooked);
+
+        if (signal & CLEAR) {
+            counter = 0;
+        }
+
         if (cooked.markers.size() != N) {
-            tout() << "dropping frame " << cooked.index << " (not enough markers)" << endl;
+            //tout() << "dropping frame " << cooked.index << " (not enough markers)" << endl;
         } else {
-            if (counter < deltas[0][1].rows) {
+            if (!(signal & FIT) && counter < deltas[0][1].rows) {
                 for (int a = 0; a < N; ++a) {
                     for (int b = a+1; b < N; ++b) {
                         // matlab syntax is so much more compact :(
@@ -52,26 +57,33 @@ namespace acquire
                     }
                 }
                 ++counter;
-                tout() << "calculated deltas for frame " << cooked.index << " (row " << counter << ")" << endl;
+                //tout() << "calculated deltas for frame " << cooked.index << " (row " << counter << ")" << endl;
             } else {
+                static int pkt_counter = 0;
+                DigestedPacket pkt;
+                pkt.index = pkt_counter++;
+
                 for (int a = 0; a < N; ++a) {
                     for (int b = a+1; b < N; ++b) {
                         tout() << "\tFitting " << a << "->" << b << endl;
 
+                        // new matrix to reference only the rows we have captured
+                        Mat del(deltas[a][b].rowRange(0, counter));
+
                         // step 1: cylinder axis and radius, from PCA
-                        PCA pca(deltas[a][b], Mat(), CV_PCA_DATA_AS_ROW);
+                        PCA pca(del, Mat(), CV_PCA_DATA_AS_ROW);
                         Projection candidates[3];
                         double min_err = 1.0/0.0;
                         int best_h = -1;
                         for (int h = 0; h < 3; ++h) { // try each principal axis
-                            candidates[h].init(deltas[a][b], pca.eigenvectors.row(h));
+                            candidates[h].init(del, pca.eigenvectors.row(h));
                             if (candidates[h].err < min_err) {
                                 min_err = candidates[h].err;
                                 best_h = h;
                             }
                         }
-                        proj = candidates[best_h];
                         tout() << "\t\tchose axis #" << best_h << ": " << proj.caxis << endl;
+                        proj = candidates[best_h];
 
                         // step 2: helix pitch
                         proj.do_pitch();
@@ -91,6 +103,7 @@ namespace acquire
                         opt.set_min_objective(Fitter::objective_thunk, this);
                         opt.add_equality_constraint(Fitter::constraint_thunk, this, 1e-8);
                         opt.set_xtol_rel(1e-2);
+                        opt.set_maxtime(5); // 5 seconds max
                         double minf;
 
                         tout() << "\t\tfitting..." << endl;
@@ -118,7 +131,7 @@ namespace acquire
                         temp2 = (proj.Y - repeat(proj.origin3, proj.Y.rows, 1));
                         temp1 = temp2*proj.caxis.t();
                         min(temp1, minval);
-                        origin = proj.origin3 + minval*proj.caxis;
+                        origin = proj.origin3 - minval*proj.caxis;
                         proj.init(proj.Y, proj.caxis, &origin);
                         tout() << "slid to " << proj.origin3 << endl;
 
@@ -131,6 +144,7 @@ namespace acquire
                         tout() << "\t\t\tradius: " << proj.radius << endl;
                         tout() << "\t\t\tpitch: " << proj.pitch << endl;
 
+                        // write to file
                         Mat arrt;
                         mat_t *mat;
                         matvar_t *matvar;
@@ -171,9 +185,25 @@ namespace acquire
 #undef WRITEd
 
                         Mat_Close(mat);
+
+                        // send to graphics thread
+                        Joint joint;
+                        joint.a      = a;
+                        joint.b      = b;
+                        joint.type   = Joint::J_SCREW;
+                        joint.origin = proj.origin3;
+                        joint.normal = proj.caxis;
+                        joint.radius = proj.radius;
+                        joint.pitch  = proj.pitch;
+                        joint.offset = proj.offset;
+                        pkt.joints.push_back(joint);
                     }
                 }
-                return false;
+
+                if (!pkt.joints.empty()) {
+                    pkt.time = time(NULL);
+                    qo.push(pkt);
+                }
             }
         }
 

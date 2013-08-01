@@ -13,11 +13,15 @@ namespace acquire
         public:
             Graphics(ostream& out_, ostream& err_, QueueCooked& q1_, QueueDigested& q2_)
                 : WorkerThread(out_, err_, "graphics thread"), q1(q1_), q2(q2_) {}
-            bool setup();
+            bool setup(int N_, aruco::CameraParameters* intrinsics_);
+
+            static const int CLEAR = 1;
 
         private:
             bool loop(bool lameduck);
             void cleanup();
+            int N;
+            aruco::CameraParameters* intrinsics;
             QueueCooked &q1;
             QueueDigested &q2;
     };

@@ -14,6 +14,9 @@ namespace acquire
                 : WorkerThread(out_, err_, "fitter thread"), qi(qi_), qo(qo_) {}
             bool setup(int N_);
 
+            static const int CLEAR = 1,
+                             FIT   = 2;
+
         private:
             bool loop(bool lameduck);
             void cleanup();

@@ -24,12 +24,26 @@ namespace acquire
     class concurrent_queue
     {
         public:
+            concurrent_queue() : the_signal(0) {}
+
             void push(Data const& data)
             {
                 boost::mutex::scoped_lock lock(the_mutex);
                 the_queue.push(data);
                 lock.unlock();
                 the_condition_variable.notify_one();
+            }
+
+            void signal(int signal)
+            {
+                boost::mutex::scoped_lock lock(the_mutex);
+                the_signal |= signal;
+            }
+
+            void unsignal(int signal)
+            {
+                boost::mutex::scoped_lock lock(the_mutex);
+                the_signal &= ~signal;
             }
 
             bool empty() const
@@ -57,7 +71,7 @@ namespace acquire
                 return true;
             }
 
-            void wait_and_pop(Data& popped_value)
+            int wait_and_pop(Data& popped_value)
             {
                 boost::mutex::scoped_lock lock(the_mutex);
                 while(the_queue.empty())
@@ -67,12 +81,17 @@ namespace acquire
 
                 popped_value=the_queue.front();
                 the_queue.pop();
+
+                int signal = the_signal;
+                the_signal = 0;
+                return signal;
             }
 
         private:
             std::queue<Data> the_queue;
             mutable boost::mutex the_mutex;
             boost::condition_variable the_condition_variable;
+            int the_signal;
     };
 
 } // namespace acquire

@@ -38,40 +38,41 @@ namespace acquire
         }
     };
 
+    struct Joint
+    {
+        int a, b;
+        enum { J_RIGID, J_PRISMATIC, J_REVOLUTE, J_SCREW } type;
+        cv::Mat origin;
+        cv::Mat normal;
+        double radius, pitch, offset;
+
+        Joint() {}
+        Joint(const Joint& rhs) // deep copy the matrices
+        {
+            type = rhs.type;
+            a = rhs.a;
+            b = rhs.b;
+            origin = rhs.origin.clone();
+            switch (type)
+            {
+                case J_SCREW:
+                    pitch = rhs.pitch;
+                    offset = rhs.offset;
+                    // fall through
+                case J_REVOLUTE:
+                    radius = rhs.radius;
+                    // fall through
+                case J_PRISMATIC:
+                    normal = rhs.normal.clone();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
     struct DigestedPacket
     {
-        struct Joint
-        {
-            enum { J_RIGID, J_PRISMATIC, J_REVOLUTE, J_SCREW } type;
-            int a, b;
-            cv::Mat offset;
-            cv::Mat normal;
-            double radius, pitch;
-
-            Joint() {}
-            Joint(const Joint& rhs) // deep copy the matrices
-            {
-                type = rhs.type;
-                a = rhs.a;
-                b = rhs.b;
-                offset = rhs.offset.clone();
-                switch (type)
-                {
-                    case J_SCREW:
-                        pitch = rhs.pitch;
-                        // fall through
-                    case J_REVOLUTE:
-                        radius = rhs.radius;
-                        // fall through
-                    case J_PRISMATIC:
-                        normal = rhs.normal.clone();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-
         int index;
         time_t time;
         vector<Joint> joints;
