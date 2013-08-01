@@ -22,7 +22,8 @@ namespace acquire
             deltas[a] = new Mat[N];
             for (int b = a+1; b < N; ++b) {
                 //deltas[a][b].create(380, 3, CV_64FC1);
-                deltas[a][b].create(1276, 3, CV_64FC1);
+                //deltas[a][b].create(1276, 3, CV_64FC1);
+                deltas[a][b].create(10000, 3, CV_64FC1);
             }
         }
 

@@ -140,10 +140,12 @@ int main(int argc, char *argv[])
                 sigint = true;
                 break;
             case 'c':
+                cout << "it never happened." << endl;
                 qpg.signal(Graphics::CLEAR); // kick the graphics thread to clear the marker trails
                 qpf.signal(Fitter::CLEAR); // kick the fitter thread to throw out its history
                 break;
             case 'f':
+                cout << "fit should start soon..." << endl;
                 qpf.signal(Fitter::FIT); // kick the fitter thread to start a fit
                 break;
             default:

@@ -42,7 +42,11 @@ namespace flex
             asprintf(&filename, in_fmt.c_str(), index++);
             frame = cv::imread(filename);
             free(filename);
-            return frame.data != NULL;
+            if (frame.data == NULL) {
+                index = 1;
+                return grab();
+            }
+            return true;
         }
     }
 
