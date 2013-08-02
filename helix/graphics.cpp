@@ -12,9 +12,10 @@ namespace acquire
     using namespace cv;
     using namespace aruco;
 
-    bool Graphics::setup(int N_, CameraParameters *intrinsics_)
+    bool Graphics::setup(int N_, CameraParameters *intrinsics_, string outname_)
     {
         N = N_;
+        outname = outname_;
         intrinsics = intrinsics_;
         namedWindow(prefix);
 
@@ -50,7 +51,7 @@ namespace acquire
             matvar_t *matvar;
             size_t dims[2];
             char vname[20];
-            mat = Mat_Open("fits.mat", MAT_ACC_RDWR);
+            mat = Mat_Open((outname + "_fits.mat").c_str(), MAT_ACC_RDWR);
             for (vector<Joint>::iterator i = joints.begin(); i != joints.end(); ++i) {
 
 #define WRITE(addr, str, t) \
@@ -73,6 +74,8 @@ namespace acquire
                 WRITEd(i->type,   type);
                 WRITEm(i->origin, origin);
                 WRITEm(i->normal, normal);
+                i->param.convertTo(i->param, CV_32FC1);
+                WRITEm(i->param,  param);
                 WRITEd(i->radius, radius);
                 WRITEd(i->pitch,  pitch);
                 WRITEd(i->offset, offset);
@@ -90,7 +93,7 @@ namespace acquire
             matvar_t *matvar;
             size_t dims[2];
             char vname[20];
-            mat = Mat_Open("fits.mat", MAT_ACC_RDONLY);
+            mat = Mat_Open((outname + "_fits.mat").c_str(), MAT_ACC_RDONLY);
             
             joints.clear();
             for (int a = 0; a < N; ++a) {
@@ -117,6 +120,7 @@ namespace acquire
                     READd(type,   joint.type);
                     READm(origin, joint.origin);
                     READm(normal, joint.normal);
+                    READm(param,  joint.param);
                     READd(radius, joint.radius);
                     READd(pitch,  joint.pitch);
                     READd(offset, joint.offset);
@@ -159,17 +163,23 @@ namespace acquire
                 Rodrigues(rotvec*theta, rot);
 
                 double th, james = M_PI/2;
+                double high, low;
+                minMaxLoc(i->param, &low, &high);
+                //high += M_PI;
+                //low -= M_PI;
+                low = -2*M_PI;
+                high = 4*M_PI;
                 Mat x(1000, 3, CV_32FC1);
-                for (int j = 0; j < 1000; ++j) {
-                    th = j*2*M_PI/1000;
+                for (int j = 0; j < x.rows; ++j) {
+                    th = j*high/x.rows + low;
                     x.at<float>(j,0) = cos(th+james)*i->radius;
                     x.at<float>(j,1) = sin(th+james)*i->radius;
                     x.at<float>(j,2) = th*i->pitch + i->offset;
                 }
-                x = (rot*x.t()).t() + repeat(i->origin, 1000, 1);
+                x = (rot*x.t()).t() + repeat(i->origin, x.rows, 1);
 
                 // project to image plane
-                vector<Point2f> y(1000);
+                vector<Point2f> y(x.rows);
                 projectPoints(x,
                               cooked.markers[i->a].Rvec,
                               cooked.markers[i->a].Tvec,

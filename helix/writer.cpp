@@ -14,7 +14,7 @@ namespace acquire
     bool Writer::setup(string outdir, string outname)
     {
         // open video outputs
-        if (outname == "") {
+        if (outdir == "" || outname == "") {
             clean_fmt = "";
             dirty_fmt = "";
         } else {

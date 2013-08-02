@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
                                     ? args["marker-size"].as<float>()
                                     : -1)) return 1;
         if (!tailor.setup(args["markers"].as<int>())) return 1;
-        if (!painter.setup(args["markers"].as<int>(), &intrinsics)) return 1;
+        if (!painter.setup(args["markers"].as<int>(), &intrinsics, args["outname"].as<string>())) return 1;
         if (!scribe.setup(args["outdir"].as<string>(), args["outname"].as<string>())) return 1;
     } catch (std::exception& e) {
         cerr << e.what() << endl;

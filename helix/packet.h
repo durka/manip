@@ -44,6 +44,7 @@ namespace acquire
         enum { J_RIGID, J_PRISMATIC, J_REVOLUTE, J_SCREW } type;
         cv::Mat origin;
         cv::Mat normal;
+        cv::Mat param;
         double radius, pitch, offset;
 
         Joint() {}
@@ -53,6 +54,7 @@ namespace acquire
             a = rhs.a;
             b = rhs.b;
             origin = rhs.origin.clone();
+            param = rhs.param.clone();
             switch (type)
             {
                 case J_SCREW:

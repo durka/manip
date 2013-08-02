@@ -197,6 +197,7 @@ namespace acquire
                         joint.radius = proj.radius;
                         joint.pitch  = proj.pitch;
                         joint.offset = proj.offset;
+                        joint.param  = proj.theta;
                         pkt.joints.push_back(joint);
                     }
                 }
