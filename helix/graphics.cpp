@@ -4,6 +4,7 @@
 #include "aruco/cvdrawingutils.h"
 
 #include "graphics.h"
+#include "matio.h"
 
 namespace acquire
 {
@@ -41,6 +42,91 @@ namespace acquire
         if (signal & CLEAR) {
             history = 0.0;
             joints.clear();
+        }
+        if (signal & SAVE) {
+            // write to file
+            Mat arrt;
+            mat_t *mat;
+            matvar_t *matvar;
+            size_t dims[2];
+            char vname[20];
+            mat = Mat_Open("fits.mat", MAT_ACC_RDWR);
+            for (vector<Joint>::iterator i = joints.begin(); i != joints.end(); ++i) {
+
+#define WRITE(addr, str, t) \
+                sprintf(vname, str "_%d_%d", i->a, i->b); \
+                matvar = Mat_VarCreate(vname, MAT_C_##t, MAT_T_##t, 2, dims, addr, 0); \
+                Mat_VarWrite(mat, matvar, MAT_COMPRESSION_NONE); \
+                Mat_VarFree(matvar)
+
+#define WRITEm(arr, name) \
+                dims[0] = arr.rows; \
+                dims[1] = arr.cols; \
+                arrt = arr.t(); \
+                WRITE(arrt.data, #name, SINGLE)
+
+#define WRITEd(d, name) \
+                dims[0] = 1; \
+                dims[1] = 1; \
+                WRITE(&d, #name, DOUBLE)
+
+                WRITEd(i->type,   type);
+                WRITEm(i->origin, origin);
+                WRITEm(i->normal, normal);
+                WRITEd(i->radius, radius);
+                WRITEd(i->pitch,  pitch);
+                WRITEd(i->offset, offset);
+
+#undef WRITE
+#undef WRITEm
+#undef WRITEd
+            }
+            Mat_Close(mat);
+        }
+        if (signal & LOAD) {
+            // load from file
+            Mat arrt;
+            mat_t *mat;
+            matvar_t *matvar;
+            size_t dims[2];
+            char vname[20];
+            mat = Mat_Open("fits.mat", MAT_ACC_RDONLY);
+            
+            joints.clear();
+            for (int a = 0; a < N; ++a) {
+                for (int b = a+1; b < N; ++b) {
+
+#define READ(str, dst) \
+                    sprintf(vname, str "_%d_%d", a, b); \
+                    matvar = Mat_VarRead(mat, vname)
+
+#define READd(name, dst) \
+                    READ(#name, dst); \
+                    memcpy(&dst, matvar->data, sizeof dst); \
+                    Mat_VarFree(matvar)
+
+#define READm(name, dst) \
+                    READ(#name, dst); \
+                    arrt = Mat(matvar->dims[1], matvar->dims[0], CV_32FC1, matvar->data); \
+                    dst = Mat(arrt.t()); \
+                    Mat_VarFree(matvar)
+
+                    Joint joint;
+                    joint.a = a;
+                    joint.b = b;
+                    READd(type,   joint.type);
+                    READm(origin, joint.origin);
+                    READm(normal, joint.normal);
+                    READd(radius, joint.radius);
+                    READd(pitch,  joint.pitch);
+                    READd(offset, joint.offset);
+                    joints.push_back(joint);
+
+#undef READ
+#undef READm
+#undef READd
+                }
+            }
         }
 
         // add markers to trails on history image

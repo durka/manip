@@ -148,6 +148,14 @@ int main(int argc, char *argv[])
                 cout << "fit should start soon..." << endl;
                 qpf.signal(Fitter::FIT); // kick the fitter thread to start a fit
                 break;
+            case 's':
+                cout << "writing fits to file!" << endl;
+                qpg.signal(Graphics::SAVE);
+                break;
+            case 'l':
+                cout << "loading fits from file!" << endl;
+                qpg.signal(Graphics::LOAD);
+                break;
             default:
                 break;
         }
