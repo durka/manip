@@ -87,6 +87,7 @@ namespace acquire
                         proj = candidates[best_h];
 
                         // step 2: helix pitch
+                        // (FIXME useless, since we do it again later anyway...)
                         proj.do_pitch();
                         tout() << "\t\tfound helix pitch = " << proj.pitch << ", offset = " << proj.offset << endl;
 
@@ -132,7 +133,7 @@ namespace acquire
                         temp2 = (proj.Y - repeat(proj.origin3, proj.Y.rows, 1));
                         temp1 = temp2*proj.caxis.t();
                         min(temp1, minval);
-                        origin = proj.origin3 + minval*proj.caxis;
+                        origin = proj.origin3 + minval*proj.caxis; // FIXME sign error?
                         proj.init(proj.Y, proj.caxis, &origin);
                         tout() << "slid to " << proj.origin3 << endl;
 

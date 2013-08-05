@@ -1,3 +1,8 @@
+This repository contains tools that I am developing as part of my PhD research with Dan Lee at the University of Pennsylvania. Those tools include:
+
+1. Helix: tools for fitting helices (screw joints) to video data, includes a program for acquiring camera input
+2. Kinematic arboretum: less ad-hoc, more mathematical, less effective fitting of rigid/prismatic/revolute/etc joints to kinematic trees, includes simulator and graphical design tool
+
 Installation
 ============
 Helix can be installed on OSX or Linux. I am working on creating a VM that will have all the dependencies set up already.
@@ -54,7 +59,7 @@ Hacking
 =======
 The code here is written in C++ and Octave (originally it was written in Matlab, and very easily ported to Octave).
 
-You'll find a clear separation between the acquisition part (C++) and all the machine learning parts (Octave).
+The learning part was prototyped in Matlab and then ported to C++. So now nearly everything is implemented in C++, including the acquisition, tag finding, and learning.
 
 - Acquisition
     - Headers
@@ -66,6 +71,7 @@ You'll find a clear separation between the acquisition part (C++) and all the ma
         | processor.h | worker thread that looks for Aruco tags in image frames
         | graphics.h | worker thread that shows the live video on the screen
         | writer.h | worker thread that writes frames to disk
+        | fitter.h | worker thread that runs the helix solver
         | packet.h | defines structs that are passed between threads
         | flexvideo.h | drop-in wrapper for OpenCV VideoCapture, but can read from sequentially numbered image files as well as cameras
         | concurrent_queue.h | a thread-safe queue I found on the internet
@@ -79,6 +85,7 @@ You'll find a clear separation between the acquisition part (C++) and all the ma
         | processor.cpp | see above
         | graphics.cpp | see above
         | writer.cpp | see above
+        | fitter.cpp | see above
         | flexvideo.cpp | see above
     - Misc
 
