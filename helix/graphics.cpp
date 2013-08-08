@@ -34,6 +34,9 @@ namespace acquire
         int signal = q1.wait_and_pop(cooked);
         if (q2.try_pop(digested)) {
             joints = digested.joints;
+            for (vector<Joint>::iterator i = joints.begin(); i != joints.end(); ++i) {
+                tout() << "Joint from " << i->a << " to " << i->b << " with score " << i->score << endl;
+            }
         }
 
         // TODO

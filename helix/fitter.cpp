@@ -1,4 +1,7 @@
 #include <iostream>
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/prim_minimum_spanning_tree.hpp>
 #include "acquire.h"
 #include "flexvideo.h"
 #include "aruco/cvdrawingutils.h"
@@ -12,6 +15,7 @@ namespace acquire
 {
     using namespace std;
     using namespace cv;
+    using namespace boost;
 
     bool Fitter::setup(int N_)
     {
@@ -105,7 +109,7 @@ namespace acquire
                         opt.set_min_objective(Fitter::objective_thunk, this);
                         opt.add_equality_constraint(Fitter::constraint_thunk, this, 1e-8);
                         opt.set_xtol_rel(1e-2);
-                        opt.set_maxtime(5); // 5 seconds max
+                        opt.set_maxtime(1); // 1 second max
                         double minf;
 
                         tout() << "\t\tfitting..." << endl;
@@ -199,11 +203,39 @@ namespace acquire
                         joint.pitch  = proj.pitch;
                         joint.offset = proj.offset;
                         joint.param  = proj.theta;
+                        joint.score  = minf;
                         pkt.joints.push_back(joint);
                     }
                 }
 
                 if (!pkt.joints.empty()) {
+                    // minimum spanning tree
+                    typedef std::pair<int, int> edge;
+                    typedef adjacency_list<vecS, vecS, undirectedS, no_property, property<edge_weight_t, double> > graph;
+                    typedef graph_traits<graph>::vertex_descriptor vertex;
+                    
+                    tout() << "computing minimum spanning tree..." << endl;
+                    graph g(N);
+                    vector<vertex> v(N);
+                    for (vector<Joint>::iterator i = pkt.joints.begin(); i != pkt.joints.end(); ++i) {
+                        tout() << "\tbefore: " << i->a << "->" << i->b << " (" << i->score << ")" << endl;
+                        add_edge(i->a, i->b, property<edge_weight_t, double>(i->score), g);
+                    }
+                    tout() << "\tcrunch..." << endl;
+                    try {
+                        prim_minimum_spanning_tree(g, &v[0]);
+                    } catch (std::exception& e) {
+                        terr() << "fuck! " << e.what() << endl;
+                    }
+                    for (vector<Joint>::iterator i = pkt.joints.begin(); i != pkt.joints.end(); /* no increment */) {
+                        if (v[i->a] == i->b || v[i->b] == i->a) {
+                            tout() << "\tafter: " << i->a << "->" << i->b << endl;
+                            ++i;
+                        } else {
+                            i = pkt.joints.erase(i);
+                        }
+                    }
+
                     pkt.time = time(NULL);
                     qo.push(pkt);
                 }

@@ -5,7 +5,7 @@ set(PROJECT_VERSION "0.0.1")
 
 #set(OpenCV_DIR "/usr/local/opt/opencv/share/OpenCV")
 find_package(OpenCV REQUIRED)
-find_package(Boost COMPONENTS system thread chrono program_options REQUIRED)
+find_package(Boost COMPONENTS system thread chrono program_options graph REQUIRED)
 find_package(aruco REQUIRED)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
