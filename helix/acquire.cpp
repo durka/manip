@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     Watcher eagle(nope, cerr, qwp);
     Processor intelinside(nope, cerr, qwp, qpg, qpw, qpf);
     Fitter tailor(cout, cerr, qpf, qfg);
-    Graphics painter(nope, cerr, qpg, qfg);
+    Graphics painter(cout, cerr, qpg, qfg);
     Writer scribe(nope, cerr, qpw);
 
     // read camera intrinsics

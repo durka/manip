@@ -45,7 +45,7 @@ namespace acquire
         cv::Mat origin;
         cv::Mat normal;
         cv::Mat param;
-        double radius, pitch, offset;
+        double radius, pitch, offset, score;
 
         Joint() {}
         Joint(const Joint& rhs) // deep copy the matrices
@@ -53,6 +53,7 @@ namespace acquire
             type = rhs.type;
             a = rhs.a;
             b = rhs.b;
+            score = rhs.score;
             origin = rhs.origin.clone();
             param = rhs.param.clone();
             switch (type)
