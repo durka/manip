@@ -1,6 +1,31 @@
 #include "DynamixelSerial1.h"
 #include "StringStream.h"
 
+/*
+HOW TO CONNECT THE ARDUINO
+
+This needs a Mega or something with at least three serial ports.
+The default serial port (class Serial) is used for communication with the computer.
+The first serial port (class Serial1) is used for transmitting to the Dynamixels.
+The second serial port (class Serial2) is used for receiving from the Dynamixels.
+We need two serial ports for the Dynamixels because they use only one pin for TX
+and RX (full duplex), but the Arduino cannot deal with TX1 and RX1 shorted together.
+
+Connect things as follows:
+- Arduino pin TX1 to Dynamixel data pin (yellow)
+- Arduino pin RX2 to Dynamixel data pin (yellow)
+- Ground to Dynamixel ground pin
+- Arduino ground to the same ground!
+- Probably just power the Arduino from the computer, as it will be connected
+  anyway for receiving commands
+- Power the Dynamixels with 12V or appropriate (we use AX-18A motors). Also use
+  the same ground!
+  
+By the way, if you are using a Seeeduino Mega, you need to push all three switches
+towards the center of the board so that it will let you program it.
+
+*/
+
 #define LED 13
 #define SPEED 100
 
@@ -183,6 +208,7 @@ void loop()
   while (Serial.available() > 0)
   {
     char c = Serial.read();
+    Serial.print(c);
     switch (c)
     {
       case 'S':
@@ -193,9 +219,17 @@ void loop()
       case '\n':
       case '\r':
       case 'X': // the arduino serial monitor doesn't send linebreaks
+        Serial.print("\r\n");
         buf[i] = '\0';
         process_command(buf);
         i = 0;
+        break;
+      case 0x7F: // backspace/delete
+        if (i > 0)
+        {
+            --i;
+            Serial.print("\b \b");
+        }
         break;
       default:
         buf[i++] = c;
