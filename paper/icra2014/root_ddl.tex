@@ -24,7 +24,9 @@
 \usepackage{amssymb}  % assumes amsmath package installed
 \usepackage{url}
 \usepackage{tikz}
-\usetikzlibrary{fit,shapes,arrows,automata}
+\usepackage{tikz-3dplot}
+\tdplotsetmaincoords{60}{110}
+\usetikzlibrary{fit,shapes,arrows,automata,3d,calc,shapes.geometric}
 \usepackage[titlenumbered,longend,ruled,linesnumbered]{algorithm2e}
 \usepackage{hyperref}
 
@@ -58,19 +60,94 @@
 
 
 \title{\LARGE \bf
-Visual discovery of screw joint chains for kinematic modeling$^*$
+Discovery and Estimation of Screw Joint Chains for
+Automated Kinematic Modeling
 }
 
 
-\author{Alex Burka$^{1}$ and Daniel D. Lee$^{2}$%
-\thanks{*This work was supported by the National Science Foundation.}%
-\thanks{$^{1}$Alex Burka is a Ph.D. student with the Department of Electrical Engineering,
-        University of Pennsylvania, 200 S 33rd St, Philadelphia, PA
-        {\tt\small aburka@seas.upenn.edu}}%
-\thanks{$^{2}$Daniel D. Lee is a professor in the same department and Director of the GRASP Laboratory at the University of Pennsylvania
-        {\tt\small ddlee@seas.upenn.edu}}%
+\author{Alex Burka and Daniel D. Lee\\
+  {\tt \{aburka,ddlee\}@seas.upenn.edu}\\
+  Department of Electrical and Systems Engineering\\
+  GRASP Laboratory\\
+  University of Pennsylvania
 }
 
+% this is from http://tex.stackexchange.com/questions/42812/3d-bodies-in-tikz
+% I tried to make the parameters configurable and failed
+% solution: put this tikzpicture in a node!
+% good enough for government work
+\newcommand{\tikzhelix}{
+  \begin{tikzpicture}[auto]
+    \fill[top color=gray!50!black,bottom color=gray!10,middle color=gray,shading=axis,opacity=0.25] (0,0) circle (2cm and 0.5cm);
+    \fill[left color=gray!50!black,right color=gray!50!black,middle color=gray!50,shading=axis,opacity=0.25] (2,0) -- (2,6) arc (360:180:2cm and 0.5cm) -- (-2,0) arc (180:360:2cm and 0.5cm);
+    \fill[top color=gray!90!,bottom color=gray!2,middle color=gray!30,shading=axis,opacity=0.25] (0,6) circle (2cm and 0.5cm);
+    \draw (-2,6) -- (-2,0) arc (180:360:2cm and 0.5cm) -- (2,6) ++ (-2,0) circle (2cm and 0.5cm);
+    \draw[densely dashed] (-2,0) arc (180:0:2cm and 0.5cm);
+  \end{tikzpicture}
+}
+
+\newcommand{\tikzhelixtwo}{
+\begin{tikzpicture}[tdplot_main_coords]
+  % --- Independent parameters ---
+\def\h{3}                          % cylinder height
+\pgfmathtruncatemacro\tA{350}      % A angle
+\def\zA{0}                         % A applicate
+\pgfmathtruncatemacro\tB{120}      % B angle
+\def\zB{3}                         % B applicate
+\pgfmathtruncatemacro\n{3}         % number of additional turns
+\pgfmathtruncatemacro\NbPt{400}     % number of dots for drawing the helix portion
+\def\rhelixdots{0.02}              % radius of dots forming helix
+\def\rAB{0.05}                     % radius of A and B dots
+
+% --- Draw cylinder ---
+
+% --- Draw helix ---
+\pgfmathsetmacro\tone{\tA}
+\pgfmathsetmacro\tlast{\tB+\n*360}
+\pgfmathsetmacro\ttwo{\tone+(\tlast-\tone)/(\NbPt-1)}
+\pgfmathsetmacro\p{360*(\zB-\zA)/(\tB-\tA+360*\n)}
+\foreach \t in {\tone,\ttwo,...,\tlast}{%
+    \fill[red] ({cos(\t)},{sin(\t)},{\p*(\t-\tA)/360+\zA}) circle[radius=\rhelixdots];
+}
+
+% lower circle
+\draw[black,very thin] (1,0,0) 
+    \foreach \t in {2,3,...,360}
+    {
+        --({cos(\t)},{sin(\t)},0)
+    }
+    --cycle;
+
+% upper circle
+\draw[black,very thin] (1,0,\h) 
+    \foreach \t in {2,4,...,360}
+    {
+        --({cos(\t)},{sin(\t)},\h)
+    }
+    --cycle;
+
+% peripheral spokes
+    \draw[gray] ({cos(110)},{sin(110)},0)
+        --({cos(110)},{sin(110)},\h);
+    \draw[gray] ({cos(290)},{sin(290)},0)
+        --({cos(290)},{sin(290)},\h);
+
+
+
+% labels and lines around the cylinder
+\fill (0,0,0) circle[radius=0.1];
+\node (center) at (0,.3,0) {$\xvec{o}$};
+\draw (0,0,0) -- (0,0,1);
+\draw (0,0,1) -- (0,0.1,0.9);
+\draw (0,0,1) -- (0,-0.1,0.9);
+\node (axis) at (0,0.3,1) {$\xvec{a}$};
+\draw (0,0,0) -- (0,-1,0);
+\node (radius) at (0.3,-0.5,0) {$r$};
+\fill[green] (0,1,2) circle[radius=0.1];
+\node (x) at (0,1.3,2) {$\xvec{x}$};
+ 
+\end{tikzpicture}
+}
 
 \begin{document}
 
@@ -83,7 +160,19 @@ Visual discovery of screw joint chains for kinematic modeling$^*$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-  A difficult problem in semantic perception is articulated object modeling, that is, the pathway from three-dimensional input (e.g. stereo vision, structured light, LIDAR etc) to discovering the latent kinematic structure of an object with moving parts. In previous literature including \cite{Sturm2009}, techniques are presented for using various joint models to assemble the most likely kinematic tree when presented with trajectory data. In this work, we focus on the more general screw joint model, which contains both revolute and prismatic joints as degenerate cases. We present an algorithm which models an articulated object using a tree of screw joints. The algorithm is tested on data captured with a commodity camera and augmented reality tags \cite{aruco}.
+  A difficult problem in perception and manipulation is an automated
+  method for discovering and estimating the constrained motions of
+  articulated objects.  How can the latent kinematic structure of
+  unknown objects be modeled by observing and segmenting the motions
+  of their parts in cluttered scenes?  Previous work has used a
+  variety of potential joint models to describe the most likely
+  kinematic tree from 3-D trajectory data.  In this work, we focus on
+  showing how chains of screw joints, which seemlessly integrate
+  aspects of both revolute and prismatic joints, can be automatically
+  discovered and estimated.  We present an algorithm that
+  probabilistically incorporates appropriate noise models on chains of
+  screw joints, and show its application in both physical simulation and on
+  visual observation of real-world objects.
 \end{abstract}
 
 
@@ -115,6 +204,23 @@ The literature reviewed above tends to treat joints as modeled by one of several
 
 Similarly, in our formalism, as elaborated below, each joint will be represented with a single rotation/translation axis, a radius of rotation, and a pitch describing the ratio between rotation and translation. This allows us to represent prismatic joints, revolute joints, and joints which both translate and rotate (such as a telephoto lens) in a unified, 8-parameter, 1-DOF representation.
 
+For an example, see Figure \ref{fig:tikzoverload}. This shows a schematic screw joint with origin at $\xvec{o}$, axis pointing in the $\xvec{a}$ direction, radius $r$ and some arbitrary pitch $p$ (not pictured). The cylinder and helix illustrate the possible range of motion. A position of the joint, with the degree of freedom set to a variable $\theta$, may be calculated from
+\begin{align}
+  \xvec{x} &= \textsc{R}(\xvec{a},\theta,r) \cdot \textsc{T}(\xvec{a},\theta p) \cdot \xvec{o} \label{eq:forward}
+\end{align}
+  where
+  $\textsc{R}(\xvec{n},\theta,r)$ is a rotation about axis $\xvec{n}$ by an angle $\theta$, with radius $r$
+  and
+  $\textsc{T}(\xvec{n},d)$ is a translation along axis $\xvec{n}$ by distance $d$.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \node (test) [scale=1.5,rotate=20] at (0,0) {\tikzhelixtwo{}};
+  \end{tikzpicture}
+  \caption{Schematic screw joint}
+  \label{fig:tikzoverload}
+\end{figure}
 \section{Articulated Objects as Screw Joint Trees}
 Many everyday objects have several moving parts. The joints which connect two moving parts may be characterized by joint type and number of degrees of freedom (DoG). In this paper we will consider only joints with one degree of freedom. This covers most objects, though to represent some joints we would need two (such as a swivel chair which both rotates and extends) or even three (in the case of a ball-and-socket joint).
 
@@ -192,7 +298,11 @@ Using these deltas, we can treat each joint independently as if only one part is
   \label{fig:block-algo}
 \end{figure}
 
-A helix requires 8 parameters for a complete specification: the origin $\xvec{o} \in \mathbb{R}^3$, the axis $\xuv{a} \in \mathbb{U}^3$, the radius $r \in \mathbb{R}$ and pitch $p \in \mathbb{R}$. The quadratic constraint that the axis must be a unit vector means that this is a 7-dimensional configuration space. The fitting proceeds in three steps, detailed in Algorithm \ref{alg:fit}.
+A helix requires 8 parameters for a complete specification: the origin $\xvec{o} \in \mathbb{R}^3$, the axis $\xuv{a} \in \mathbb{U}^3$, the radius $r \in \mathbb{R}$ and pitch $p \in \mathbb{R}$. The quadratic constraint that the axis must be a unit vector means that this is a 7-dimensional configuration space.
+
+This algorithm uses only the translation components of the 6D trajectories, reducing the dimension of the input space to 3 but possibly discarding useful data (see Section \ref{sec:future}). We assume that the input points are independent and identically distributed, sampled from a distribution centered at the helix trajectory (i.e. (\ref{eq:forward}) with Gaussian noise). The goal is to find the maximum likelihood solution, that is, the parameters $\xvec{o}$, $\xvec{a}$, $r$ and $p$ which maximize the probability of generating data similar to the input. Since the noise model is Gaussian, we use ordinary least squares fitting. Another possible noise model is Laplacian, where iteratively reweighted least squares (IRLS) would be appropriate to simulate a linear objective, but this was not observed to affect the fitting results.
+
+The fitting proceeds in three steps, detailed in Alg. \ref{alg:fit}.
 
 The first step, which is the harder and more important of the two, is to find the helix origin and axis. Our approach is to treat the trajectory as a point cloud in 3D space, and perform a principal components analysis (PCA) to find the dominant directions present in the cloud. One of the principal axes will be used as an initial estimate of the helix axis. (If the helix is long and narrow, it will be the component that describes the most variation, but we cannot assume this since the helix could be shallow, or it may not even contain a complete revolution.) We choose for the estimate the component which collapses the helix into the ``best'' circle. ``Best'' here is determined by projecting the helix down onto a plane (line \ref{alg:fit:proj}), fitting a circle (Algorithm \ref{alg:fit-findcenter}) and checking the deviation from the fitted radius (line \ref{alg:fit:ei}).
 
@@ -279,7 +389,7 @@ Lastly, we refine the estimates of the helix origin and axis by means of nonline
 
 \end{algorithm}
 
-Lastly, the best circularity value returned by the optimization function is used as the ``score'' of the proposed joint. Since we evaluate every pairing of objects parts as a potential screw joint, but seek a tree as the final model, the minimum spanning tree is selected (by Prim's algorithm \cite{prim}), using the joint scores as edge weights.
+Finally, the best circularity value returned by the optimization function is used as the ``score'' of the proposed joint. Since we evaluate every pairing of objects parts as a potential screw joint, but seek a tree as the final model, the minimum spanning tree is selected (by Prim's algorithm \cite{prim}), using the joint scores as edge weights.
 
 \section{Evaluation}
 The helix fitting system has been evaluted both in simulation and using real-world data captured from the robotic arm pictured in Figure \ref{fig:arm}.
@@ -290,15 +400,15 @@ The goal of the simulation experiment is to define a screw joint by its paramete
 
 The forward kinematics of a screw joint, as applied to a vector $\xvec{v}$, are given by the following chain of rigid transformations, read from right to left. First, $\xse{c}$ moves the origin to the helix origin and aligns the $z$-axis with the helix axis. \textsc{T} and \textsc{R} generate pure translation and rotation about the $z$-axis. Then $\xse{r}$ incorporates the helix radius.
 \begin{align}
-  \xse{s}*\xvec{v} &= \xse{r} * \textsc{R}(\mat{ccc}{0 & 0 & \theta}) * \textsc{T}(\mat{ccc}{0 & 0 & \theta p}) * \xse{c} * \xvec{v}
+  \xse{s} \cdot \xvec{v} &= \xse{r} \cdot \textsc{R}(0, 0, \theta) \cdot \textsc{T}(0, 0, \theta p) \cdot \xse{c} \cdot \xvec{v}
 \end{align}
-With two rigid transformations, plus the pitch, totaling 13 parameters, this representation is richer than the 7-dimensional description of a helix given earlier. This is due to the fact that $\xse{r}$ can incorporate an arbitrary post-transformation as long as it maintains a constant helix radius, and $\xse{c}$ must align the $z$-axis but may rotate the $xy$-plane. This accounts for the extra 6 parameters. Though the full parametrization is necessary for modeling general kinematic chains without resorting to intermediate rigid joints, here for the purposes of simulation we will restrict $\xse{c}$ to a simple translation and rotation, and $\xse{r}$ to a one-dimensional translation.
+(More specifically, we use the parametrized rigid transforms $\textsc{R}(\theta_1, \theta_2, \theta_3)$, a rotation given $ZYZ$ Euler angles and $\textsc{T}(d_x, d_y, d_z)$, an axis-aligned translation.) With two rigid transformations, plus the pitch, totaling 13 parameters, this representation is richer than the 7-dimensional description of a helix given earlier. This is due to the fact that $\xse{r}$ can incorporate an arbitrary post-transformation as long as it maintains a constant helix radius, and $\xse{c}$ must align the $z$-axis but may rotate the $xy$-plane. This accounts for the extra 6 parameters. Though the full parametrization is necessary for modeling general kinematic chains without resorting to intermediate rigid joints, here for the purposes of simulation we will restrict $\xse{c}$ to a simple translation and rotation, and $\xse{r}$ to a one-dimensional translation.
 
 The simulator is controlled by a graphical interface, shown in Figure \ref{fig:gui}. It contains a tree editor and can simulate arbitrary kinematic chains of rigid, prismatic, revolute and screw joints (the last was added for this work). The source code and data files used to generate the simulated trajectories used here can be found in Appendix \ref{sec:code}.
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=.5\textwidth]{img/screenshot.png}
+  \includegraphics[width=.47\textwidth]{img/screenshot.png}
   \caption{Custom GUI for designing and simulating articulated objects}
   \label{fig:gui}
 \end{figure}
@@ -409,7 +519,7 @@ In the table above, the lower joint is used to calibrate the coordinate system, 
 
 \section{Conclusions and Future Work} \label{sec:future}
 
-In this paper we have presented a system for capturing the kinematic structure of an articulated object, as modeled by a tree of screw joints. Screw joints are general enough to capture the common types of 1-DOF joints: prismatic, revolute, and screw. Within our framework the models produced are perceptually grounded and so they are applicable to many other tasks that a robot needs to perform in a human environment. There are also ample avenues for future work. Robustness is always a problem, and a system that will be applicable in diverse applications should be very robust to changes in environment, lighting, etc. Part of the solution to this problem is to revamp the input pathway. The fiducials should be replaced by a more robust visual system, using stereoscopic vision to track features with no need to instrument the environment. On the other end of the system, the kinematic model can be made more useful with the addition of information about dynamics, such as the weight of objects and the charatistics of joints (range of motion, friction, etc). With a basic kinematic model in place, the robot can experiment with an object, exercising the discovered degrees of freedom in order to discover new ones and refine the model.
+In this paper we have presented a system for capturing the kinematic structure of an articulated object, as modeled by a tree of screw joints. Screw joints are general enough to capture the common types of 1-DOF joints: prismatic, revolute, and screw. Within our framework the models produced are perceptually grounded and so they are applicable to many other tasks that a robot needs to perform in a human environment. There are also ample avenues for future work. Robustness is always a problem, and a system that will be applicable in diverse applications should be very robust to changes in environment, lighting, etc. Part of the solution to this problem is to revamp the input pathway. The fiducials should be replaced by a more robust visual system, using stereoscopic vision to track features with no need to instrument the environment. Also, the fitting may benefit from considering the full 6D input (including orientation). On the other end of the system, the kinematic model can be made more useful with the addition of information about dynamics, such as the weight of objects and the charatistics of joints (range of motion, friction, etc). With a basic kinematic model in place, the robot can experiment with an object, exercising the discovered degrees of freedom in order to discover new ones and refine the model.
 
 \appendix
 
@@ -417,6 +527,8 @@ In this paper we have presented a system for capturing the kinematic structure o
 The Kinematic Arboretum simulator is implemented in Matlab. Implementations of the helix fitting algorithm are available both in Matlab and C++ (much faster). The C++ program is also used for gathering camera data and extracting the trajectory data for input to the Matlab fitter. All of the source code is available at \url{http://www.alexburka.com/penn/manip.php}.
 
 
+\subsection{Acknowledgements}
+This work was supported by the National Science Foundation and the Army Research Laboratory.
 
 
 
