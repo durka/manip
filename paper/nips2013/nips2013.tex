@@ -1,8 +1,41 @@
 \documentclass{article} % For LaTeX2e
 \usepackage{nips13submit_e,times}
-\usepackage{hyperref}
+\usepackage{amsmath} % assumes amsmath package installed
+\usepackage{amssymb}  % assumes amsmath package installed
+\usepackage{bm}
+%\usepackage{hyperref}
 \usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{fit,shapes,arrows,automata}
+\usepackage[titlenumbered,longend,ruled,linesnumbered]{algorithm2e}
 %\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
+
+
+% random helper commands
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\proj}{proj}
+\DeclareMathSymbol{\widehatsym}{\mathord}{largesymbols}{"62}
+\newcommand\lowerwidehatsym{%
+  \text{\smash{\raisebox{-1.3ex}{%
+    $\widehatsym$}}}}
+\newcommand\bowler[1]{%
+  \mathchoice
+    {\accentset{\displaystyle\lowerwidehatsym}{#1}}
+    {\accentset{\textstyle\lowerwidehatsym}{#1}}
+    {\accentset{\scriptstyle\lowerwidehatsym}{#1}}
+    {\accentset{\scriptscriptstyle\lowerwidehatsym}{#1}}
+}
+\newcommand\mat[2]{\ensuremath{\left[\begin{array}{#1}#2\end{array}\right]}}
+\newcommand\deriv[2]{\ensuremath{\frac{\partial #1}{\partial #2}}}
+\newcommand{\overbar}[1]{\mkern 4mu\overline{\mkern-4mu#1\mkern-4mu}\mkern 4mu}
+
+% notation
+\def\change{ {\mathsmaller\Delta} }
+\def\xmat{\uppercase}    \def\xmatstr{in uppercase}
+\def\xvec{\vec}          \def\xvecstr{with an arrow}
+\def\xuv{\hat}           \def\xuvstr{with a caret}
+\def\xse{\bm}            \def\xsestr{in boldface}
 
 
 \title{Automatic Modeling of Articulated Objects Using Screw Joint Trees}
@@ -35,8 +68,239 @@ Pennsylvania, PA 19104 \\
 \maketitle
 
 \begin{abstract}
-  As the authors of \cite{Burka2013} show, screw joints are a general approach for solving all kinematic modeling problems.
+  A difficult problem in semantic perception is articulated object modeling, that is, the pathway from three-dimensional input (e.g. stereo vision, structured light, LIDAR etc) to discovering the latent kinematic structure of an object with moving parts. In previous literature including \cite{Burka2013} and \cite{Sturm2009}, techniques are presented for using various joint models to assemble the most likely kinematic tree when presented with trajectory data. In this work, we focus on the more general screw joint model, which contains both revolute and prismatic joints as degenerate cases. We present an algorithm which models an articulated object using a tree of screw joints. The algorithm is tested in simulation and on data captured with a camera and augmented reality tags \cite{aruco}.
 \end{abstract}
+
+\section{Introduction}
+
+\subsection{Motivation}
+As robots become increasingly dextrous and equipped to interact with humans in human environments, there is a need to teach them to use human artifacts (tools, buildings, furniture, vehicles) in a natural and semantically appropriate way. Our work in this area focuses on understanding the kinematic structure of articulated objects (i.e. moving parts) in the environment. Humans rely heavily on intuition, pattern matching and experimentation for this task. For example, sitting down in a rental car may be momentarily disorienting, but a human driver already knows how to operate the pedals, gearshift and windshield wipers (the Prius being an exception). Door locks and radio controls are always different but can be found by analogy, or experimentation if necessary.
+
+\subsection{Literature Review}
+\cite{Sturm2009}, \cite{Aqvist1986}, \cite{Burka2013}
+
+\subsection{Paper Outline}
+
+\section{Articulated Objects as Screw Joint Trees}
+Many everyday objects have several moving parts. The joints which connect two moving parts may be characterized by joint type and nmber of degrees of freedom (DoG). In this paper we will consider only joints with one degree of freedom. This covers most objects, though to represent some joints we would need two (such as a swivel chair which both rotates and extends) or even three (in the case of a ball-and-socket joint).
+
+Furthermore, the only considered joint type will be the screw joint. Conceptually, a screw joint links two object parts $a$ and $b$ with one degree of freedom such that $b$ translates and rotates along the same axis with respect to $a$. The ratio between rotation and translation is the \emph{pitch}. Considering only this joint type is not so limiting as it seems, because the common joint types (i.e. those covered in \cite{Burka2013}) exist as degenerate cases. A prismatic joint is simply a screw joint with infinite pitch, whereas a revolute joint is a screw joint with zero pitch.
+
+In general, an object with many moving parts must be modeled by a connected, directed graph where the vertices are object parts and the edges are joints.  Any node of indegree greater than unity has extra implied kinematic constraints. In this work these will be ignored, so all graphs in question will be trees. For an example, consider the two-axis translation table depicted in Figure \ref{fig:example} with its associated kinematic tree model. The long bars translate in two dimensions, and the red knobs control each axis. This tree contains both screw joints (the X knob with respect to the base, and the Y knob with respect to the X gantry) and prismatic joints, or infinite-pitch screw joints (the sliding gantries). Note that this is not the only possible model: the knobs could be modeled as connected to their respective gantries, where they would be pure revolute joints, or zero-pitch screws. Also, this model ignores the fact that the rotary motion of the knobs is causally related to the translation of the gantries: it is a kinematic model, not a dynamic one.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[auto]
+    \tikzstyle{node} = [draw, ellipse]
+
+    \node (base) at (10,1.5) [node, accepting] {base};
+    \node (xslide) [node, below of=base, node distance=4em] {X gantry};
+    \node (yslide) [node, below of=xslide, node distance=4em] {Y gantry};
+    \node (xknob) [node, left of=xslide, node distance=10em] {X control knob};
+    \node (yknob) [node, left of=yslide, node distance=10em] {Y control knob};
+
+    \draw [->] (base) -- node {Pr} (xslide);
+    \draw [->] (xslide) -- node {Pr} (yslide);
+    \draw [->] (base) -- node[above] {Sc} (xknob);
+    \draw [->] (xslide) -- node[above] {Sc} (yknob);
+
+    \node (image) {\includegraphics[width=0.5\textwidth]{img/axistable.jpg}};
+    \node (knx) at (-2.7,-0.1) {};
+    \node (kny) at (2,-0.5) {};
+    \draw [-,dashed,ultra thick,green] (xknob.north) to[bend right] node {} (knx);
+    \draw [-,dashed,ultra thick,green] (yknob.south) to[bend left] node {} (kny);
+
+    \node (xg1) at (-1.0,-0.2) {};
+    \node (xg2) at (-2.2,-1.2) {};
+    \node (yg1) at (-1.7,1.5) {};
+    \node (yg2) at (-3.0,2.1) {};
+    \draw [<->,line width=3pt,blue] (xg1) -- node {} (xg2);
+    \draw [<->,line width=3pt,blue] (yg1) -- node {} (yg2);
+  \end{tikzpicture}
+  \caption{Two axis table}
+  \label{fig:example}
+\end{figure}
+
+\section{Model Fitting}
+Input to the model comes in the form of 6D trajectories, which will be denoted by the rigid transform matrix representation, i.e. $\xse{x} = \mat{ccc|c}{&&& t_x \\ & \xmat{r} && t_y \\ &&& t_z \\\hline 0 & 0 & 0 & 1}$.\footnote{In this paper, superscripts are used for numbering object parts, feature points or graph/tree edges, while subscripts are reserved for indexing in time. Where it makes sense, operations may be considered to be implicitly vectorized (i.e. $(\xse{x}_{1..T}^a)^{-1}$ refers to $\{(\xse{x}_1^a)^{-1}, (\xse{x}_2^a)^{-1}), \dots\}$). Also, elements of $SE(3)$ will usually be shown \xsestr{} ($\xse{x}$), matrices in $\mathbb{R}^{3 \times 3}$ \xmatstr{} ($\xmat{a}$), vectors in $\mathbb{R}^2$ or $\mathbb{R}^3$ \xvecstr{} ($\xvec{v}$), and unit vectors in $\mathbb{U}^2$ or $\mathbb{U}^3$ \xuvstr{ } ($\xuv{u}$).} The full trajectory describing an object with $K$ parts over $T$ timesteps is
+\begin{align}
+  X = \{ \xse{x}_t^k \in SE(3) \mid k \in \{1..K\}, t \in \{1..T\} \}
+\end{align}
+To fit the individual joint models, the relative transformations are more useful, so for every pair of objects $a, b \in 1..K$ we will refer to the \emph{deltas}:
+\begin{align}
+  \xse{\Delta}_{1..T}^{a:b} &= \xse{x}_{1..T}^{b} (\xse{x}_{1..T}^{a})^{-1}
+\end{align}
+Using these deltas, we can treat each joint independently as if only one part is moving and the other is stationary at the origin.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[auto, >=latex']
+    \tikzstyle{every node} = [font=\small]
+    \tikzstyle{textbox} = [align=center, draw, fill=blue!20, minimum height=2em, minimum width=4em]
+    \tikzstyle{block} = [textbox, ellipse]
+    \tikzstyle{function} = [textbox, rectangle]
+    \tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+    \node (input) [block] {trajectory input};
+    \node (preprocess) [function, right of=input, node distance=13em] {smooth \& find deltas};
+    \node (loop) [below of=preprocess, node distance=5em] {for each pair of nodes $a, b$};
+    \node (fit) [function, below of=loop] {find best-fit helix parameters \\ $\xvec{o}, \xvec{a}, p,r = \textsc{HelixFit}(\xse{\Delta}_t^{a:b})$};
+    \node (mst) [function, below of=fit, node distance=5em] {extract minimum spanning tree \\ $S = \textsc{MST}(G, \textsc{HelixEval})$};
+    \node (output) [block, right of=mst, node distance=15em] {screw joint tree};
+
+    \node (box) [draw=black!50, dashed, fit={(loop) (fit)}] {};
+    \draw [->] (input) -- node {$\xse{x}_t^k$} (preprocess);
+    \draw [->] (preprocess) -- node {$G=(V=1..K, E=\xse{\Delta}_t^{a:b})$} (box);
+    \draw [->] (box) -- node[left] {$G=(V=1..K, E=\{\xse{\Delta}_t^{a:b}, \xvec{o},\xvec{a},p,r\})$} (mst);
+    \draw [->] (mst) -- node {$S$} (output);
+  \end{tikzpicture}
+  \caption{Block diagram of model fitting process}
+  \label{fig:block-algo}
+\end{figure}
+
+A helix requires 8 parameters for a complete specification: the origin $\xvec{o} \in \mathbb{R}^3$, the axis $\xuv{a} \in \mathbb{U}^3$, the radius $r \in \mathbb{R}$ and pitch $p \in \mathbb{R}$. The quadratic constraint that the axis must be a unit vector means that this is a 7-dimensional configuration space. The fitting proceeds in three steps, detailed in Algorithm \ref{alg:fit}.
+
+The first step, which is the harder and more important of the two, is to find the helix origin and axis. Our approach is to treat the trajectory as a point cloud in 3D space, and perform a principal components analysis (PCA) to find the dominant directions present in the cloud. One of the principal axes will be used as an initial estimate of the helix axis. (If the helix is long and narrow, it will be the component that describes the most variation, but we cannot assume this since the helix could be shallow, or it may not even contain a complete revolution.) We choose for the estimate the component which collapses the helix into the ``best'' circle. ``Best'' here is determined by projecting the helix down onto a plane (line \ref{alg:fit:proj}), fitting a circle (Algorithm \ref{alg:fit-findcenter}) and checking the deviation from the fitted radius (line \ref{alg:fit:ei}).
+
+The second step, given the axis, finds the helix radius and pitch. The joint state ($\theta$) at each timestep is produced as a byproduct of this step. Our approach is to take the projected helix (produced in the first step), where it should form an arc of a circle. Then we can extract the rotation angle at each timestep (line \ref{alg:fit:atan}). This provides an estimate of the radius, and a simple linear regression (line \ref{alg:fit:linreg}) from rotation angle to height above the plane gives the pitch.
+
+Lastly, we refine the estimates of the helix origin and axis by means of nonlinear optimization (Matlab's SQP method), contraining the axis to be a unit vector perpendicular to the origin, and using as the objective function the circularity of the helix plane projection. Then the calculations of step 2 are repeated, given the refined estimates.
+
+\begin{algorithm}[h]
+  \SetFuncSty{textsc}
+  \SetProcNameSty{textsc}
+  \caption{Helix Fitting Procedure}
+  \label{alg:fit}
+  \KwIn{$\xvec{y}_{1..T}$ relative trajectory of point $b$ (point $a$ stays at the origin)}
+  \KwOut{Helix parameters $\{\xvec{o}, \xvec{a}, p, r\}$}
+  \SetKwFunction{PCA}{PCA}
+  \SetKwFunction{Plane}{Plane}
+  \SetKwFunction{Project}{Proj}
+  \SetKwFunction{LinReg}{LinReg}
+  \SetKwFunction{FindCenter}{FindCenter}
+  \SetKwFunction{Circularity}{Circularity}
+  \SetKwFunction{Optimize}{Optimize}
+  \SetKw{KwInn}{in}
+  \DontPrintSemicolon
+  \BlankLine
+
+  \tcp{Step 1: find helix origin/axis}
+    $\xvec{b}^{1..3}, \xvec{z}_{1..T} \leftarrow \PCA(\xvec{y}_{1..T})$ \;
+    \For{$i$ \KwInn $\{1..3\}$}{
+      $c \leftarrow \frac{1}{T}\sum_t \xvec{z}_t$ \;
+      $c[i] \leftarrow \min_t \xvec{z}_t(i)$ \;
+      $plane \leftarrow \Plane(c, b^i)$ \;
+      $\xvec{u}_{1..T}^i \leftarrow \Project(plane, \xvec{y}_{1..T})$ \label{alg:fit:proj} \;
+      $\xvec{o}^i, r^i \leftarrow \FindCenter(\xvec{u}_{1..T})$ \;
+      $e^i \leftarrow \sum_t ( ||\xvec{u}_t - \xvec{o}^i|| )^2$ \label{alg:fit:ei} \;
+    }
+    $h \leftarrow \argmin_i e^i$ \;
+    $\xvec{u}_{1..T}, \hat{\xvec{o}}, \hat{\xvec{a}}, \hat{r} \leftarrow \xvec{u}_{1..T}^h, \xvec{o}^h, \xvec{a}^h, r^h$ \;
+  \tcp{Step 2: extrapolate angles and pitch}
+    $\theta_{1..T} \leftarrow \tan^{-1}(\frac{\xvec{u}_{1..T}[2] - \hat{\xvec{o}}[2]}{\xvec{u}_{1..T}[1] - \hat{\xvec{o}}[1]})$ \label{alg:fit:atan} \;
+    $\hat{p} \leftarrow \LinReg(\theta_{1..T}, \xvec{y}_{1..T} \cdot \hat{\xvec{a}})$ \label{alg:fit:linreg} \;
+
+  \tcp{Step 3: nonlinear optimization}
+    $\hat{\xvec{o}}, \hat{\xvec{a}} \leftarrow \Optimize(\Circularity(\xvec{y}_{1..T}, \xvec{o}, \xvec{a}), \xvec{o}\cdot\xvec{a}=0, ||\xvec{a}||=1, \hat{\xvec{o}}, \hat{\xvec{a}})$ \;
+    $plane \leftarrow \Plane(\hat{\xvec{o}}, \hat{\xvec{a}})$ \;
+    $\xvec{u}_{1..T}^i \leftarrow \Project(plane, \xvec{y}_{1..T})$ \;
+    $\theta_{1..T} \leftarrow \tan^{-1}(\frac{\xvec{u}_{1..T}[2] - \hat{\xvec{o}}[2]}{\xvec{u}_{1..T}[1] - \hat{\xvec{o}}[1]})$ \;
+    $\hat{p} \leftarrow \LinReg(\theta_{1..T}, \xvec{y}_{1..T} \cdot \hat{\xvec{a}})$ \;
+\end{algorithm}
+
+\begin{algorithm}[h]
+  \SetFuncSty{textsc}
+  \SetProcNameSty{textsc}
+  \caption{\textsc{FindCenter} (subroutine for Algorithm \ref{alg:fit})}
+  \label{alg:fit-findcenter}
+  \KwIn{$\xvec{u}_{1..T}$ set of coplanar 2D points}
+  \KwOut{$\xvec{o}$ center, $r$ radius}
+  \DontPrintSemicolon
+  \BlankLine
+
+  $\xvec{a} \leftarrow \mat{cc}{\xvec{u}_{1..T} & \xvec{1}_{T \times 1}}_{T \times 3}^{-1} * \mat{c}{-||\xvec{u}_{1..T}||^2}_{T \times 1}$ \;
+  $\xvec{o} \leftarrow \mat{cc}{\xvec{a}[1] & \xvec{a}[2]}$ \;
+  $r \leftarrow \xvec{a}[3]$ \;
+
+\end{algorithm}
+
+\begin{algorithm}[h]
+  \SetFuncSty{textsc}
+  \SetProcNameSty{textsc}
+  \caption{\textsc{Circularity} (subroutine for Algorithm \ref{alg:fit})}
+  \label{alg:fit-circularity}
+  \KwIn{$\xvec{y}_{1..T}$ set of 3D points, $\xvec{o}$ plane origin, $\xvec{a}$ plane normal}
+  \KwOut{$e$ circularity score}
+  \SetKwFunction{Plane}{Plane}
+  \SetKwFunction{Project}{Proj}
+  \SetKwFunction{FindCenter}{FindCenter}
+  \SetKwFunction{Std}{Std}
+  \DontPrintSemicolon
+  \BlankLine
+
+  $plane \leftarrow \Plane(\xvec{o}, \xvec{a})$ \;
+  $\xvec{u}_{1..T} \leftarrow \Project(plane, \xvec{y}_{1..T})$ \;
+  $\xvec{o} \leftarrow \FindCenter(\xvec{u}_{1..T})$ \;
+  $e \leftarrow \Std( \sum_t || \xvec{u}_t - \xvec{o} || )$ \;
+
+\end{algorithm}
+
+\section{Evaluation}
+The helix fitting system has been evaluted both in simulation and using real-world data captured from the swivel chair pictured in Figure \ref{fig:chair} (which is, despite its mundane nature, a quite kinematically versatile object).
+
+\subsection{Simulation}
+
+The goal of the simulation experiment is to define a screw joint by its parameters, and generate a trajectory by executing a random walk in state space. At this point noise is added, and we hope to recover the original helix parameters from the noisy trajectory by Algorithm \ref{alg:fit}.
+
+The forward kinematics of a screw joint, as applied to a vector $\xvec{v}$, are given by the following chain of rigid transformations, read from right to left. First, $\xse{c}$ moves the origin to the helix origin and aligns the $z$-axis with the helix axis. \textsc{T} and \textsc{R} generate pure translation and rotation about the $z$-axis. Then $\xse{r}$ incorporates the helix radius.
+\begin{align}
+  \xse{s}*\xvec{v} &= \xse{r} * \textsc{R}(\mat{ccc}{0 & 0 & \theta}) * \textsc{T}(\mat{ccc}{0 & 0 & \theta p}) * \xse{c} * \xvec{v}
+\end{align}
+With two rigid transformations, plus the pitch, totaling 13 parameters, this representation is richer than the 7-dimensional description of a helix given earlier. This is due to the fact that $\xse{r}$ can incorporate an arbitrary post-transformation as long as it maintains a constant helix radius, and $\xse{c}$ must align the $z$-axis but may rotate the $xy$-plane. This accounts for the extra 6 parameters. Though the full parametrization follows the pattern of \cite{Burka2013} and is necessary for modeling general kinematic chains without resorting to intermediate rigid joints, here for the purposes of simulation we will restrict $\xse{c}$ to a simple translation and rotation, and $\xse{r}$ to a one-dimensional translation.
+
+The simulator is controlled by a graphical interface which also grew out of the system presented in \cite{Burka2013}, shown in Figure \ref{fig:gui}. It contains a tree editor and can simulate arbitrary kinematic chains of rigid, prismatic, revolute and screw joints (the last was added for this work). The source code and data files used to generate the simulated trajectories used here can be found in Appendix \ref{sec:code}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=.9\textwidth]{img/screenshot.png}
+  \caption{Custom GUI for designing and simulating articulated objects}
+  \label{fig:gui}
+\end{figure}
+
+For this experiment, two screw joints were simulated. Both have an origin at $(0, 0, 0)$, a helix axis of $(0, 0, 1)$ and a radius of 1. One joint has a pitch of 0 (making it a revolute joint) and the other has a pitch of 5. Table \ref{tbl:simulation} shows the learned parameters and Figure \ref{fig:simulation} shows a representation of the results.
+
+\begin{table}[ht]
+  \begin{tabular}{c|c|c|c|c}
+           & \multicolumn{2}{c}{Revolute} & \multicolumn{2}{|c}{Screw} \\
+           & Simulated   & Detected    & Simulated   & Detected    \\ \hline
+    Origin & $(0, 0, 0)$ & $(0.0005, -0.0065, 0.0008)$ & $(0, 0, 0)$ & $(0.2682, 0.2546, -0.0011)$ \\
+    Axis   & $(0, 0, 1)$ & $(-0.0654, 0.1154, 0.9912)$ & $(0, 0, 1)$ & $(0.0035, 0.0006, 1.000)$ \\
+    Radius & 1           & 1.5583      & 1           & 1.0980      \\
+    Pitch  & 0           & 0.0175      & 5           & 4.9240      \\
+  \end{tabular}
+  \caption{Parameters through the simulation}
+  \label{tbl:simulation}
+\end{table}
+
+\subsection{Swivel Chair}
+The first experiment focused on a common swivel chair (pictured at left in Figure \ref{fig:chair}) as the articulated object of interest. In particular, between the base and the seat there is a prismatic/revolute joint with two degrees of freedom. This makes the chair a versatile object in the context of our system which models 1-DOF joints. Depending on the type of motion performed during the recording (videos available; see Section \ref{sec:code}), the chair can appear as a pure prismatic joint, a pure revolute joint, or a screw joint.\footnote{Since the joint actually has two degrees of freedom, it has no fixed pitch. Therefore, making a screw joint for recording purposes requires a steady hand. See the video for details.}
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}
+    \node (image) {\includegraphics[width=0.5\textwidth,angle=-90]{img/chair.jpg}};
+    \node (chair2) at (6,1.75) {\includegraphics[width=0.3\textwidth]{img/chair2.png}};
+    \node (chair2) at (6,-1.75) {\includegraphics[width=0.3\textwidth]{img/chair3.png}};
+  \end{tikzpicture}
+  \caption{Swivel chair instrumented with Aruco tags}
+  \label{fig:chair}
+\end{figure}
+
+\section{Conclusions and Future Work}
+
+\appendix
+
+\section{Source Code}
 
 \section{Submission of papers to NIPS 2013}
 
