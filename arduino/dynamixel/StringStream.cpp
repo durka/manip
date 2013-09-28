@@ -1,5 +1,11 @@
 #include "StringStream.h"
 
+StringStream::StringStream(const char *s)
+    : str(s), pos(0), len(strlen(s))
+{
+    setTimeout(1);
+}
+
 int StringStream::available()
 {
     return pos < len;
@@ -7,7 +13,10 @@ int StringStream::available()
 
 int StringStream::read()
 {
-    return str[pos++];
+    if (pos < len)
+      return str[pos++];
+    else
+      return -1;
 }
 
 int StringStream::peek()

@@ -10,7 +10,7 @@ class StringStream : public Stream
         unsigned int pos, len;
 
     public:
-        StringStream(const char *s) : str(s), pos(0), len(strlen(s)) {}
+        StringStream(const char *s);
 
         virtual int available();
         virtual int read();
