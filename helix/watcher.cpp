@@ -43,6 +43,7 @@ namespace acquire
             pkt.index = index++;
             pkt.time = time(NULL);
             captor.retrieve(pkt.image);
+            resize(pkt.image, pkt.image, Size(0, 0), 0.5, 0.5);
             q.push(pkt);
             boost::this_thread::sleep_until(start + milliseconds(50));
             return true;

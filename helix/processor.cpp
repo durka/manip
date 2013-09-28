@@ -53,6 +53,7 @@ namespace acquire
             for (vector<Marker>::iterator i = cooked.markers.begin(); i != cooked.markers.end(); ++i) {
                 CvDrawingUtils::draw3dCube(raw.image, *i, *intrinsics);
                 CvDrawingUtils::draw3dAxis(raw.image, *i, *intrinsics);
+                tout() << "\t(" << (*i)[0].x << ", " << (*i)[0].y << ")" << endl;
             }
 
             cooked.dirty = raw.image.clone();

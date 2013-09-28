@@ -36,6 +36,7 @@ namespace acquire
             joints = digested.joints;
             for (vector<Joint>::iterator i = joints.begin(); i != joints.end(); ++i) {
                 tout() << "Joint from " << i->a << " to " << i->b << " with score " << i->score << endl;
+                tout() << "\t" << "origin=" << i->origin << ", axis=" << i->normal << ", radius=" << i->radius << ", pitch=" << i->pitch << endl;
             }
         }
 
@@ -120,6 +121,7 @@ namespace acquire
                     Joint joint;
                     joint.a = a;
                     joint.b = b;
+                    double t;
                     READd(type,   joint.type);
                     READm(origin, joint.origin);
                     READm(normal, joint.normal);

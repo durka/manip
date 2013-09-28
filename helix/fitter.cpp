@@ -116,7 +116,12 @@ namespace acquire
                         tout() << "\t\t\torigin = " << proj.origin3 << endl;
                         tout() << "\t\t\tcaxis  = " << proj.caxis << endl;
 
-                        nlopt::result res = opt.optimize(x, minf);
+                        try
+                        {
+                            nlopt::result res = opt.optimize(x, minf);
+                        } catch (std::exception& e) {
+                            terr() << "OPTIMIZATION FAILED: " << e.what() << endl;
+                        }
 
                         proj.origin3.at<double>(0) = x[0];
                         proj.origin3.at<double>(1) = x[1];
@@ -250,7 +255,7 @@ namespace acquire
         static int iter = 0;
 
         Mat center(1, 3, CV_64FC1),
-                normal(1, 3, CV_64FC1);
+            normal(1, 3, CV_64FC1);
         center.at<double>(0) = x[0];
         center.at<double>(1) = x[1];
         center.at<double>(2) = x[2];
@@ -265,17 +270,27 @@ namespace acquire
 
         // return std(sqrt(sum((Y2 - o).^2, 2)))
         Mat temp1, temp2, radii;
-        Scalar mean, std;
+        Scalar the_mean, the_std;
         pow(Y2 - repeat(origin.t(), Y2.rows, 1), 2, temp1);
         reduce(temp1, temp2, 1, CV_REDUCE_SUM);
         sqrt(temp2, radii);
-        meanStdDev(radii, mean, std);
+        meanStdDev(radii, the_mean, the_std);
+
+        // estimate the pitch to use as a prior
+        Projection projection;
+        projection.init(proj.Y, normal, &center);
+        projection.do_pitch();
+        //double pitch_estimate = mean(abs((proj.Y - repeat(origin.t(), proj.Y.rows, 1)) * normal.t()))[0];
+        double value = the_std[0] * pow(fabs(projection.pitch), 3);
 
         tout() << "\t\t\titeration #" << setw(4) << iter++ << ": ";
         for (int j = 0; j < 6; ++j) out << x[j] << " ";
-        out << " = " << std[0] << endl;
+        out << " = " << value << ", ";
+        double mintheta, maxtheta;
+        minMaxLoc(projection.theta, &mintheta, &maxtheta);
+        out << "theta from " << mintheta << " to " << maxtheta << endl;
 
-        return std[0];
+        return value;
     }
 
     double Fitter::constraint(unsigned n, const double *x, double *grad)
