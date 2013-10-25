@@ -9,6 +9,7 @@ namespace acquire
 
     typedef concurrent_queue<acquire::RawPacket> QueueRaw;
     typedef concurrent_queue<acquire::CookedPacket> QueueCooked;
+    typedef concurrent_queue<acquire::ParfaitPacket> QueueParfait;
     typedef concurrent_queue<acquire::DigestedPacket> QueueDigested;
     template<typename T> struct pthreadfunc { typedef int (*type)(pthread_attr_t*, T); };
 
@@ -17,6 +18,8 @@ namespace acquire
         public:
             WorkerThread(ostream& out_, ostream& err_, std::string prefix_)
                 : out(out_), err(err_), prefix("[" + prefix_ + "] "), running(false) {}
+            virtual ~WorkerThread() {}
+
             void start()
             {
                 start(boost::thread::attributes());

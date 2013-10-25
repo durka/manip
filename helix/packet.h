@@ -38,6 +38,22 @@ namespace acquire
         }
     };
 
+    struct ParfaitPacket
+    {
+        int index;
+        time_t time;
+        cv::Mat rgb, depth;
+
+        ParfaitPacket() {}
+        ParfaitPacket(const ParfaitPacket& rhs) // deep copy the matrices
+        {
+            index = rhs.index;
+            time = rhs.time;
+            rgb = rhs.rgb.clone();
+            depth = rhs.depth.clone();
+        }
+    };
+
     struct Joint
     {
         int a, b;

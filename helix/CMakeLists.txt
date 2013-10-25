@@ -11,14 +11,21 @@ find_package(aruco REQUIRED)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_CXX_COMPILER "gcc-4.8")
+set(CMAKE_CXX_FLAGS "-O3 -ggdb")
 
 set(all_libs ${OpenCV_LIBS} ${aruco_LIBS} ${Boost_LIBRARIES})
 
 # START EDITING
-set(ext_libs nlopt matio hdf5)
-set(my_libs flexvideo watcher processor fitter graphics writer geometry)
+set(ext_libs nlopt matio hdf5 freenect slic)
+set(my_libs flexvideo kinect watcher processor fitter graphics writer geometry)
 set(my_bins acquire test_geometry)
 file(GLOB my_stuff *.yml)
+
+include_directories(SLIC-Superpixels)
+add_library(slic SLIC-Superpixels/slic.cpp)
+add_executable(test_slic SLIC-Superpixels/test_slic.cpp)
+target_link_libraries(test_slic slic ${OpenCV_LIBS})
 # END EDITING
 
 add_definitions( -DSHARE_PREFIX="${CMAKE_INSTALL_PREFIX}/share" )

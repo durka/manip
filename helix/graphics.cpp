@@ -211,9 +211,9 @@ namespace acquire
             }
         }
 
-        Mat image(cooked.dirty.rows/2, cooked.dirty.cols, cooked.dirty.type());
-        resize(cooked.clean, Mat(image, Rect(0, 0, cooked.dirty.cols/2, cooked.dirty.rows/2)), Size(), 0.5, 0.5, CV_INTER_AREA);
-        resize(cooked.dirty + history, Mat(image, Rect(cooked.dirty.cols/2, 0, cooked.dirty.cols/2, cooked.dirty.rows/2)), Size(), 0.5, 0.5, CV_INTER_AREA);
+        Mat image(cooked.dirty.rows, cooked.dirty.cols*2, cooked.dirty.type());
+        resize(cooked.clean, Mat(image, Rect(0, 0, cooked.dirty.cols, cooked.dirty.rows)), Size(), 1, 1, CV_INTER_AREA);
+        resize(cooked.dirty + history, Mat(image, Rect(cooked.dirty.cols, 0, cooked.dirty.cols, cooked.dirty.rows)), Size(), 1, 1, CV_INTER_AREA);
 
         // draw this thread's FPS on the image
         static double ticks = getTickCount(), fps = 0;

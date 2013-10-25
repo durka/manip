@@ -1,3 +1,6 @@
 [submodule "vision"]
 	path = vision
 	url = https://github.com/nakkaya/vision
+[submodule "helix/SLIC-Superpixels"]
+	path = helix/SLIC-Superpixels
+	url = https://github.com/PSMM/SLIC-Superpixels.git

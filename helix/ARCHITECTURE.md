@@ -154,7 +154,7 @@ Here is a picture of all the threads, courtesy of Asciiflow.
       |camera thread|+--------->|processor thread|+--------->|writer thread|
       +-------------+           +----------------+           +-------------+
                                         +     +
-                                        |     |     gpq
+                                        |     |     qpg
                                      qpf|     +--------------+
                                         |                    |
                                         v                    v

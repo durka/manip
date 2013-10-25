@@ -59,9 +59,9 @@ namespace acquire
             cooked.dirty = raw.image.clone();
         }
 
-        qo1.push(cooked);
-        qo2.push(cooked);
-        qo3.push(cooked);
+        for (vector<QueueCooked*>::iterator qo = qos.begin(); qo != qos.end(); ++qo) {
+            (*qo)->push(cooked);
+        }
         return true;
     }
 
