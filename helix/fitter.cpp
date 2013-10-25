@@ -98,9 +98,9 @@ namespace acquire
                         // step 3: NONLINEAR MINIMIZATION
                         nlopt::opt opt(nlopt::LN_COBYLA, 6);
                         vector<double> lb(6), ub(6), x(6);
-                            lb[0] = -100; ub[0] = 100; x[0] = proj.origin3.at<double>(0);
-                            lb[1] = -100; ub[1] = 100; x[1] = proj.origin3.at<double>(1);
-                            lb[2] = -100; ub[2] = 100; x[2] = proj.origin3.at<double>(2);
+                            lb[0] = -500; ub[0] = 500; x[0] = proj.origin3.at<double>(0);
+                            lb[1] = -500; ub[1] = 500; x[1] = proj.origin3.at<double>(1);
+                            lb[2] = -500; ub[2] = 500; x[2] = proj.origin3.at<double>(2);
                             lb[3] = -1;   ub[3] = 1;   x[3] = proj.caxis.at<double>(0);
                             lb[4] = -1;   ub[4] = 1;   x[4] = proj.caxis.at<double>(1);
                             lb[5] = -1;   ub[5] = 1;   x[5] = proj.caxis.at<double>(2);

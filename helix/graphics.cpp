@@ -18,8 +18,22 @@ namespace acquire
         outname = outname_;
         intrinsics = intrinsics_;
         namedWindow(prefix);
+        setMouseCallback(prefix, mouse_thunk, this);
 
         return true;
+    }
+
+    void Graphics::mouse_thunk(int event, int x, int y, int flags, void* that)
+    {
+        ((Graphics*)that)->mouse(event, x, y, flags);
+    }
+
+    void Graphics::mouse(int event, int x, int y, int flags)
+    {
+        if (event == CV_EVENT_LBUTTONDOWN) {
+            tout() << "mouse click at (" << (x % 640) << ", " << y << ")" << endl;
+            clicks.push_back(Point(x % 640, y));
+        }
     }
 
     bool Graphics::loop(bool lameduck)
@@ -136,6 +150,15 @@ namespace acquire
 #undef READd
                 }
             }
+        }
+        if (signal & PRINT) {
+            static int pi = 0;
+            out << "rects[" << pi << "] = vector<Point>(" << clicks.size() << ");" << endl;
+            for (int j = 0; j < clicks.size(); ++j) {
+                out << "\t rects[" << pi << "][" << j << "] = " << "Point(" << clicks[j].x << ", " << clicks[j].y << ");" << endl;
+            }
+            clicks.clear();
+            ++pi;
         }
 
         // add markers to trails on history image

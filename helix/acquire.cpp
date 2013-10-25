@@ -184,6 +184,10 @@ int main(int argc, char *argv[])
                 cout << "loading fits from file!" << endl;
                 qpg.signal(Graphics::LOAD);
                 break;
+            case 'p':
+                cout << "printing clicked points" << endl;
+                qpg.signal(Graphics::PRINT);
+                break;
             default:
                 break;
         }

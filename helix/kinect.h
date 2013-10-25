@@ -6,7 +6,6 @@
 #include <opencv2/nonfree/features2d.hpp>
 #include <vector>
 #include "acquire.h"
-#include "slic.h"
 
 
 namespace kinect

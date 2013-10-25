@@ -17,15 +17,11 @@ set(CMAKE_CXX_FLAGS "-O3 -ggdb")
 set(all_libs ${OpenCV_LIBS} ${aruco_LIBS} ${Boost_LIBRARIES})
 
 # START EDITING
-set(ext_libs nlopt matio hdf5 freenect slic)
+set(ext_libs nlopt matio hdf5 freenect)
 set(my_libs flexvideo kinect watcher processor fitter graphics writer geometry)
 set(my_bins acquire test_geometry)
 file(GLOB my_stuff *.yml)
 
-include_directories(SLIC-Superpixels)
-add_library(slic SLIC-Superpixels/slic.cpp)
-add_executable(test_slic SLIC-Superpixels/test_slic.cpp)
-target_link_libraries(test_slic slic ${OpenCV_LIBS})
 # END EDITING
 
 add_definitions( -DSHARE_PREFIX="${CMAKE_INSTALL_PREFIX}/share" )
